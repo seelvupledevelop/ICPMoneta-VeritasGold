@@ -4,7 +4,8 @@ use domain::primitives::{Amount, CurrencyCode, PrincipalId};
 use icp_canister_suite::CanisterEnvironment;
 use server::{
     BondAuction, BridgeRoute, CanisterStatusInfo, CollateralPosition, CorporateAction,
-    InstitutionalTxn, LiquidityPool, PendingApproval, RwaOffer, ServerState, SweepingRule,
+    InstitutionalTxn, LiquidityPool, PendingApproval, RwaOffer, ServerState, SovereignBondContract,
+    SweepingRule,
 };
 use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
@@ -387,6 +388,45 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
     ];
 
+    let initial_bond_contracts = vec![
+        SovereignBondContract {
+            contract_id: "BOND-TR-2036-10Y".to_string(),
+            issuer_name: "Central Bank of the Republic of Turkey (CBRT)".to_string(),
+            issuer_principal: "cbrt1-gibai-aaaaa-aaaaa-cai".to_string(),
+            isin_code: "TRT150836T12".to_string(),
+            dti_code: "DTI-TRY-BOND-10Y".to_string(),
+            currency: "EURD".to_string(),
+            notional_volume_eur: "1,000,000,000.00".to_string(),
+            coupon_rate_pct: "4.25%".to_string(),
+            coupon_frequency: "Semi-Annual".to_string(),
+            actus_contract_type: "Principal At Maturity (PAM)".to_string(),
+            maturity_date: "2036-08-15".to_string(),
+            auction_mechanism: "Uniform-Price Dutch Auction".to_string(),
+            collateral_backing: "Dual Sovereign Guarantee + 500 oz LBMA Gold Pool".to_string(),
+            canister_principal_id: "rrkah-fqaaa-aaaaa-aaaaq-cai".to_string(),
+            status: "Active_Bidding".to_string(),
+            created_at: 1788238413917,
+        },
+        SovereignBondContract {
+            contract_id: "BOND-CH-2035-GREEN".to_string(),
+            issuer_name: "Swiss National Bank (SNB)".to_string(),
+            issuer_principal: "snb01-hexae-mc6xm-gopwt-x5jg7-2a".to_string(),
+            isin_code: "CH0553128914".to_string(),
+            dti_code: "DTI-CHF-GREEN-10Y".to_string(),
+            currency: "CHFD".to_string(),
+            notional_volume_eur: "500,000,000.00".to_string(),
+            coupon_rate_pct: "1.85%".to_string(),
+            coupon_frequency: "Annual".to_string(),
+            actus_contract_type: "Principal At Maturity (PAM)".to_string(),
+            maturity_date: "2035-06-30".to_string(),
+            auction_mechanism: "Uniform-Price Dutch Auction".to_string(),
+            collateral_backing: "Swiss Confederation Direct Guarantee".to_string(),
+            canister_principal_id: "ryjl3-hexae-mc6xm-gopwt-x5jg7-2a".to_string(),
+            status: "Active_Bidding".to_string(),
+            created_at: 1788238413917,
+        },
+    ];
+
     let state = ServerState {
         env,
         offers: Arc::new(RwLock::new(initial_offers)),
@@ -400,6 +440,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         bridge_routes: Arc::new(RwLock::new(initial_bridge_routes)),
         canisters: Arc::new(RwLock::new(initial_canisters)),
         liquidity_pools: Arc::new(RwLock::new(initial_liquidity_pools)),
+        bond_contracts: Arc::new(RwLock::new(initial_bond_contracts)),
     };
 
     let app = server::create_app(state);

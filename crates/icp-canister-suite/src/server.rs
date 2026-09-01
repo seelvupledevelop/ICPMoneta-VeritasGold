@@ -183,6 +183,42 @@ pub struct LiquidityPool {
     pub apy_pct: String,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct SovereignBondContract {
+    pub contract_id: String,
+    pub issuer_name: String,
+    pub issuer_principal: String,
+    pub isin_code: String,
+    pub dti_code: String,
+    pub currency: String,
+    pub notional_volume_eur: String,
+    pub coupon_rate_pct: String,
+    pub coupon_frequency: String,
+    pub actus_contract_type: String,
+    pub maturity_date: String,
+    pub auction_mechanism: String,
+    pub collateral_backing: String,
+    pub canister_principal_id: String,
+    pub status: String,
+    pub created_at: u64,
+}
+
+#[derive(Deserialize)]
+pub struct CreateSovereignBondRequest {
+    pub issuer_name: String,
+    pub issuer_principal: String,
+    pub isin_code: String,
+    pub dti_code: String,
+    pub currency: String,
+    pub notional_volume_eur: String,
+    pub coupon_rate_pct: String,
+    pub coupon_frequency: String,
+    pub actus_contract_type: String,
+    pub maturity_date: String,
+    pub auction_mechanism: String,
+    pub collateral_backing: String,
+}
+
 #[derive(Clone)]
 pub struct ServerState {
     pub env: Arc<CanisterEnvironment>,
@@ -197,6 +233,7 @@ pub struct ServerState {
     pub bridge_routes: Arc<RwLock<Vec<BridgeRoute>>>,
     pub canisters: Arc<RwLock<Vec<CanisterStatusInfo>>>,
     pub liquidity_pools: Arc<RwLock<Vec<LiquidityPool>>>,
+    pub bond_contracts: Arc<RwLock<Vec<SovereignBondContract>>>,
 }
 
 #[derive(Deserialize)]
@@ -374,6 +411,8 @@ pub fn create_app(state: ServerState) -> Router {
         .route("/api/v1/canisters", get(list_canisters))
         .route("/api/v1/canisters/topup", post(topup_canister))
         .route("/api/v1/liquidity/pools", get(list_liquidity_pools).post(add_liquidity))
+        // Smart Contract Maker & Bond Factory Endpoints
+        .route("/api/v1/factory/bonds", get(list_sovereign_bonds).post(create_sovereign_bond))
         .fallback_service(static_service)
         .layer(cors)
         .layer(TraceLayer::new_for_http())
@@ -1128,4 +1167,42 @@ async fn add_liquidity(
         "lp_tokens_minted": "500.00 LP",
         "status": "Liquidity_Provided"
     })))
+}
+
+async fn list_sovereign_bonds(State(state): State<ServerState>) -> impl IntoResponse {
+    let contracts = state.bond_contracts.read().unwrap().clone();
+    (StatusCode::OK, Json(contracts))
+}
+
+async fn create_sovereign_bond(
+    State(state): State<ServerState>,
+    Json(payload): Json<CreateSovereignBondRequest>,
+) -> Result<(StatusCode, Json<SovereignBondContract>), (StatusCode, Json<serde_json::Value>)> {
+    let now = chrono::Utc::now();
+    let contract_id = format!("BOND-{}-{}", payload.isin_code.trim(), &uuid::Uuid::new_v4().to_string()[..6].to_uppercase());
+    let canister_id = format!("bnd{}-cai", &uuid::Uuid::new_v4().to_string()[..5].to_lowercase());
+
+    let contract = SovereignBondContract {
+        contract_id,
+        issuer_name: payload.issuer_name,
+        issuer_principal: payload.issuer_principal,
+        isin_code: payload.isin_code,
+        dti_code: payload.dti_code,
+        currency: payload.currency,
+        notional_volume_eur: payload.notional_volume_eur,
+        coupon_rate_pct: payload.coupon_rate_pct,
+        coupon_frequency: payload.coupon_frequency,
+        actus_contract_type: payload.actus_contract_type,
+        maturity_date: payload.maturity_date,
+        auction_mechanism: payload.auction_mechanism,
+        collateral_backing: payload.collateral_backing,
+        canister_principal_id: canister_id,
+        status: "Active_Bidding".to_string(),
+        created_at: now.timestamp_millis() as u64,
+    };
+
+    let mut lock = state.bond_contracts.write().unwrap();
+    lock.insert(0, contract.clone());
+
+    Ok((StatusCode::CREATED, Json(contract)))
 }

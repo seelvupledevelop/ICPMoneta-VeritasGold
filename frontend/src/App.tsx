@@ -10,6 +10,7 @@ import { RwaOfferDesk } from './components/smart/RwaOfferDesk';
 import { GoldFxExchange } from './components/smart/GoldFxExchange';
 import { SignalEncryptedChatView } from './components/views/SignalEncryptedChatView';
 import { RwaTerminalView } from './components/views/RwaTerminalView';
+import { SmartContractMakerView } from './components/views/SmartContractMakerView';
 import { RfqTradeDesk } from './components/smart/RfqTradeDesk';
 import { TreasuryAccountingView } from './components/institutional/TreasuryAccountingView';
 import { CollateralManagementView } from './components/institutional/CollateralManagementView';
@@ -42,6 +43,7 @@ import {
   fetchBridgeRoutes,
   fetchCanisters,
   fetchLiquidityPools,
+  fetchBondContracts,
 } from './services/api';
 import type {
   AppSection,
@@ -60,6 +62,7 @@ import type {
   BridgeRoute,
   CanisterStatusInfo,
   LiquidityPool,
+  SovereignBondContract,
 } from './types';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -83,6 +86,7 @@ export function App() {
   const [bridgeRoutes, setBridgeRoutes] = useState<BridgeRoute[]>([]);
   const [canisters, setCanisters] = useState<CanisterStatusInfo[]>([]);
   const [liquidityPools, setLiquidityPools] = useState<LiquidityPool[]>([]);
+  const [bondContracts, setBondContracts] = useState<SovereignBondContract[]>([]);
 
   const [logs] = useState<ProtocolLog[]>([
     {
@@ -125,7 +129,7 @@ export function App() {
 
   const loadData = async () => {
     try {
-      const [accs, holds, ids, rts, ofrs, txns, cols, aucs, acts, apprs, sweeps, brgs, cans, pools] = await Promise.all([
+      const [accs, holds, ids, rts, ofrs, txns, cols, aucs, acts, apprs, sweeps, brgs, cans, pools, bonds] = await Promise.all([
         fetchAccounts(),
         fetchHoldings(),
         fetchIdentities(),
@@ -140,6 +144,7 @@ export function App() {
         fetchBridgeRoutes(),
         fetchCanisters(),
         fetchLiquidityPools(),
+        fetchBondContracts(),
       ]);
       setAccounts(accs);
       setHoldings(holds);
@@ -155,6 +160,7 @@ export function App() {
       setBridgeRoutes(brgs);
       setCanisters(cans);
       setLiquidityPools(pools);
+      setBondContracts(bonds);
       setNetworkStatus('healthy');
     } catch {
       setNetworkStatus('offline');
@@ -195,6 +201,8 @@ export function App() {
         return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
       case 'terminal':
         return <RwaTerminalView accounts={accounts} rates={rates} onRefresh={loadData} onNotify={showToast} />;
+      case 'contract_maker':
+        return <SmartContractMakerView contracts={bondContracts} onRefresh={loadData} onNotify={showToast} />;
       case 'vault':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

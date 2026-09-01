@@ -403,6 +403,38 @@ export async function fetchLiquidityPools(): Promise<LiquidityPool[]> {
   return res.json();
 }
 
+export async function fetchBondContracts(): Promise<any[]> {
+  const res = await fetch(`${API_BASE}/factory/bonds`);
+  if (!res.ok) throw new Error('Failed to fetch sovereign bond contracts');
+  return res.json();
+}
+
+export async function createBondContract(payload: {
+  issuer_name: string;
+  issuer_principal: string;
+  isin_code: string;
+  dti_code: string;
+  currency: string;
+  notional_volume_eur: string;
+  coupon_rate_pct: string;
+  coupon_frequency: string;
+  actus_contract_type: string;
+  maturity_date: string;
+  auction_mechanism: string;
+  collateral_backing: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/factory/bonds/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to deploy sovereign bond canister');
+  }
+  return res.json();
+}
+
 export const issueBlindedIdentity = blindIdentity;
 export const fetchSupervisionData = fetchSupervision;
 

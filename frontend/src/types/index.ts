@@ -7,6 +7,7 @@ export type Perspective = 'trader' | 'issuer' | 'ops' | 'regulator' | 'admin';
 export type AppSection =
   | 'portfolio'
   | 'terminal'
+  | 'contract_maker'
   | 'vault'
   | 'notaries'
   | 'trade'
@@ -281,4 +282,23 @@ export interface LiquidityPool {
   fee_tier_pct: string;
   volume_24h_eur: string;
   apy_pct: string;
+}
+
+export interface SovereignBondContract {
+  contract_id: string;
+  issuer_name: string;
+  issuer_principal: string;
+  isin_code: string;
+  dti_code: string;
+  currency: string;
+  notional_volume_eur: string;
+  coupon_rate_pct: string;
+  coupon_frequency: string;
+  actus_contract_type: string;
+  maturity_date: string;
+  auction_mechanism: string;
+  collateral_backing: string;
+  canister_principal_id: string;
+  status: string;
+  created_at: number;
 }
