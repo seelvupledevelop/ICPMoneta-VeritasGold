@@ -1,6 +1,6 @@
 import React from 'react';
 import type { AppSection } from '../types';
-import { Landmark, ShoppingBag, Tag, Zap, Eye } from 'lucide-react';
+import { Landmark, Key, ShieldCheck, TrendingUp, Layers } from 'lucide-react';
 
 interface MobileBottomNavProps {
   activeSection: AppSection;
@@ -9,11 +9,11 @@ interface MobileBottomNavProps {
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeSection, setActiveSection }) => {
   const items: { id: AppSection; label: string; icon: any }[] = [
-    { id: 'banking', label: 'Banking', icon: Landmark },
-    { id: 'marketplace', label: 'Market', icon: ShoppingBag },
-    { id: 'offers', label: 'P2P Trade', icon: Tag },
-    { id: 'rfq', label: 'RFQ Desk', icon: Zap },
-    { id: 'supervision', label: 'Radar', icon: Eye },
+    { id: 'notaries', label: 'Notaries', icon: ShieldCheck },
+    { id: 'portfolio', label: 'Portfolio', icon: Landmark },
+    { id: 'vault', label: 'Vault', icon: Key },
+    { id: 'trade', label: 'Trade', icon: TrendingUp },
+    { id: 'collateral', label: 'Collateral', icon: Layers },
   ];
 
   return (
@@ -25,13 +25,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeSection,
         left: 0,
         right: 0,
         height: '60px',
-        backgroundColor: '#FFFFFF',
-        borderTop: '1px solid #E5E5E5',
-        display: 'none',
-        justifyContent: 'space-around',
+        backgroundColor: '#0a101d',
+        borderTop: '1px solid #172642',
+        display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-around',
         zIndex: 1000,
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+        padding: '0 8px',
       }}
     >
       {items.map((item) => {
@@ -46,17 +46,20 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeSection,
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '3px',
-              padding: '6px 0',
               flex: 1,
-              backgroundColor: 'transparent',
-              color: isActive ? '#FF0000' : '#606060',
-              fontWeight: isActive ? 700 : 500,
-              fontSize: '10px',
+              height: '100%',
+              background: 'none',
+              border: 'none',
+              color: isActive ? '#00d2ee' : '#8494b0',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              gap: '3px',
             }}
           >
-            <Icon size={18} color={isActive ? '#FF0000' : '#606060'} />
-            <span>{item.label}</span>
+            <Icon size={18} color={isActive ? '#00d2ee' : '#52637f'} />
+            <span style={{ fontSize: '10px', fontWeight: isActive ? 700 : 500 }}>
+              {item.label}
+            </span>
           </button>
         );
       })}

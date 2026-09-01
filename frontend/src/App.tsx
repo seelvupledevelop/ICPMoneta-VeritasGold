@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/smart/Sidebar';
 import { MobileBottomNav } from './components/MobileBottomNav';
-import { PersonaSwitcher } from './components/PersonaSwitcher';
+import { ConsensusHealthView } from './components/views/ConsensusHealthView';
 import { BankCardSurface } from './components/smart/BankCardSurface';
 import { RwaMarketplace } from './components/smart/RwaMarketplace';
 import { RwaOfferDesk } from './components/smart/RwaOfferDesk';
@@ -15,13 +15,30 @@ import { OpsDashboard } from './components/views/OpsDashboard';
 import { RegulatorDashboard } from './components/views/RegulatorDashboard';
 import { AdminDashboard } from './components/views/AdminDashboard';
 import { IssuerDashboard } from './components/views/IssuerDashboard';
-import { fetchAccounts, fetchHoldings, fetchIdentities, fetchMarketRates, fetchOffers, fetchTransactions, fetchCollateralPositions } from './services/api';
-import type { Perspective, AppSection, DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, ProtocolLog, MarketRate, RwaOffer, InstitutionalTxn, CollateralPosition } from './types';
+import {
+  fetchAccounts,
+  fetchHoldings,
+  fetchIdentities,
+  fetchMarketRates,
+  fetchOffers,
+  fetchTransactions,
+  fetchCollateralPositions,
+} from './services/api';
+import type {
+  AppSection,
+  DemandDepositRecord,
+  FungibleAssetHolding,
+  PrincipalProfile,
+  ProtocolLog,
+  MarketRate,
+  RwaOffer,
+  InstitutionalTxn,
+  CollateralPosition,
+} from './types';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
 export function App() {
-  const [activeSection, setActiveSection] = useState<AppSection>('banking');
-  const [perspective, setPerspective] = useState<Perspective>('trader');
+  const [activeSection, setActiveSection] = useState<AppSection>('notaries');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [phoneMode, setPhoneMode] = useState(false);
 
@@ -34,39 +51,40 @@ export function App() {
   const [collateral, setCollateral] = useState<CollateralPosition[]>([]);
   const [logs] = useState<ProtocolLog[]>([
     {
-      id: 'PROTO-9ac00fb0-f2b9-4b78-8ee4-062d8935044d',
+      id: 'STATEREF-E8F1A2...C9:0',
       type: 'CashTransfer',
-      sender: 'Alice Trading Corp',
-      recipient: 'Bob Commodities LLC',
-      amount: '150.00',
+      sender: 'O=Bank A, L=NY',
+      recipient: 'O=Bank B, L=LN',
+      amount: '500,000.00',
       currency: 'EUR',
       status: 'Finalized',
       step: 'ArchivedInSettlement',
-      timestamp: 'Just now',
+      timestamp: '14:22:01.405',
     },
     {
-      id: 'PROTO-P2P-881',
-      type: 'AtomicP2POfferExecution',
-      sender: 'Alice Trading Corp',
-      recipient: 'Bob Commodities LLC',
-      amount: '2.00',
-      currency: 'USTB',
-      status: 'Finalized',
-      step: 'NotarizedByFinalityAuthority',
-      timestamp: '1 min ago',
-    },
-    {
-      id: 'PROTO-RFQ-002',
+      id: 'STATEREF-7B4D99...1F:1',
       type: 'AtomicDvPTrade',
-      sender: 'Alice Trading Corp',
-      recipient: 'Swiss Gold Depository',
-      amount: '0.50',
+      sender: 'O=Broker B, L=LN',
+      recipient: 'Swiss Gold Vault',
+      amount: '50.00',
       currency: 'GOLD',
       status: 'Finalized',
       step: 'NotarizedByFinalityAuthority',
-      timestamp: '3 mins ago',
+      timestamp: '14:22:01.102',
+    },
+    {
+      id: 'STATEREF-4A1F02...E3:0',
+      type: 'AtomicP2POfferExecution',
+      sender: 'O=Exchange C, L=HK',
+      recipient: 'Double Spend Attempter',
+      amount: '1,000,000.00',
+      currency: 'USDD',
+      status: 'Failed',
+      step: 'RejectedByPolicyEngine',
+      timestamp: '14:21:59.880',
     },
   ]);
+
   const [networkStatus, setNetworkStatus] = useState<'healthy' | 'connecting' | 'offline'>('healthy');
   const [toast, setToast] = useState<{ message: string; isError?: boolean } | null>(null);
 
@@ -109,49 +127,52 @@ export function App() {
   };
 
   const renderContent = () => {
-    // 1. Perspective Overrides
-    if (perspective === 'issuer') {
-      return <IssuerDashboard holdings={holdings} onRefresh={loadData} onNotify={showToast} />;
-    }
-    if (perspective === 'ops') {
-      return <OpsDashboard logs={logs} onRefresh={loadData} />;
-    }
-    if (perspective === 'regulator') {
-      return <RegulatorDashboard accounts={accounts} holdings={holdings} onNotify={showToast} />;
-    }
-    if (perspective === 'admin') {
-      return <AdminDashboard identities={identities} onRefresh={loadData} onNotify={showToast} />;
-    }
-
-    // 2. Default Trader Perspective Modular Sections
     switch (activeSection) {
-      case 'banking':
+      case 'notaries':
+        return <ConsensusHealthView onNotify={showToast} />;
+      case 'portfolio':
         return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
-      case 'marketplace':
-        return <RwaMarketplace rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
-      case 'offers':
-        return <RwaOfferDesk offers={offers} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
-      case 'accounting':
-        return <TreasuryAccountingView transactions={transactions} onRefresh={loadData} />;
+      case 'vault':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <IssuerDashboard holdings={holdings} onRefresh={loadData} onNotify={showToast} />
+            <RwaMarketplace rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />
+          </div>
+        );
+      case 'trade':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <RwaOfferDesk offers={offers} accounts={accounts} onRefresh={loadData} onNotify={showToast} />
+            <RfqTradeDesk rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />
+          </div>
+        );
       case 'collateral':
         return <CollateralManagementView positions={collateral} onRefresh={loadData} onNotify={showToast} />;
-      case 'exchange':
-        return <GoldFxExchange rates={rates} />;
-      case 'rfq':
-        return <RfqTradeDesk rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
-      case 'protocols':
-        return <OpsDashboard logs={logs} onRefresh={loadData} />;
-      case 'supervision':
-        return <SupervisoryRadar />;
-      case 'audit':
-        return <RegulatorDashboard accounts={accounts} holdings={holdings} onNotify={showToast} />;
+      case 'interoperability':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <GoldFxExchange rates={rates} />
+            <OpsDashboard logs={logs} onRefresh={loadData} />
+          </div>
+        );
+      case 'compliance':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <SupervisoryRadar />
+            <RegulatorDashboard accounts={accounts} holdings={holdings} onNotify={showToast} />
+          </div>
+        );
+      case 'logs':
+        return <TreasuryAccountingView transactions={transactions} onRefresh={loadData} />;
+      case 'support':
+        return <AdminDashboard identities={identities} onRefresh={loadData} onNotify={showToast} />;
       default:
-        return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+        return <ConsensusHealthView onNotify={showToast} />;
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F9F9F9', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-app)', color: 'var(--text-main)', display: 'flex', flexDirection: 'column' }}>
       <Navbar
         networkStatus={networkStatus}
         accountCount={accounts.length}
@@ -163,40 +184,33 @@ export function App() {
         onToggleMobileMenu={() => setIsMobileMenuOpen((p) => !p)}
       />
 
-      <PersonaSwitcher
-        perspective={perspective}
-        setPerspective={(p) => {
-          setPerspective(p);
-          if (p === 'trader') setActiveSection('banking');
-        }}
-      />
-
       {toast && (
         <div
           style={{
             position: 'fixed',
             bottom: '70px',
             right: '20px',
-            backgroundColor: toast.isError ? '#FF0000' : '#0F0F0F',
+            backgroundColor: toast.isError ? '#ef4444' : '#0e172a',
+            border: `1px solid ${toast.isError ? '#dc2626' : 'var(--cyan-primary)'}`,
             color: '#FFFFFF',
             padding: '12px 18px',
             borderRadius: '9999px',
             fontSize: '13px',
-            fontWeight: 500,
+            fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
             zIndex: 3000,
           }}
         >
-          {toast.isError ? <AlertCircle size={16} /> : <CheckCircle size={16} color="#2BA640" />}
+          {toast.isError ? <AlertCircle size={16} /> : <CheckCircle size={16} color="var(--green-valid)" />}
           {toast.message}
         </div>
       )}
 
       {phoneMode ? (
-        <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#EAEAEA' }}>
+        <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#050912' }}>
           <div className="smartphone-frame">
             <div className="smartphone-notch" />
             <div style={{ overflowY: 'auto', flex: 1, padding: '34px 16px 70px 16px', display: 'flex', flexDirection: 'column' }}>
@@ -209,35 +223,23 @@ export function App() {
         <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
           <Sidebar
             activeSection={activeSection}
-            setActiveSection={(s) => {
-              setPerspective('trader');
-              setActiveSection(s);
-            }}
-            accountCount={accounts.length}
-            rwaCount={rates.length}
-            offerCount={offers.length}
-            txnCount={transactions.length}
-            collateralCount={collateral.length}
+            setActiveSection={setActiveSection}
             isOpenMobile={isMobileMenuOpen}
             onCloseMobile={() => setIsMobileMenuOpen(false)}
+            accountCount={accounts.length}
+            holdingCount={holdings.length}
+            offerCount={offers.length}
+            collateralCount={collateral.length}
           />
 
-          <main className="main-content-container" style={{ flex: 1, maxWidth: '1200px', width: '100%', margin: '0 auto', padding: '24px 28px' }}>
+          <main style={{ flex: 1, maxWidth: '1440px', width: '100%', margin: '0 auto', padding: '28px 32px' }}>
             {renderContent()}
           </main>
-
-          <MobileBottomNav
-            activeSection={activeSection}
-            setActiveSection={(s) => {
-              setPerspective('trader');
-              setActiveSection(s);
-            }}
-          />
         </div>
       )}
 
-      <footer style={{ borderTop: '1px solid #E5E5E5', backgroundColor: '#FFFFFF', padding: '12px 20px', textAlign: 'center', fontSize: '11px', color: '#606060' }}>
-        Veritas Gold • Institutional Tokenized Deposits & RWA Market • Licensed to ICP Moneta
+      <footer style={{ borderTop: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-navbar)', padding: '12px 20px', textAlign: 'center', fontSize: '11px', color: 'var(--text-dim)' }}>
+        Sovereign Ledger • Central Bank Node Alpha-1 • Verified Sub-Second Finality on ICP
       </footer>
     </div>
   );

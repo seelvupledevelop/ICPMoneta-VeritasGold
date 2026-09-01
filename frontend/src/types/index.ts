@@ -4,7 +4,16 @@ export type HoldingId = string;
 export type CurrencyCode = string;
 
 export type Perspective = 'trader' | 'issuer' | 'ops' | 'regulator' | 'admin';
-export type AppSection = 'banking' | 'marketplace' | 'offers' | 'exchange' | 'rfq' | 'accounting' | 'collateral' | 'protocols' | 'audit' | 'supervision';
+export type AppSection =
+  | 'portfolio'
+  | 'vault'
+  | 'notaries'
+  | 'trade'
+  | 'collateral'
+  | 'interoperability'
+  | 'compliance'
+  | 'logs'
+  | 'support';
 
 export interface Amount {
   value_str: string;
@@ -129,6 +138,22 @@ export interface CollateralPosition {
   custodian: string;
   pledgee: string;
   status: string;
+}
+
+export interface NotaryNode {
+  id: string;
+  name: string;
+  latency_ms: number;
+  status: 'online' | 'offline';
+  is_leader?: boolean;
+}
+
+export interface DoubleSpendLog {
+  timestamp: string;
+  stateref: string;
+  requesting_party: string;
+  status: 'VALIDATED' | 'REJECTED';
+  signatures: string;
 }
 
 export interface ProtocolLog {
