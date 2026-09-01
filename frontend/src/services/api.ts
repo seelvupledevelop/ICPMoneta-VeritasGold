@@ -237,3 +237,13 @@ export async function postCollateral(data: {
   }
   return res.json();
 }
+
+export function getJsonExportUrl(): string {
+  return `${API_BASE}/reporting/export/json`;
+}
+
+export async function fetchStandardsMapping() {
+  const res = await fetch(`${API_BASE}/standards/mapping`);
+  if (!res.ok) throw new Error('Failed to fetch standards mapping');
+  return res.json();
+}

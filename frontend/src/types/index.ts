@@ -56,6 +56,7 @@ export interface MarketRate {
   symbol: string;
   name: string;
   category: string;
+  iso24165_dti?: string;
   price_usd: string;
   price_eur: string;
   change_24h: string;
@@ -91,6 +92,7 @@ export interface SupervisionData {
   double_spend_attempts_intercepted: number;
   total_active_canister_partitions: number;
   regulatory_unmasking_authority: string;
+  iso20022_compliance_mode?: string;
   unmasked_active_flows: UnmaskedFlow[];
 }
 
@@ -100,6 +102,11 @@ export interface InstitutionalTxn {
   value_date: string;
   gl_code: string;
   txn_type: string;
+  iso20022_msg?: string;
+  iso24165_dti?: string;
+  actus_contract_type?: string;
+  swift_on_off_ramp_code?: string;
+  canister_principal_id?: string;
   sender_legal: string;
   recipient_legal: string;
   amount: string;

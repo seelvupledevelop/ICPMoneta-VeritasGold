@@ -37,6 +37,11 @@ pub struct InstitutionalTxn {
     pub value_date: String,
     pub gl_code: String,
     pub txn_type: String,
+    pub iso20022_msg: String,
+    pub iso24165_dti: String,
+    pub actus_contract_type: String,
+    pub swift_on_off_ramp_code: String,
+    pub canister_principal_id: String,
     pub sender_legal: String,
     pub recipient_legal: String,
     pub amount: String,
@@ -59,7 +64,7 @@ pub struct CollateralPosition {
     pub borrowing_capacity_eur: String,
     pub custodian: String,
     pub pledgee: String,
-    pub status: String, // "Active_Pledged" | "Released"
+    pub status: String,
 }
 
 #[derive(Clone)]
@@ -175,6 +180,8 @@ pub fn create_app(state: ServerState) -> Router {
         .route("/api/v1/admin/supervision", get(get_admin_supervision))
         .route("/api/v1/reporting/transactions", get(list_transactions))
         .route("/api/v1/reporting/export/csv", get(export_transactions_csv))
+        .route("/api/v1/reporting/export/json", get(export_transactions_json))
+        .route("/api/v1/standards/mapping", get(get_standards_mapping))
         .route("/api/v1/collateral/positions", get(list_collateral).post(post_collateral))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
@@ -193,6 +200,7 @@ async fn get_market_rates() -> impl IntoResponse {
                 "symbol": "GOLD",
                 "name": "LBMA Physical Gold (1 oz)",
                 "category": "Precious Metal",
+                "iso24165_dti": "DTI-GOLD-8821",
                 "price_usd": "2745.50",
                 "price_eur": "2542.10",
                 "change_24h": "+1.35%",
@@ -203,6 +211,7 @@ async fn get_market_rates() -> impl IntoResponse {
                 "symbol": "USTB",
                 "name": "US Treasury 3M Bill (AA+)",
                 "category": "Sovereign Debt Bond",
+                "iso24165_dti": "DTI-USTB-3312",
                 "price_usd": "987.25",
                 "price_eur": "914.10",
                 "change_24h": "+0.04%",
@@ -213,6 +222,7 @@ async fn get_market_rates() -> impl IntoResponse {
                 "symbol": "EURD",
                 "name": "Tokenized Deposit Euro (EURD)",
                 "category": "Tokenized Bank Deposit",
+                "iso24165_dti": "DTI-EURD-9941",
                 "price_usd": "1.08",
                 "price_eur": "1.00",
                 "change_24h": "0.00%",
@@ -223,6 +233,7 @@ async fn get_market_rates() -> impl IntoResponse {
                 "symbol": "USDD",
                 "name": "Tokenized Deposit Dollar (USDD)",
                 "category": "Tokenized Bank Deposit",
+                "iso24165_dti": "DTI-USDD-1024",
                 "price_usd": "1.00",
                 "price_eur": "0.925",
                 "change_24h": "0.00%",
@@ -233,6 +244,7 @@ async fn get_market_rates() -> impl IntoResponse {
                 "symbol": "PROP_ZH",
                 "name": "Prime Zurich Commercial RE",
                 "category": "Real Estate Equity",
+                "iso24165_dti": "DTI-PROP-ZH44",
                 "price_usd": "50.00",
                 "price_eur": "46.30",
                 "change_24h": "+0.85%",
@@ -243,6 +255,7 @@ async fn get_market_rates() -> impl IntoResponse {
                 "symbol": "ICP",
                 "name": "Internet Computer Utility Token",
                 "category": "Native Blockchain Compute",
+                "iso24165_dti": "DTI-ICP-0001",
                 "price_usd": "8.45",
                 "price_eur": "7.82",
                 "change_24h": "+3.12%",
@@ -300,6 +313,11 @@ async fn transfer_cash(
         value_date: now.format("%Y-%m-%d").to_string(),
         gl_code: payload.gl_code.unwrap_or_else(|| "1010-01".to_string()),
         txn_type: "CrossBorderTokenizedWire".to_string(),
+        iso20022_msg: "pacs.008.001.10".to_string(),
+        iso24165_dti: "DTI-EURD-9941".to_string(),
+        actus_contract_type: "PAM".to_string(),
+        swift_on_off_ramp_code: "SWIFT-ONRAMP-CH93-UBSWCHZH".to_string(),
+        canister_principal_id: "rrkah-fqaaa-aaaaa-aaaaq-cai".to_string(),
         sender_legal: "Alice Trading Corp (Zurich)".to_string(),
         recipient_legal: "Bob Commodities LLC (Frankfurt)".to_string(),
         amount: payload.amount.clone(),
@@ -317,6 +335,10 @@ async fn transfer_cash(
     Ok(Json(json!({
         "protocol_id": proto_id.to_string(),
         "txn_id": txn.txn_id,
+        "iso20022_msg": txn.iso20022_msg,
+        "iso24165_dti": txn.iso24165_dti,
+        "swift_on_off_ramp_code": txn.swift_on_off_ramp_code,
+        "canister_principal_id": txn.canister_principal_id,
         "sender": s_acc,
         "recipient": r_acc,
         "status": "Finalized"
@@ -445,6 +467,11 @@ async fn execute_rfq_trade(
         value_date: now.format("%Y-%m-%d").to_string(),
         gl_code: "1520-03".to_string(),
         txn_type: "AtomicDvPRfqSettlement".to_string(),
+        iso20022_msg: "sese.023.001.09".to_string(),
+        iso24165_dti: "DTI-GOLD-8821".to_string(),
+        actus_contract_type: "PAM".to_string(),
+        swift_on_off_ramp_code: "SWIFT-DVP-ZURICH-VAULT".to_string(),
+        canister_principal_id: "rrkah-fqaaa-aaaaa-aaaaq-cai".to_string(),
         sender_legal: "Alice Trading Corp (Zurich)".to_string(),
         recipient_legal: "Swiss Vault Depository".to_string(),
         amount: payload.cash_amount,
@@ -463,6 +490,9 @@ async fn execute_rfq_trade(
         "status": "Finalized",
         "trade_type": "AtomicDvPSettlement",
         "txn_id": txn.txn_id,
+        "iso20022_msg": txn.iso20022_msg,
+        "iso24165_dti": txn.iso24165_dti,
+        "canister_principal_id": txn.canister_principal_id,
         "debited_account": account,
         "issued_rwa_holding": holding,
         "receipt": receipt,
@@ -544,6 +574,11 @@ async fn accept_rwa_offer(
         value_date: now.format("%Y-%m-%d").to_string(),
         gl_code: "1530-01".to_string(),
         txn_type: "AtomicP2PDvPTrade".to_string(),
+        iso20022_msg: "setr.016.001.04".to_string(),
+        iso24165_dti: "DTI-USTB-3312".to_string(),
+        actus_contract_type: "PAM".to_string(),
+        swift_on_off_ramp_code: "SWIFT-OFFRAMP-FRANKFURT-CLEARING".to_string(),
+        canister_principal_id: "rrkah-fqaaa-aaaaa-aaaaq-cai".to_string(),
         sender_legal: "Alice Trading Corp".to_string(),
         recipient_legal: offer.seller_legal_name.clone(),
         amount: offer.total_price_eur.clone(),
@@ -563,6 +598,9 @@ async fn accept_rwa_offer(
         "trade_type": "AtomicP2POfferExecution",
         "txn_id": txn.txn_id,
         "offer_id": offer.offer_id,
+        "iso20022_msg": txn.iso20022_msg,
+        "iso24165_dti": txn.iso24165_dti,
+        "canister_principal_id": txn.canister_principal_id,
         "buyer_account": buyer_acc,
         "transferred_holding": holding,
         "receipt": receipt,
@@ -578,6 +616,7 @@ async fn get_admin_supervision(State(_state): State<ServerState>) -> impl IntoRe
         "double_spend_attempts_intercepted": 0,
         "total_active_canister_partitions": 10,
         "regulatory_unmasking_authority": "CENTRAL_BANK_AUDIT_SUPERUSER",
+        "iso20022_compliance_mode": "STRICT_CAMT_PACS_ENFORCED",
         "unmasked_active_flows": [
             {
                 "anonymous_id": "ryjl3-hexae-mc6xm-gopwt-x5jg7-2a",
@@ -604,18 +643,54 @@ async fn list_transactions(State(state): State<ServerState>) -> impl IntoRespons
 
 async fn export_transactions_csv(State(state): State<ServerState>) -> impl IntoResponse {
     let txns = state.transactions.read().unwrap().clone();
-    let mut csv = String::from("Transaction_ID,Booking_Date,Value_Date,GL_Account_Code,Transaction_Type,Sender_Legal_Entity,Recipient_Legal_Entity,Amount,Currency,Debit_Credit,Memo_Description,OnChain_Notary_Hash,Finality_Proof_ID,Settlement_Status\n");
+    let mut csv = String::from("Transaction_ID,Booking_Date,Value_Date,GL_Account_Code,ISO20022_Message,ISO24165_DTI,ACTUS_Contract,SWIFT_Ramp_Code,ICP_Canister_Principal,Transaction_Type,Sender_Legal_Entity,Recipient_Legal_Entity,Amount,Currency,Debit_Credit,Memo_Description,OnChain_Notary_Hash,Finality_Proof_ID,Settlement_Status\n");
 
     for t in txns {
         csv.push_str(&format!(
-            "\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\"\n",
-            t.txn_id, t.booking_date, t.value_date, t.gl_code, t.txn_type, t.sender_legal, t.recipient_legal, t.amount, t.currency, t.debit_credit, t.memo, t.onchain_hash, t.finality_receipt, t.status
+            "\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\"\n",
+            t.txn_id, t.booking_date, t.value_date, t.gl_code, t.iso20022_msg, t.iso24165_dti, t.actus_contract_type, t.swift_on_off_ramp_code, t.canister_principal_id, t.txn_type, t.sender_legal, t.recipient_legal, t.amount, t.currency, t.debit_credit, t.memo, t.onchain_hash, t.finality_receipt, t.status
         ));
     }
 
     ([(header::CONTENT_TYPE, "text/csv; charset=utf-8"),
       (header::CONTENT_DISPOSITION, "attachment; filename=\"veritas_gold_general_ledger_export.csv\"")],
      csv)
+}
+
+async fn export_transactions_json(State(state): State<ServerState>) -> impl IntoResponse {
+    let txns = state.transactions.read().unwrap().clone();
+    (
+        [(header::CONTENT_TYPE, "application/json; charset=utf-8"),
+         (header::CONTENT_DISPOSITION, "attachment; filename=\"veritas_gold_iso_accounting_export.json\"")],
+        Json(json!({
+            "export_schema": "ISO_20022_CAMT053_ACTUS_ERP_INTEGRATION",
+            "version": "1.0",
+            "licensed_to": "ICP Moneta",
+            "timestamp": chrono::Utc::now().timestamp_millis(),
+            "records": txns
+        }))
+    )
+}
+
+async fn get_standards_mapping() -> impl IntoResponse {
+    (StatusCode::OK, Json(json!({
+        "standards_version": "1.0",
+        "iso20022_coverage": ["pain.001.001.11", "pain.002.001.12", "pacs.008.001.10", "camt.053.001.10", "sese.023.001.09", "setr.016.001.04", "coll.001.001.04", "coll.002.001.04"],
+        "iso24165_dti_registry": {
+            "EURD": "DTI-EURD-9941",
+            "USDD": "DTI-USDD-1024",
+            "GOLD": "DTI-GOLD-8821",
+            "USTB": "DTI-USTB-3312",
+            "PROP_ZH": "DTI-PROP-ZH44"
+        },
+        "actus_contract_types": ["PAM", "LAX", "SWAPS"],
+        "fix_protocol_coverage": ["NewOrderSingle (D)", "ExecutionReport (8)"],
+        "swift_interop_layer": {
+            "onramp_gateway": "SWIFT-ONRAMP-CH93-UBSWCHZH",
+            "offramp_gateway": "SWIFT-OFFRAMP-FRANKFURT-CLEARING",
+            "notary_verification": "ICP_CANISTER_ATT_SHA256"
+        }
+    })))
 }
 
 async fn list_collateral(State(state): State<ServerState>) -> impl IntoResponse {
