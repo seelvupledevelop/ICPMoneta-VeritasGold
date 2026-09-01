@@ -226,8 +226,8 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <ShieldCheck size={18} color="var(--red-primary)" />
-            <span style={{ fontSize: '15px', fontWeight: 900, color: 'var(--red-primary)', letterSpacing: '-0.02em' }}>
-              SOVEREIGN
+            <span style={{ fontSize: '15px', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+              VERITAS <span style={{ color: 'var(--red-primary)', textShadow: '0 0 10px var(--red-glow)' }}>GOLD</span>
             </span>
           </div>
         </div>
@@ -310,8 +310,8 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
             gap: '6px',
           }}
         >
-          <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', marginBottom: '8px', padding: '0 4px' }}>
-            ALL SOVEREIGN CENTRAL DESK MODULES
+          <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--red-primary)', textTransform: 'uppercase', marginBottom: '8px', padding: '0 4px', letterSpacing: '0.05em' }}>
+            VERITAS GOLD • CENTRAL DESK MODULES
           </div>
 
           {menuSections.map((item) => {
