@@ -434,26 +434,56 @@ export const InstitutionalLoginSurface: React.FC<InstitutionalLoginSurfaceProps>
                   </div>
                 </div>
 
-                {/* Key Permissions Chips */}
-                <div style={{ marginTop: '12px' }}>
-                  <span style={{ fontSize: '10px', color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>Authorized Capabilities</span>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                    {selectedPersona.keyPermissions.map((perm) => (
-                      <span
-                        key={perm}
-                        style={{
-                          fontSize: '10px',
-                          padding: '2px 7px',
-                          borderRadius: '4px',
-                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                          border: '1px solid rgba(16, 185, 129, 0.25)',
-                          color: 'var(--green-valid)',
-                          fontWeight: 600,
-                        }}
-                      >
-                        ✓ {perm}
+                {/* Dynamic Institutional Credential Inputs */}
+                <div style={{ marginTop: '14px', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
+                  <label style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 800, display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
+                    {selectedPersona.category === 'Central Bank' && '🏛️ Sovereign Fiduciary & HSM Credentials'}
+                    {selectedPersona.category === 'Commercial Bank' && '🏦 Primary Dealer & Clearing Credentials'}
+                    {selectedPersona.category === 'Custody & Issuance' && '🔐 Vault Assayer & Custody Mandate'}
+                    {selectedPersona.category === 'Supervisory & Audit' && '⚖️ Regulatory Audit Warrant & ZK Credentials'}
+                    {selectedPersona.category === 'Executive Mobile' && '📱 Secure Enclave 2-of-3 Hardware Keyring'}
+                  </label>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <div>
+                      <span style={{ fontSize: '9px', color: 'var(--text-dim)' }}>
+                        {selectedPersona.id === 'persona_cb_governor' ? 'Sovereign Key ID' : 'Institutional Signer ID'}
                       </span>
-                    ))}
+                      <input
+                        type="text"
+                        readOnly
+                        value={
+                          selectedPersona.id === 'persona_cb_governor'
+                            ? 'SNB-ROOT-FIPS-01'
+                            : selectedPersona.id === 'persona_comm_treasury'
+                            ? 'JPMC-KNX-TRADER-88'
+                            : selectedPersona.id === 'persona_custodian_vault'
+                            ? 'ZRH-VAULT-01'
+                            : selectedPersona.id === 'persona_issuer_dmo'
+                            ? 'DMO-DIR-0091'
+                            : selectedPersona.id === 'persona_fund_asset_mgr'
+                            ? 'BLK-ALPHA-PM'
+                            : selectedPersona.id === 'persona_supervisory_auditor'
+                            ? 'BIS-AUDIT-992'
+                            : 'ENCLAVE-2OF3-SIGNER'
+                        }
+                        className="input-dark"
+                        style={{ padding: '6px 8px', fontSize: '11px', fontFamily: 'var(--font-mono)', width: '100%', color: 'var(--red-primary)' }}
+                      />
+                    </div>
+
+                    <div>
+                      <span style={{ fontSize: '9px', color: 'var(--text-dim)' }}>
+                        {selectedPersona.id === 'persona_cb_governor' ? 'Policy HSM PIN' : 'FIDO2 / PKI Passkey'}
+                      </span>
+                      <input
+                        type="password"
+                        readOnly
+                        value="••••••••••••"
+                        className="input-dark"
+                        style={{ padding: '6px 8px', fontSize: '11px', fontFamily: 'var(--font-mono)', width: '100%', letterSpacing: '2px' }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
