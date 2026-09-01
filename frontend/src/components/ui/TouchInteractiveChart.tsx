@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Crosshair } from 'lucide-react';
+import { generateOhlcvForTimeframe, type TimeframeOption } from '../views/RwaTerminalView';
 
 export interface PricePoint {
   time: string;
@@ -10,18 +11,6 @@ export interface PricePoint {
   close: number;
   volume: string;
 }
-
-const SAMPLE_CHART_DATA: PricePoint[] = [
-  { time: '09:00', price: 83.20, open: 83.10, high: 83.45, low: 83.00, close: 83.20, volume: '142 oz' },
-  { time: '10:00', price: 83.65, open: 83.20, high: 83.90, low: 83.15, close: 83.65, volume: '280 oz' },
-  { time: '11:00', price: 84.10, open: 83.65, high: 84.30, low: 83.50, close: 84.10, volume: '510 oz' },
-  { time: '12:00', price: 83.95, open: 84.10, high: 84.25, low: 83.80, close: 83.95, volume: '195 oz' },
-  { time: '13:00', price: 84.40, open: 83.95, high: 84.60, low: 83.90, close: 84.40, volume: '640 oz' },
-  { time: '14:00', price: 84.85, open: 84.40, high: 85.10, low: 84.30, close: 84.85, volume: '820 oz' },
-  { time: '15:00', price: 84.50, open: 84.85, high: 85.00, low: 84.35, close: 84.50, volume: '410 oz' },
-  { time: '16:00', price: 85.15, open: 84.50, high: 85.30, low: 84.40, close: 85.15, volume: '950 oz' },
-  { time: '17:00', price: 85.40, open: 85.15, high: 85.60, low: 85.00, close: 85.40, volume: '730 oz' },
-];
 
 interface TouchInteractiveChartProps {
   assetSymbol?: string;
@@ -34,17 +23,27 @@ export const TouchInteractiveChart: React.FC<TouchInteractiveChartProps> = ({
   assetSymbol = 'XAU/EUR',
   assetName = 'Swiss Allocated 999.9 Gold Bullion',
   currency: _currency = 'EUR',
-  data = SAMPLE_CHART_DATA,
 }) => {
-  const [selectedIndex, setSelectedIndex] = useState<number>(data.length - 1);
+  const [timeframe, setTimeframe] = useState<TimeframeOption>('24H');
   const [_isHovering, setIsHovering] = useState<boolean>(false);
-  const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '1Y'>('1D');
   const chartRef = useRef<HTMLDivElement>(null);
 
+  const rawOhlcv = generateOhlcvForTimeframe(84.50, timeframe);
+  const data: PricePoint[] = rawOhlcv.map((d) => ({
+    time: d.time,
+    price: d.close,
+    open: d.open,
+    high: d.high,
+    low: d.low,
+    close: d.close,
+    volume: `${(d.volume / 1000).toFixed(0)}k oz`,
+  }));
+
+  const [selectedIndex, setSelectedIndex] = useState<number>(data.length - 1);
   const selectedPoint = data[selectedIndex] || data[data.length - 1];
-  const firstPoint = data[0];
+  const firstPoint = data[0] || selectedPoint;
   const priceChange = selectedPoint.price - firstPoint.price;
-  const priceChangePct = ((priceChange / firstPoint.price) * 100);
+  const priceChangePct = ((priceChange / (firstPoint.price || 1)) * 100);
 
   // SVG Calculation Helpers
   const minPrice = Math.min(...data.map((d) => d.low)) * 0.998;
@@ -134,19 +133,22 @@ export const TouchInteractiveChart: React.FC<TouchInteractiveChartProps> = ({
           </div>
         </div>
 
-        {/* Timeframe Selector Pills */}
-        <div style={{ display: 'flex', gap: '4px', backgroundColor: '#160f1e', padding: '3px', borderRadius: '6px' }}>
-          {(['1D', '1W', '1M', '1Y'] as const).map((tf) => (
+        {/* Timeframe Selector Pills: Baseline, 1H, 24H, 7D, 1M, 6M, 1Y, 5Y, 10Y */}
+        <div style={{ display: 'flex', gap: '2px', flexWrap: 'wrap', backgroundColor: '#160f1e', padding: '3px', borderRadius: '6px' }}>
+          {(['Baseline', '1H', '24H', '7D', '1M', '6M', '1Y', '5Y', '10Y'] as const).map((tf) => (
             <button
               key={tf}
-              onClick={() => setTimeframe(tf)}
+              onClick={() => {
+                setTimeframe(tf);
+                setSelectedIndex(0);
+              }}
               style={{
-                padding: '4px 8px',
+                padding: '3px 6px',
                 borderRadius: '4px',
                 border: 'none',
                 backgroundColor: timeframe === tf ? 'var(--red-primary)' : 'transparent',
                 color: timeframe === tf ? '#FFFFFF' : 'var(--text-muted)',
-                fontSize: '10px',
+                fontSize: '9.5px',
                 fontWeight: 800,
                 cursor: 'pointer',
               }}
