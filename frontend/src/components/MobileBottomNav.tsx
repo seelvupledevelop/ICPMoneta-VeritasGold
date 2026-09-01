@@ -1,6 +1,6 @@
 import React from 'react';
 import type { AppSection } from '../types';
-import { Landmark, Key, ShieldCheck, TrendingUp, Layers } from 'lucide-react';
+import { Landmark, Key, ShieldCheck, TrendingUp, Layers, Gavel, ArrowLeftRight } from 'lucide-react';
 
 interface MobileBottomNavProps {
   activeSection: AppSection;
@@ -13,7 +13,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeSection,
     { id: 'portfolio', label: 'Portfolio', icon: Landmark },
     { id: 'vault', label: 'Vault', icon: Key },
     { id: 'trade', label: 'Trade', icon: TrendingUp },
-    { id: 'collateral', label: 'Collateral', icon: Layers },
+    { id: 'auctions', label: 'Auctions', icon: Gavel },
+    { id: 'bridge', label: 'Bridge', icon: ArrowLeftRight },
   ];
 
   return (
@@ -24,14 +25,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeSection,
         bottom: 0,
         left: 0,
         right: 0,
-        height: '60px',
-        backgroundColor: '#0a101d',
-        borderTop: '1px solid #172642',
+        height: '62px',
+        backgroundColor: '#0c0b0e',
+        borderTop: '1px solid var(--border-red)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
         zIndex: 1000,
-        padding: '0 8px',
+        padding: '0 6px',
+        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.8)',
       }}
     >
       {items.map((item) => {
@@ -50,14 +52,26 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeSection,
               height: '100%',
               background: 'none',
               border: 'none',
-              color: isActive ? '#00d2ee' : '#8494b0',
+              color: isActive ? 'var(--red-primary)' : 'var(--text-dim)',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
               gap: '3px',
             }}
           >
-            <Icon size={18} color={isActive ? '#00d2ee' : '#52637f'} />
-            <span style={{ fontSize: '10px', fontWeight: isActive ? 700 : 500 }}>
+            <div
+              style={{
+                padding: '4px 10px',
+                borderRadius: '9999px',
+                backgroundColor: isActive ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Icon size={17} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
+            </div>
+            <span style={{ fontSize: '9.5px', fontWeight: isActive ? 800 : 500 }}>
               {item.label}
             </span>
           </button>
