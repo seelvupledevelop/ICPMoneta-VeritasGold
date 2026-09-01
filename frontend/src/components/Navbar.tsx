@@ -13,7 +13,6 @@ interface NavbarProps {
   onToggleMobileMenu: () => void;
   onSearch?: (query: string) => void;
   accounts?: DemandDepositRecord[];
-  
   onNotify?: (msg: string, isError?: boolean) => void;
 }
 
@@ -23,13 +22,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleMobileMenu,
   onSearch,
   accounts = [],
-  
   onNotify,
 }) => {
   const [activeNetwork, setActiveNetwork] = useState<'mainnet' | 'sandbox'>('mainnet');
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Modals
+
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -37,9 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSearch) {
-      onSearch(searchQuery);
-    }
+    if (onSearch) onSearch(searchQuery);
     if (onNotify && searchQuery) {
       onNotify(`Searching StateRef / Transaction: "${searchQuery}"`);
     }
@@ -47,9 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const handleNetworkSwitch = (net: 'mainnet' | 'sandbox') => {
     setActiveNetwork(net);
-    if (onNotify) {
-      onNotify(`Switched to ${net.toUpperCase()} network partition`);
-    }
+    if (onNotify) onNotify(`Switched to ${net.toUpperCase()} network partition`);
   };
 
   return (
@@ -68,12 +61,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           zIndex: 1000,
         }}
       >
-        {/* Left: Node Info & Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+        {/* Left: Node Identity & Sovereign Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button
             onClick={onToggleMobileMenu}
             className="mobile-hamburger"
             style={{
+              display: 'none',
               background: 'none',
               border: 'none',
               color: 'var(--text-main)',
@@ -84,25 +78,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             ☰
           </button>
 
-          {/* Node Alpha Badge */}
+          {/* Node Alpha Badge with Gold Ring */}
           <div
             onClick={() => setShowProfileModal(true)}
             style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-            title="Click to view Node Alpha-1 details"
+            title="Node Alpha-1 Identity"
           >
             <div
               style={{
                 width: '36px',
                 height: '36px',
                 borderRadius: '9999px',
-                backgroundColor: '#0051d5',
-                color: '#ffffff',
+                backgroundColor: '#18181b',
+                border: '1px solid var(--border-gold)',
+                color: 'var(--gold-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: 800,
+                fontWeight: 900,
                 fontSize: '13px',
-                boxShadow: '0 0 12px rgba(0, 81, 213, 0.4)',
+                boxShadow: '0 0 12px rgba(212, 175, 55, 0.25)',
               }}
             >
               N1
@@ -120,8 +115,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div style={{ height: '28px', width: '1px', backgroundColor: 'var(--border-subtle)', margin: '0 4px' }} />
 
           {/* Brand Name */}
-          <div style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            Sovereign <span style={{ color: 'var(--cyan-primary)' }}>Ledger</span>
+          <div style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            Sovereign <span style={{ color: 'var(--gold-primary)' }}>Ledger</span>
           </div>
         </div>
 
@@ -130,17 +125,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           onSubmit={handleSearchSubmit}
           style={{
             flex: 1,
-            maxWidth: '460px',
+            maxWidth: '440px',
             margin: '0 20px',
             display: 'flex',
             alignItems: 'center',
             backgroundColor: 'var(--bg-input)',
             border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-md)',
+            borderRadius: 'var(--radius-sm)',
             padding: '6px 12px',
           }}
         >
-          <Search size={16} color="var(--text-dim)" />
+          <Search size={15} color="var(--text-dim)" />
           <input
             type="text"
             placeholder="Search TxID, StateRef, or Account..."
@@ -160,31 +155,29 @@ export const Navbar: React.FC<NavbarProps> = ({
         </form>
 
         {/* Right Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {/* Mainnet / Sandbox Switcher */}
           <div
             style={{
               display: 'flex',
-              backgroundColor: 'var(--bg-app)',
-              borderRadius: 'var(--radius-md)',
-              padding: '3px',
+              backgroundColor: '#0c0c0e',
+              borderRadius: 'var(--radius-sm)',
+              padding: '2px',
               border: '1px solid var(--border-subtle)',
-              fontSize: '11px',
+              fontSize: '10.5px',
               fontWeight: 700,
-              letterSpacing: '0.04em',
             }}
           >
             <button
               onClick={() => handleNetworkSwitch('mainnet')}
               style={{
                 padding: '4px 10px',
-                borderRadius: '6px',
+                borderRadius: '4px',
                 border: 'none',
                 cursor: 'pointer',
-                backgroundColor: activeNetwork === 'mainnet' ? '#00d2ee' : 'transparent',
-                color: activeNetwork === 'mainnet' ? '#070c14' : 'var(--text-muted)',
+                backgroundColor: activeNetwork === 'mainnet' ? '#d4af37' : 'transparent',
+                color: activeNetwork === 'mainnet' ? '#050505' : 'var(--text-muted)',
                 fontWeight: 800,
-                boxShadow: activeNetwork === 'mainnet' ? '0 0 10px var(--cyan-glow)' : 'none',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -194,11 +187,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => handleNetworkSwitch('sandbox')}
               style={{
                 padding: '4px 10px',
-                borderRadius: '6px',
+                borderRadius: '4px',
                 border: 'none',
                 cursor: 'pointer',
-                backgroundColor: activeNetwork === 'sandbox' ? '#00d2ee' : 'transparent',
-                color: activeNetwork === 'sandbox' ? '#070c14' : 'var(--text-muted)',
+                backgroundColor: activeNetwork === 'sandbox' ? '#d4af37' : 'transparent',
+                color: activeNetwork === 'sandbox' ? '#050505' : 'var(--text-muted)',
                 fontWeight: 700,
                 transition: 'all 0.15s ease',
               }}
@@ -214,11 +207,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              backgroundColor: phoneMode ? 'rgba(0, 210, 238, 0.15)' : 'var(--bg-card)',
-              color: phoneMode ? 'var(--cyan-primary)' : 'var(--text-muted)',
-              border: `1px solid ${phoneMode ? 'var(--cyan-primary)' : 'var(--border-subtle)'}`,
+              backgroundColor: phoneMode ? 'rgba(212, 175, 55, 0.15)' : 'var(--bg-card)',
+              color: phoneMode ? 'var(--gold-primary)' : 'var(--text-muted)',
+              border: `1px solid ${phoneMode ? 'var(--border-gold)' : 'var(--border-subtle)'}`,
               padding: '6px 12px',
-              borderRadius: 'var(--radius-md)',
+              borderRadius: 'var(--radius-sm)',
               fontSize: '11.5px',
               fontWeight: 600,
               cursor: 'pointer',
@@ -230,38 +223,36 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Action Icons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button
               onClick={() => setShowWalletModal(true)}
               style={{
-                background: 'none',
+                background: 'var(--bg-card)',
                 border: '1px solid var(--border-subtle)',
                 padding: '7px',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 color: 'var(--text-muted)',
                 cursor: 'pointer',
-                backgroundColor: 'var(--bg-card)',
               }}
               title="Institutional Wallet"
             >
-              <Wallet size={16} />
+              <Wallet size={15} />
             </button>
 
             <button
               onClick={() => setShowNotificationModal(true)}
               style={{
-                background: 'none',
+                background: 'var(--bg-card)',
                 border: '1px solid var(--border-subtle)',
                 padding: '7px',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 color: 'var(--text-muted)',
                 cursor: 'pointer',
                 position: 'relative',
-                backgroundColor: 'var(--bg-card)',
               }}
               title="Notifications"
             >
-              <Bell size={16} />
+              <Bell size={15} />
               <span
                 style={{
                   position: 'absolute',
@@ -269,7 +260,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   right: '5px',
                   width: '6px',
                   height: '6px',
-                  backgroundColor: 'var(--amber-warning)',
+                  backgroundColor: 'var(--gold-primary)',
                   borderRadius: '9999px',
                 }}
               />
@@ -278,34 +269,33 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setShowSettingsModal(true)}
               style={{
-                background: 'none',
+                background: 'var(--bg-card)',
                 border: '1px solid var(--border-subtle)',
                 padding: '7px',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 color: 'var(--text-muted)',
                 cursor: 'pointer',
-                backgroundColor: 'var(--bg-card)',
               }}
               title="Settings"
             >
-              <Settings size={16} />
+              <Settings size={15} />
             </button>
 
             {/* User Profile Avatar */}
             <div
               onClick={() => setShowProfileModal(true)}
               style={{
-                width: '32px',
-                height: '32px',
+                width: '30px',
+                height: '30px',
                 borderRadius: '9999px',
-                backgroundColor: '#1e293b',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--text-main)',
+                backgroundColor: '#1c1c20',
+                border: '1px solid var(--border-gold)',
+                color: 'var(--gold-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '12px',
-                fontWeight: 700,
+                fontSize: '11.5px',
+                fontWeight: 800,
                 cursor: 'pointer',
               }}
               title="Profile & Node Status"
@@ -322,8 +312,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Wallet size={18} color="var(--cyan-primary)" />
-                <h3 style={{ fontSize: '17px', fontWeight: 800 }}>Institutional Wallet & Keys</h3>
+                <Wallet size={18} color="var(--gold-primary)" />
+                <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>Institutional Wallet & Balances</h3>
               </div>
               <button onClick={() => setShowWalletModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
                 <X size={18} />
@@ -333,7 +323,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
               <div style={{ backgroundColor: 'var(--bg-input)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Node Principal ID</div>
-                <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--cyan-primary)', fontSize: '12px', wordBreak: 'break-all' }}>
+                <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold-primary)', fontSize: '12px', wordBreak: 'break-all' }}>
                   lpmt4-wqbam-aaaaa-aaaaa-cai
                 </code>
               </div>
@@ -348,16 +338,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px' }}>Active Demand Deposit Accounts:</div>
                 {accounts.map((a) => (
-                  <div key={a.account_id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: '#09101f', borderRadius: '6px', marginBottom: '4px', fontSize: '12px' }}>
+                  <div key={a.account_id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: '#0c0c0e', borderRadius: '6px', marginBottom: '4px', fontSize: '12px' }}>
                     <code style={{ fontFamily: 'var(--font-mono)' }}>{a.account_id}</code>
-                    <b style={{ color: 'var(--cyan-primary)' }}>€{a.balance.value_str} {a.currency}</b>
+                    <b style={{ color: 'var(--gold-primary)' }}>€{a.balance.value_str} {a.currency}</b>
                   </div>
                 ))}
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button className="btn-cyan" onClick={() => setShowWalletModal(false)}>Close</button>
+              <button className="btn-gold" onClick={() => setShowWalletModal(false)}>Close</button>
             </div>
           </div>
         </div>
@@ -369,8 +359,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Bell size={18} color="var(--amber-warning)" />
-                <h3 style={{ fontSize: '17px', fontWeight: 800 }}>Consensus Alerts & Notifications</h3>
+                <Bell size={18} color="var(--gold-primary)" />
+                <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>Consensus Alerts & Notifications</h3>
               </div>
               <button onClick={() => setShowNotificationModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
                 <X size={18} />
@@ -378,24 +368,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12.5px' }}>
-              <div style={{ padding: '10px 12px', backgroundColor: '#09101f', borderRadius: '8px', borderLeft: '3px solid var(--green-valid)' }}>
+              <div style={{ padding: '10px 12px', backgroundColor: '#0c0c0e', borderRadius: '8px', borderLeft: '3px solid var(--green-valid)' }}>
                 <b style={{ color: 'var(--green-valid)' }}>Consensus Finality Nominal</b>
                 <p style={{ color: 'var(--text-muted)', fontSize: '11.5px', marginTop: '2px' }}>Sub-second finality verified at 0.4s (Throughput: 1,245 TPS).</p>
               </div>
 
-              <div style={{ padding: '10px 12px', backgroundColor: '#09101f', borderRadius: '8px', borderLeft: '3px solid var(--red-reject)' }}>
+              <div style={{ padding: '10px 12px', backgroundColor: '#0c0c0e', borderRadius: '8px', borderLeft: '3px solid var(--red-reject)' }}>
                 <b style={{ color: 'var(--red-reject)' }}>Double-Spend Attempt Intercepted</b>
                 <p style={{ color: 'var(--text-muted)', fontSize: '11.5px', marginTop: '2px' }}>StateRef 4A1F02...E3:0 rejected with 0/5 signatures.</p>
-              </div>
-
-              <div style={{ padding: '10px 12px', backgroundColor: '#09101f', borderRadius: '8px', borderLeft: '3px solid var(--cyan-primary)' }}>
-                <b style={{ color: 'var(--cyan-primary)' }}>SWIFT Wire On-Ramp Settled</b>
-                <p style={{ color: 'var(--text-muted)', fontSize: '11.5px', marginTop: '2px' }}>€150.00 EURD credited via pacs.008 gateway.</p>
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button className="btn-cyan" onClick={() => setShowNotificationModal(false)}>Acknowledge All</button>
+              <button className="btn-gold" onClick={() => setShowNotificationModal(false)}>Acknowledge All</button>
             </div>
           </div>
         </div>
@@ -407,8 +392,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Settings size={18} color="var(--cyan-primary)" />
-                <h3 style={{ fontSize: '17px', fontWeight: 800 }}>Node Alpha-1 Configuration</h3>
+                <Settings size={18} color="var(--gold-primary)" />
+                <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>Node Alpha-1 Configuration</h3>
               </div>
               <button onClick={() => setShowSettingsModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
                 <X size={18} />
@@ -425,15 +410,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <label style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginBottom: '4px' }}>Raft Quorum Threshold</label>
                 <input className="input-dark" value="4 / 5 Nodes (80% BFT Quorum)" readOnly />
               </div>
-
-              <div>
-                <label style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginBottom: '4px' }}>ISO 20022 Compliance Mode</label>
-                <input className="input-dark" value="STRICT_CAMT_PACS_ENFORCED" readOnly />
-              </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button className="btn-cyan" onClick={() => setShowSettingsModal(false)}>Save & Close</button>
+              <button className="btn-gold" onClick={() => setShowSettingsModal(false)}>Save & Close</button>
             </div>
           </div>
         </div>
@@ -445,8 +425,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ShieldCheck size={18} color="var(--green-valid)" />
-                <h3 style={{ fontSize: '17px', fontWeight: 800 }}>Institutional Node Identity</h3>
+                <ShieldCheck size={18} color="var(--gold-primary)" />
+                <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>Institutional Node Identity</h3>
               </div>
               <button onClick={() => setShowProfileModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
                 <X size={18} />
@@ -460,21 +440,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   Node Alpha-1 (London / Zurich Central Clearing)
                 </div>
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div style={{ backgroundColor: 'var(--bg-input)', padding: '10px', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Role</span>
-                  <div style={{ fontWeight: 700, color: 'var(--cyan-primary)' }}>Central Bank / Clearinghouse</div>
-                </div>
-                <div style={{ backgroundColor: 'var(--bg-input)', padding: '10px', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>KYC/AML Status</span>
-                  <div style={{ fontWeight: 700, color: 'var(--green-valid)' }}>Verified Tier-1</div>
-                </div>
-              </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button className="btn-cyan" onClick={() => setShowProfileModal(false)}>Close</button>
+              <button className="btn-gold" onClick={() => setShowProfileModal(false)}>Close</button>
             </div>
           </div>
         </div>
