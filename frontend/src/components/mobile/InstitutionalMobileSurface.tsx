@@ -16,6 +16,7 @@ import {
 import { PulseBadge } from '../ui/motion/PulseBadge';
 import { triggerSettlementConfetti } from '../ui/motion/ConfettiTrigger';
 import { TouchInteractiveChart } from '../ui/TouchInteractiveChart';
+import { TERMINAL_ASSETS, type TerminalAsset } from '../views/RwaTerminalView';
 import {
   type PersonaDefinition,
   PERSONA_LIST,
@@ -46,7 +47,7 @@ export const InstitutionalMobileSurface: React.FC<InstitutionalMobileSurfaceProp
   onSelectPersona,
   accounts,
   holdings: _holdings,
-  rates,
+  rates: _rates,
   approvals: initialApprovals,
   onNavigateDesktopSection,
   onToggleDesktopMode,
@@ -78,6 +79,9 @@ export const InstitutionalMobileSurface: React.FC<InstitutionalMobileSurfaceProp
   });
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
   const [isSubmittingBuy, setIsSubmittingBuy] = useState(false);
+
+  // Market Chart Asset Selection
+  const [selectedMarketAsset, setSelectedMarketAsset] = useState<TerminalAsset>(TERMINAL_ASSETS[0]);
 
   // Colleague Approval Chain State
   const [approvingId, setApprovingId] = useState<string | null>(null);
@@ -684,47 +688,129 @@ export const InstitutionalMobileSurface: React.FC<InstitutionalMobileSurfaceProp
           </div>
         )}
 
-        {/* TAB 4: MARKETS */}
+        {/* TAB 4: MARKETS & 9 TIMEFRAME CHARTS */}
         {activeTab === 'markets' && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {/* Interactive Finger-Slide Chart */}
-            <TouchInteractiveChart assetSymbol="XAU/EUR" assetName="Swiss Allocated 999.9 Gold Bullion" />
+            {/* Quick Mobile Asset Selector */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '10.5px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+                  SELECT ASSET / INSTRUMENT:
+                </span>
+                <PulseBadge label="9 Timeframes: 1H-10Y" variant="green" />
+              </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#FFFFFF', margin: 0 }}>
-                Live Institutional Rates
-              </h2>
-              <PulseBadge label="TradingView Live" variant="green" />
+              <select
+                value={selectedMarketAsset.id}
+                onChange={(e) => {
+                  const target = TERMINAL_ASSETS.find((a) => a.id === e.target.value);
+                  if (target) {
+                    setSelectedMarketAsset(target);
+                    onNotify(`Loaded ${target.name} (${target.ticker}) into Chart`);
+                  }
+                }}
+                className="input-dark"
+                style={{
+                  padding: '10px 14px',
+                  fontSize: '12.5px',
+                  fontWeight: 800,
+                  borderRadius: '8px',
+                  backgroundColor: '#160f1e',
+                  border: '1px solid var(--border-red)',
+                  color: '#FFFFFF',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+              >
+                <optgroup label="🏆 Gold & Precious Commodities">
+                  {TERMINAL_ASSETS.filter((a) => a.category === 'Gold').map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.ticker} — {a.name} (€{a.priceEur.toFixed(2)})
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="🏛️ Sovereign & Green Bonds">
+                  {TERMINAL_ASSETS.filter((a) => a.category === 'Bonds').map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.ticker} — {a.name} (€{a.priceEur.toFixed(2)})
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="💱 FX & Central Bank Rails">
+                  {TERMINAL_ASSETS.filter((a) => a.category === 'FX').map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.ticker} — {a.name} (€{a.priceEur.toFixed(4)})
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="🏢 Real Estate & Structured RWAs">
+                  {TERMINAL_ASSETS.filter((a) => a.category === 'RWA').map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.ticker} — {a.name} (€{a.priceEur.toFixed(2)})
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
             </div>
 
+            {/* Interactive Finger-Slide Chart with 9 Timeframes */}
+            <TouchInteractiveChart
+              assetSymbol={selectedMarketAsset.ticker}
+              assetName={selectedMarketAsset.name}
+              basePrice={selectedMarketAsset.priceEur}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+              <h2 style={{ fontSize: '15px', fontWeight: 900, color: '#FFFFFF', margin: 0 }}>
+                Sovereign Asset & RWA Feeds ({TERMINAL_ASSETS.length})
+              </h2>
+              <span className="pill-red" style={{ fontSize: '10px' }}>Tap to Load</span>
+            </div>
+
+            {/* Clickable Asset Cards Grid */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {rates.map((rate) => (
-                <div
-                  key={rate.symbol}
-                  style={{
-                    padding: '14px',
-                    borderRadius: '10px',
-                    backgroundColor: '#110c17',
-                    border: '1px solid var(--border-subtle)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>{rate.name} ({rate.symbol})</div>
-                    <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{rate.backing}</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '15px', fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-mono)' }}>
-                      €{rate.price_eur}
+              {TERMINAL_ASSETS.map((asset) => {
+                const isSelected = selectedMarketAsset.id === asset.id;
+                return (
+                  <div
+                    key={asset.id}
+                    onClick={() => {
+                      setSelectedMarketAsset(asset);
+                      onNotify(`Loaded ${asset.ticker} (${asset.name}) into Chart`);
+                    }}
+                    className="card-interactive"
+                    style={{
+                      padding: '12px 14px',
+                      borderRadius: '10px',
+                      backgroundColor: isSelected ? 'rgba(239, 68, 68, 0.12)' : '#110c17',
+                      border: isSelected ? '1px solid var(--red-primary)' : '1px solid var(--border-subtle)',
+                      boxShadow: isSelected ? '0 0 15px rgba(239, 68, 68, 0.25)' : 'none',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#FFFFFF' }}>{asset.name}</span>
+                      </div>
+                      <code style={{ fontSize: '11px', color: 'var(--red-primary)', fontWeight: 700 }}>
+                        {asset.ticker} • {asset.isin_dti}
+                      </code>
                     </div>
-                    <div style={{ fontSize: '10.5px', color: rate.change_24h.startsWith('+') ? 'var(--green-valid)' : '#ef4444' }}>
-                      {rate.change_24h}
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-mono)' }}>
+                        €{asset.priceEur.toLocaleString()}
+                      </div>
+                      <div style={{ fontSize: '10px', color: asset.isPositive ? 'var(--green-valid)' : '#ef4444' }}>
+                        {asset.change24h}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

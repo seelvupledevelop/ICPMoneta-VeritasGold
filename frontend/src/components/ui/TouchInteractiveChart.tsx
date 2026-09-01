@@ -15,6 +15,7 @@ export interface PricePoint {
 interface TouchInteractiveChartProps {
   assetSymbol?: string;
   assetName?: string;
+  basePrice?: number;
   currency?: string;
   data?: PricePoint[];
 }
@@ -22,13 +23,14 @@ interface TouchInteractiveChartProps {
 export const TouchInteractiveChart: React.FC<TouchInteractiveChartProps> = ({
   assetSymbol = 'XAU/EUR',
   assetName = 'Swiss Allocated 999.9 Gold Bullion',
+  basePrice = 84.50,
   currency: _currency = 'EUR',
 }) => {
   const [timeframe, setTimeframe] = useState<TimeframeOption>('24H');
   const [_isHovering, setIsHovering] = useState<boolean>(false);
   const chartRef = useRef<HTMLDivElement>(null);
 
-  const rawOhlcv = generateOhlcvForTimeframe(84.50, timeframe);
+  const rawOhlcv = generateOhlcvForTimeframe(basePrice || 84.50, timeframe);
   const data: PricePoint[] = rawOhlcv.map((d) => ({
     time: d.time,
     price: d.close,
@@ -36,11 +38,11 @@ export const TouchInteractiveChart: React.FC<TouchInteractiveChartProps> = ({
     high: d.high,
     low: d.low,
     close: d.close,
-    volume: `${(d.volume / 1000).toFixed(0)}k oz`,
+    volume: `${(d.volume / 1000).toFixed(0)}k`,
   }));
 
   const [selectedIndex, setSelectedIndex] = useState<number>(data.length - 1);
-  const selectedPoint = data[selectedIndex] || data[data.length - 1];
+  const selectedPoint = data[selectedIndex] || data[data.length - 1] || { time: '', price: basePrice, open: basePrice, high: basePrice, low: basePrice, close: basePrice, volume: '0k' };
   const firstPoint = data[0] || selectedPoint;
   const priceChange = selectedPoint.price - firstPoint.price;
   const priceChangePct = ((priceChange / (firstPoint.price || 1)) * 100);
