@@ -293,7 +293,7 @@ export function App() {
               holdings={holdings}
               rates={rates}
               transactions={transactions}
-              offers={offers}
+              offers={offers} collateral={collateral} auctions={auctions} corporateActions={corporateActions} approvals={approvals} sweepingRules={sweepingRules} bridgeRoutes={bridgeRoutes} canisters={canisters} liquidityPools={liquidityPools} identities={identities}
               onNotify={showToast}
               onRefresh={loadData}
             />
