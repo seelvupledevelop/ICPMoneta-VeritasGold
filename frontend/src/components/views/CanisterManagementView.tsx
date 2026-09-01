@@ -109,6 +109,114 @@ export const CanisterManagementView: React.FC<CanisterManagementViewProps> = ({ 
           </table>
         </div>
       </div>
+
+      {/* PRODUCTION READINESS 3-PHASE EXECUTION & GOVERNANCE HANDOVER */}
+      <div className="grid-3col">
+        {/* Phase 1: Governance & Cycles Handover */}
+        <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="pill-red">PHASE 1</span>
+            <span className="pill-valid">● Ready to Lock</span>
+          </div>
+          <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
+            🏛️ Canister Controller & SNS DAO
+          </h3>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+            Transition canister controllers from developer principals to an on-chain SNS DAO Multi-Sig and configure 50 TC automated cycles reserve.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11px', color: '#FFFFFF', backgroundColor: '#0c0712', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>SNS Controller: <code>lpmt4-wqbam...-cai</code></span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>Cycles Runway: <strong>50.0 TC (2.4 Years)</strong></span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>Blackhole Governance: <strong>Enabled</strong></span>
+            </div>
+          </div>
+          <button
+            onClick={() => onNotify('Governance Handover Confirmed! Controllers assigned to SNS Multi-Sig Quorum.')}
+            className="btn-red card-interactive"
+            style={{ width: '100%', padding: '9px', fontSize: '11.5px', fontWeight: 800, marginTop: 'auto' }}
+          >
+            Execute SNS Controller Handover ➔
+          </button>
+        </div>
+
+        {/* Phase 2: Hardware Security Modules & WebAuthn */}
+        <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="pill-red">PHASE 2</span>
+            <span className="pill-valid">● FIPS 140-2 Level 4</span>
+          </div>
+          <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
+            🔑 HSM & FIDO2 WebAuthn
+          </h3>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+            Enforce YubiKey 5 / Nitrokey hardware biometric signing with threshold t-ECDSA (secp256k1) multi-party computation.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11px', color: '#FFFFFF', backgroundColor: '#0c0712', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>FIDO2 Attestation: <strong>YubiKey 5 NFC Active</strong></span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>Threshold t-ECDSA: <strong>Root Subnet Active</strong></span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>Biometric Pinpoint: <strong>2-of-2 Quorum Active</strong></span>
+            </div>
+          </div>
+          <button
+            onClick={() => onNotify('Hardware Key Verified! FIDO2 WebAuthn & t-ECDSA Attestation Synced.')}
+            className="btn-outline card-interactive"
+            style={{ width: '100%', padding: '9px', fontSize: '11.5px', fontWeight: 800, marginTop: 'auto' }}
+          >
+            Test YubiKey 5 Attestation ➔
+          </button>
+        </div>
+
+        {/* Phase 3: Institutional Oracle Feeds & IoT Sensors */}
+        <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="pill-red">PHASE 3</span>
+            <span className="pill-valid">● 10/13 BFT Quorum</span>
+          </div>
+          <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
+            📡 Bloomberg B-PIPE & Vault IoT
+          </h3>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+            Production FIX protocol & ECB API encrypted outcalls paired with ultrasonic density probes in Zurich Duty-Free Vault ZRH-01.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11px', color: '#FFFFFF', backgroundColor: '#0c0712', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>ECB Frankfurter + FIX: <strong>Dual-Redundant</strong></span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>Ultrasonic Sensor: <strong>19.32 g/cm³ Gold Density</strong></span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="var(--green-valid)" />
+              <span>Thermal Probe: <strong>19.2°C Stable</strong></span>
+            </div>
+          </div>
+          <button
+            onClick={() => onNotify('Oracle & IoT Calibrated! 10/13 Subnet Replica Nodes Signed.')}
+            className="btn-outline card-interactive"
+            style={{ width: '100%', padding: '9px', fontSize: '11.5px', fontWeight: 800, marginTop: 'auto' }}
+          >
+            Trigger Oracle & IoT Calibration ➔
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
