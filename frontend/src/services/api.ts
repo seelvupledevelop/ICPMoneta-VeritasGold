@@ -1,4 +1,4 @@
-import type { DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, BlindedIdentity, MarketRate, RwaOffer, SupervisionData } from '../types';
+import type { DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, BlindedIdentity, MarketRate, RwaOffer, SupervisionData, InstitutionalTxn, CollateralPosition } from '../types';
 
 const API_BASE = 'http://localhost:8080/api/v1';
 
@@ -38,6 +38,8 @@ export async function transferCash(data: {
   sender_id: string;
   recipient_id: string;
   amount: string;
+  memo?: string;
+  gl_code?: string;
 }) {
   const res = await fetch(`${API_BASE}/accounts/transfer`, {
     method: 'POST',
@@ -197,5 +199,41 @@ export async function acceptOffer(data: {
 export async function fetchSupervisionData(): Promise<SupervisionData> {
   const res = await fetch(`${API_BASE}/admin/supervision`);
   if (!res.ok) throw new Error('Failed to fetch supervision data');
+  return res.json();
+}
+
+export async function fetchTransactions(): Promise<InstitutionalTxn[]> {
+  const res = await fetch(`${API_BASE}/reporting/transactions`);
+  if (!res.ok) throw new Error('Failed to fetch transaction history');
+  return res.json();
+}
+
+export function getCsvExportUrl(): string {
+  return `${API_BASE}/reporting/export/csv`;
+}
+
+export async function fetchCollateralPositions(): Promise<CollateralPosition[]> {
+  const res = await fetch(`${API_BASE}/collateral/positions`);
+  if (!res.ok) throw new Error('Failed to fetch collateral positions');
+  return res.json();
+}
+
+export async function postCollateral(data: {
+  asset_symbol: string;
+  asset_name: string;
+  amount: string;
+  market_value_eur: string;
+  haircut_percent: string;
+  pledgee: string;
+}): Promise<CollateralPosition> {
+  const res = await fetch(`${API_BASE}/collateral/positions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to post collateral');
+  }
   return res.json();
 }

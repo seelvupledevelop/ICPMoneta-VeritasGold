@@ -1,7 +1,7 @@
 use crate::CanisterEnvironment;
 use axum::{
     extract::State,
-    http::StatusCode,
+    http::{header, StatusCode},
     response::IntoResponse,
     routing::{get, post},
     Json, Router,
@@ -26,14 +26,48 @@ pub struct RwaOffer {
     pub asset_amount: String,
     pub price_per_unit_eur: String,
     pub total_price_eur: String,
-    pub status: String, // "Active" | "Filled" | "Cancelled"
+    pub status: String,
     pub created_at: u64,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct InstitutionalTxn {
+    pub txn_id: String,
+    pub booking_date: String,
+    pub value_date: String,
+    pub gl_code: String,
+    pub txn_type: String,
+    pub sender_legal: String,
+    pub recipient_legal: String,
+    pub amount: String,
+    pub currency: String,
+    pub debit_credit: String,
+    pub memo: String,
+    pub onchain_hash: String,
+    pub finality_receipt: String,
+    pub status: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct CollateralPosition {
+    pub position_id: String,
+    pub asset_symbol: String,
+    pub asset_name: String,
+    pub pledged_amount: String,
+    pub market_value_eur: String,
+    pub haircut_percent: String,
+    pub borrowing_capacity_eur: String,
+    pub custodian: String,
+    pub pledgee: String,
+    pub status: String, // "Active_Pledged" | "Released"
 }
 
 #[derive(Clone)]
 pub struct ServerState {
     pub env: Arc<CanisterEnvironment>,
     pub offers: Arc<RwLock<Vec<RwaOffer>>>,
+    pub transactions: Arc<RwLock<Vec<InstitutionalTxn>>>,
+    pub collateral: Arc<RwLock<Vec<CollateralPosition>>>,
 }
 
 #[derive(Deserialize)]
@@ -50,6 +84,8 @@ pub struct CashTransferRequest {
     pub sender_id: String,
     pub recipient_id: String,
     pub amount: String,
+    pub memo: Option<String>,
+    pub gl_code: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -107,6 +143,16 @@ pub struct AcceptOfferRequest {
     pub buyer_account_id: String,
 }
 
+#[derive(Deserialize)]
+pub struct PostCollateralRequest {
+    pub asset_symbol: String,
+    pub asset_name: String,
+    pub amount: String,
+    pub market_value_eur: String,
+    pub haircut_percent: String,
+    pub pledgee: String,
+}
+
 pub fn create_app(state: ServerState) -> Router {
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -127,6 +173,9 @@ pub fn create_app(state: ServerState) -> Router {
         .route("/api/v1/offers", get(list_offers).post(create_rwa_offer))
         .route("/api/v1/offers/accept", post(accept_rwa_offer))
         .route("/api/v1/admin/supervision", get(get_admin_supervision))
+        .route("/api/v1/reporting/transactions", get(list_transactions))
+        .route("/api/v1/reporting/export/csv", get(export_transactions_csv))
+        .route("/api/v1/collateral/positions", get(list_collateral).post(post_collateral))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)
@@ -161,9 +210,9 @@ async fn get_market_rates() -> impl IntoResponse {
                 "liquidity_depth": "$50,000,000"
             },
             {
-                "symbol": "EUR",
-                "name": "Sovereign Euro Cash Note",
-                "category": "Fiat Cash Reserve",
+                "symbol": "EURD",
+                "name": "Tokenized Deposit Euro (EURD)",
+                "category": "Tokenized Bank Deposit",
                 "price_usd": "1.08",
                 "price_eur": "1.00",
                 "change_24h": "0.00%",
@@ -171,9 +220,9 @@ async fn get_market_rates() -> impl IntoResponse {
                 "liquidity_depth": "€100,000,000"
             },
             {
-                "symbol": "USD",
-                "name": "US Dollar Commercial Deposit",
-                "category": "Fiat Cash Reserve",
+                "symbol": "USDD",
+                "name": "Tokenized Deposit Dollar (USDD)",
+                "category": "Tokenized Bank Deposit",
                 "price_usd": "1.00",
                 "price_eur": "0.925",
                 "change_24h": "0.00%",
@@ -235,17 +284,39 @@ async fn transfer_cash(
     State(state): State<ServerState>,
     Json(payload): Json<CashTransferRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
-    let sender = AccountId::new(payload.sender_id);
-    let recipient = AccountId::new(payload.recipient_id);
+    let now = chrono::Utc::now();
+    let sender = AccountId::new(&payload.sender_id);
+    let recipient = AccountId::new(&payload.recipient_id);
     let amount = Amount::from_str_strict(&payload.amount).map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
 
     let (proto_id, s_acc, r_acc) = state
         .env
-        .transfer_cash(&sender, &recipient, &amount, chrono::Utc::now().timestamp_millis() as u64)
+        .transfer_cash(&sender, &recipient, &amount, now.timestamp_millis() as u64)
         .map_err(|e| (StatusCode::UNPROCESSABLE_ENTITY, Json(json!({ "error": e.to_string() }))))?;
+
+    let txn = InstitutionalTxn {
+        txn_id: format!("TXN-{}-{}", now.format("%Y%m%d"), &uuid::Uuid::new_v4().to_string()[..6].to_uppercase()),
+        booking_date: now.format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+        value_date: now.format("%Y-%m-%d").to_string(),
+        gl_code: payload.gl_code.unwrap_or_else(|| "1010-01".to_string()),
+        txn_type: "CrossBorderTokenizedWire".to_string(),
+        sender_legal: "Alice Trading Corp (Zurich)".to_string(),
+        recipient_legal: "Bob Commodities LLC (Frankfurt)".to_string(),
+        amount: payload.amount.clone(),
+        currency: s_acc.currency.to_string(),
+        debit_credit: "Debit".to_string(),
+        memo: payload.memo.unwrap_or_else(|| "Corporate Treasury Transfer".to_string()),
+        onchain_hash: format!("0x{:x}", md5::compute(proto_id.to_string())),
+        finality_receipt: proto_id.to_string(),
+        status: "Finalized".to_string(),
+    };
+
+    let mut lock = state.transactions.write().unwrap();
+    lock.insert(0, txn.clone());
 
     Ok(Json(json!({
         "protocol_id": proto_id.to_string(),
+        "txn_id": txn.txn_id,
         "sender": s_acc,
         "recipient": r_acc,
         "status": "Finalized"
@@ -345,7 +416,7 @@ async fn execute_rfq_trade(
     State(state): State<ServerState>,
     Json(payload): Json<RfqExecuteRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
-    let now = chrono::Utc::now().timestamp_millis() as u64;
+    let now = chrono::Utc::now();
     let acc_id = AccountId::new(&payload.account_id);
     let cash_amt = Amount::from_str_strict(&payload.cash_amount).map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
     let asset_symbol = CurrencyCode::new(&payload.asset_symbol).map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
@@ -359,22 +430,43 @@ async fn execute_rfq_trade(
         .get_account(&acc_id)
         .ok_or_else(|| (StatusCode::NOT_FOUND, Json(json!({ "error": "Account not found" }))))?;
 
-    account.apply_debit(&cash_amt, now).map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
+    account.apply_debit(&cash_amt, now.timestamp_millis() as u64).map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
     state.env.settlement_engine.register_account(account.clone());
 
     let (holding, receipt) = state
         .env
         .asset_ledger
-        .issue_fungible_asset(vault_custodian, buyer, asset_symbol, asset_amt, now)
+        .issue_fungible_asset(vault_custodian, buyer, asset_symbol, asset_amt, now.timestamp_millis() as u64)
         .map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
+
+    let txn = InstitutionalTxn {
+        txn_id: format!("TXN-{}-{}", now.format("%Y%m%d"), &uuid::Uuid::new_v4().to_string()[..6].to_uppercase()),
+        booking_date: now.format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+        value_date: now.format("%Y-%m-%d").to_string(),
+        gl_code: "1520-03".to_string(),
+        txn_type: "AtomicDvPRfqSettlement".to_string(),
+        sender_legal: "Alice Trading Corp (Zurich)".to_string(),
+        recipient_legal: "Swiss Vault Depository".to_string(),
+        amount: payload.cash_amount,
+        currency: "EUR".to_string(),
+        debit_credit: "Debit_Cash_Credit_RWA".to_string(),
+        memo: format!("Guaranteed RFQ Purchase {} {}", payload.asset_amount, payload.asset_symbol),
+        onchain_hash: receipt.update_id.to_string(),
+        finality_receipt: receipt.update_id.to_string(),
+        status: "Finalized".to_string(),
+    };
+
+    let mut lock = state.transactions.write().unwrap();
+    lock.insert(0, txn.clone());
 
     Ok(Json(json!({
         "status": "Finalized",
         "trade_type": "AtomicDvPSettlement",
+        "txn_id": txn.txn_id,
         "debited_account": account,
         "issued_rwa_holding": holding,
         "receipt": receipt,
-        "timestamp": now
+        "timestamp": now.timestamp_millis() as u64
     })))
 }
 
@@ -415,7 +507,7 @@ async fn accept_rwa_offer(
     State(state): State<ServerState>,
     Json(payload): Json<AcceptOfferRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
-    let now = chrono::Utc::now().timestamp_millis() as u64;
+    let now = chrono::Utc::now();
     let mut lock = state.offers.write().unwrap();
     let offer = lock
         .iter_mut()
@@ -429,37 +521,56 @@ async fn accept_rwa_offer(
     let buyer = PrincipalId::from_text(&payload.buyer_principal).unwrap_or_else(|_| PrincipalId::new_user(3));
     let seller = PrincipalId::from_text(&offer.seller_principal).unwrap_or_else(|_| PrincipalId::new_user(4));
 
-    // Debit buyer cash
     let mut buyer_acc = state
         .env
         .settlement_engine
         .get_account(&acc_id)
         .ok_or_else(|| (StatusCode::NOT_FOUND, Json(json!({ "error": "Buyer cash account not found" }))))?;
 
-    buyer_acc.apply_debit(&cash_amt, now).map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
+    buyer_acc.apply_debit(&cash_amt, now.timestamp_millis() as u64).map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
     state.env.settlement_engine.register_account(buyer_acc.clone());
 
-    // Issue RWA Holding to buyer
     let (holding, receipt) = state
         .env
         .asset_ledger
-        .issue_fungible_asset(seller, buyer, asset_symbol, asset_amt, now)
+        .issue_fungible_asset(seller, buyer, asset_symbol, asset_amt, now.timestamp_millis() as u64)
         .map_err(|e| (StatusCode::BAD_REQUEST, Json(json!({ "error": e.to_string() }))))?;
 
     offer.status = "Filled".to_string();
 
+    let txn = InstitutionalTxn {
+        txn_id: format!("TXN-{}-{}", now.format("%Y%m%d"), &uuid::Uuid::new_v4().to_string()[..6].to_uppercase()),
+        booking_date: now.format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+        value_date: now.format("%Y-%m-%d").to_string(),
+        gl_code: "1530-01".to_string(),
+        txn_type: "AtomicP2PDvPTrade".to_string(),
+        sender_legal: "Alice Trading Corp".to_string(),
+        recipient_legal: offer.seller_legal_name.clone(),
+        amount: offer.total_price_eur.clone(),
+        currency: "EUR".to_string(),
+        debit_credit: "Debit_Cash_Credit_RWA".to_string(),
+        memo: format!("P2P Settlement Offer {} ({} {})", offer.offer_id, offer.asset_amount, offer.asset_symbol),
+        onchain_hash: receipt.update_id.to_string(),
+        finality_receipt: receipt.update_id.to_string(),
+        status: "Finalized".to_string(),
+    };
+
+    let mut t_lock = state.transactions.write().unwrap();
+    t_lock.insert(0, txn.clone());
+
     Ok(Json(json!({
         "status": "Finalized",
         "trade_type": "AtomicP2POfferExecution",
+        "txn_id": txn.txn_id,
         "offer_id": offer.offer_id,
         "buyer_account": buyer_acc,
         "transferred_holding": holding,
         "receipt": receipt,
-        "timestamp": now
+        "timestamp": now.timestamp_millis() as u64
     })))
 }
 
-async fn get_admin_supervision(State(state): State<ServerState>) -> impl IntoResponse {
+async fn get_admin_supervision(State(_state): State<ServerState>) -> impl IntoResponse {
     let now = chrono::Utc::now().timestamp_millis() as u64;
     (StatusCode::OK, Json(json!({
         "supervision_timestamp": now,
@@ -484,4 +595,57 @@ async fn get_admin_supervision(State(state): State<ServerState>) -> impl IntoRes
             }
         ]
     })))
+}
+
+async fn list_transactions(State(state): State<ServerState>) -> impl IntoResponse {
+    let txns = state.transactions.read().unwrap().clone();
+    (StatusCode::OK, Json(txns))
+}
+
+async fn export_transactions_csv(State(state): State<ServerState>) -> impl IntoResponse {
+    let txns = state.transactions.read().unwrap().clone();
+    let mut csv = String::from("Transaction_ID,Booking_Date,Value_Date,GL_Account_Code,Transaction_Type,Sender_Legal_Entity,Recipient_Legal_Entity,Amount,Currency,Debit_Credit,Memo_Description,OnChain_Notary_Hash,Finality_Proof_ID,Settlement_Status\n");
+
+    for t in txns {
+        csv.push_str(&format!(
+            "\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\"\n",
+            t.txn_id, t.booking_date, t.value_date, t.gl_code, t.txn_type, t.sender_legal, t.recipient_legal, t.amount, t.currency, t.debit_credit, t.memo, t.onchain_hash, t.finality_receipt, t.status
+        ));
+    }
+
+    ([(header::CONTENT_TYPE, "text/csv; charset=utf-8"),
+      (header::CONTENT_DISPOSITION, "attachment; filename=\"veritas_gold_general_ledger_export.csv\"")],
+     csv)
+}
+
+async fn list_collateral(State(state): State<ServerState>) -> impl IntoResponse {
+    let list = state.collateral.read().unwrap().clone();
+    (StatusCode::OK, Json(list))
+}
+
+async fn post_collateral(
+    State(state): State<ServerState>,
+    Json(payload): Json<PostCollateralRequest>,
+) -> Result<(StatusCode, Json<CollateralPosition>), (StatusCode, Json<serde_json::Value>)> {
+    let val = payload.market_value_eur.parse::<f64>().map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({ "error": "Invalid market value" }))))?;
+    let haircut = payload.haircut_percent.parse::<f64>().map_err(|_| (StatusCode::BAD_REQUEST, Json(json!({ "error": "Invalid haircut" }))))?;
+    let capacity = format!("{:.2}", val * (1.0 - haircut / 100.0));
+
+    let pos = CollateralPosition {
+        position_id: format!("COL-{}", &uuid::Uuid::new_v4().to_string()[..8].to_uppercase()),
+        asset_symbol: payload.asset_symbol,
+        asset_name: payload.asset_name,
+        pledged_amount: payload.amount,
+        market_value_eur: payload.market_value_eur,
+        haircut_percent: payload.haircut_percent,
+        borrowing_capacity_eur: capacity,
+        custodian: "Swiss Vault Depository".to_string(),
+        pledgee: payload.pledgee,
+        status: "Active_Pledged".to_string(),
+    };
+
+    let mut lock = state.collateral.write().unwrap();
+    lock.insert(0, pos.clone());
+
+    Ok((StatusCode::CREATED, Json(pos)))
 }

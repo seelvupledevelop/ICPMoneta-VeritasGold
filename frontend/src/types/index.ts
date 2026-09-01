@@ -4,7 +4,7 @@ export type HoldingId = string;
 export type CurrencyCode = string;
 
 export type Perspective = 'trader' | 'issuer' | 'ops' | 'regulator' | 'admin';
-export type AppSection = 'banking' | 'marketplace' | 'offers' | 'exchange' | 'rfq' | 'protocols' | 'audit' | 'supervision';
+export type AppSection = 'banking' | 'marketplace' | 'offers' | 'exchange' | 'rfq' | 'accounting' | 'collateral' | 'protocols' | 'audit' | 'supervision';
 
 export interface Amount {
   value_str: string;
@@ -92,6 +92,36 @@ export interface SupervisionData {
   total_active_canister_partitions: number;
   regulatory_unmasking_authority: string;
   unmasked_active_flows: UnmaskedFlow[];
+}
+
+export interface InstitutionalTxn {
+  txn_id: string;
+  booking_date: string;
+  value_date: string;
+  gl_code: string;
+  txn_type: string;
+  sender_legal: string;
+  recipient_legal: string;
+  amount: string;
+  currency: string;
+  debit_credit: string;
+  memo: string;
+  onchain_hash: string;
+  finality_receipt: string;
+  status: string;
+}
+
+export interface CollateralPosition {
+  position_id: string;
+  asset_symbol: string;
+  asset_name: string;
+  pledged_amount: string;
+  market_value_eur: string;
+  haircut_percent: string;
+  borrowing_capacity_eur: string;
+  custodian: string;
+  pledgee: string;
+  status: string;
 }
 
 export interface ProtocolLog {

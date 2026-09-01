@@ -1,4 +1,4 @@
-use icp_canister_suite::server::{create_app, RwaOffer, ServerState};
+use icp_canister_suite::server::{create_app, CollateralPosition, InstitutionalTxn, RwaOffer, ServerState};
 use icp_canister_suite::CanisterEnvironment;
 use domain::primitives::{Amount, CurrencyCode, PrincipalId};
 use std::net::SocketAddr;
@@ -76,9 +76,90 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
     ];
 
+    let now_str = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
+    let initial_txns = vec![
+        InstitutionalTxn {
+            txn_id: "TXN-20260901-8841".to_string(),
+            booking_date: now_str.clone(),
+            value_date: "2026-09-01".to_string(),
+            gl_code: "1520-03".to_string(),
+            txn_type: "AtomicDvPRfqSettlement".to_string(),
+            sender_legal: "Alice Trading Corp (Zurich)".to_string(),
+            recipient_legal: "Swiss Vault Depository".to_string(),
+            amount: "1271.05".to_string(),
+            currency: "EUR".to_string(),
+            debit_credit: "Debit_Cash_Credit_RWA".to_string(),
+            memo: "Spot Purchase 0.50 oz LBMA Physical Gold (Bar #ZH-9941)".to_string(),
+            onchain_hash: "0xc709b69547d556482fb1a6e633258c8db8ac417b868b6cbf7d228773628a6a63".to_string(),
+            finality_receipt: "0xc709b69547d556482fb1a6e633258c8db8ac417b868b6cbf7d228773628a6a63".to_string(),
+            status: "Finalized".to_string(),
+        },
+        InstitutionalTxn {
+            txn_id: "TXN-20260901-7102".to_string(),
+            booking_date: now_str.clone(),
+            value_date: "2026-09-01".to_string(),
+            gl_code: "1530-01".to_string(),
+            txn_type: "AtomicP2PDvPTrade".to_string(),
+            sender_legal: "Alice Trading Corp (Zurich)".to_string(),
+            recipient_legal: "Bob Commodities LLC (Frankfurt)".to_string(),
+            amount: "1828.20".to_string(),
+            currency: "EUR".to_string(),
+            debit_credit: "Debit_Cash_Credit_RWA".to_string(),
+            memo: "Bilateral Delivery-vs-Payment 2.00 US Treasury 3M Bills".to_string(),
+            onchain_hash: "0x00ace7e7a0f1887c996ac303412177bc7e41af435aed18790e61114c0b4e1f17".to_string(),
+            finality_receipt: "0x00ace7e7a0f1887c996ac303412177bc7e41af435aed18790e61114c0b4e1f17".to_string(),
+            status: "Finalized".to_string(),
+        },
+        InstitutionalTxn {
+            txn_id: "TXN-20260901-5501".to_string(),
+            booking_date: now_str,
+            value_date: "2026-09-01".to_string(),
+            gl_code: "1010-01".to_string(),
+            txn_type: "CrossBorderTokenizedWire".to_string(),
+            sender_legal: "Alice Trading Corp (Zurich)".to_string(),
+            recipient_legal: "Bob Commodities LLC (Frankfurt)".to_string(),
+            amount: "150.00".to_string(),
+            currency: "EUR".to_string(),
+            debit_credit: "Debit".to_string(),
+            memo: "Intraday Liquidity Optimization Settlement".to_string(),
+            onchain_hash: "0x4b788ee4062d8935044d9ac00fb0f2b9".to_string(),
+            finality_receipt: "PROTO-9ac00fb0-f2b9-4b78-8ee4-062d8935044d".to_string(),
+            status: "Finalized".to_string(),
+        },
+    ];
+
+    let initial_collateral = vec![
+        CollateralPosition {
+            position_id: "COL-USTB-001".to_string(),
+            asset_symbol: "USTB".to_string(),
+            asset_name: "US Treasury 3M Bill (AA+)".to_string(),
+            pledged_amount: "100.00 Units".to_string(),
+            market_value_eur: "91410.00".to_string(),
+            haircut_percent: "2.0".to_string(),
+            borrowing_capacity_eur: "89581.80".to_string(),
+            custodian: "Swiss Vault Depository".to_string(),
+            pledgee: "Apex Central Reserve".to_string(),
+            status: "Active_Pledged".to_string(),
+        },
+        CollateralPosition {
+            position_id: "COL-GOLD-002".to_string(),
+            asset_symbol: "GOLD".to_string(),
+            asset_name: "LBMA Physical Gold (1 oz Bar)".to_string(),
+            pledged_amount: "10.00 oz".to_string(),
+            market_value_eur: "25421.00".to_string(),
+            haircut_percent: "5.0".to_string(),
+            borrowing_capacity_eur: "24149.95".to_string(),
+            custodian: "Swiss Vault Depository".to_string(),
+            pledgee: "Apex Central Reserve".to_string(),
+            status: "Active_Pledged".to_string(),
+        },
+    ];
+
     let state = ServerState {
         env,
         offers: Arc::new(RwLock::new(initial_offers)),
+        transactions: Arc::new(RwLock::new(initial_txns)),
+        collateral: Arc::new(RwLock::new(initial_collateral)),
     };
     let app = create_app(state);
 

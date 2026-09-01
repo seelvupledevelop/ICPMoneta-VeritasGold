@@ -8,12 +8,14 @@ import { RwaMarketplace } from './components/smart/RwaMarketplace';
 import { RwaOfferDesk } from './components/smart/RwaOfferDesk';
 import { GoldFxExchange } from './components/smart/GoldFxExchange';
 import { RfqTradeDesk } from './components/smart/RfqTradeDesk';
+import { TreasuryAccountingView } from './components/institutional/TreasuryAccountingView';
+import { CollateralManagementView } from './components/institutional/CollateralManagementView';
 import { SupervisoryRadar } from './components/views/SupervisoryRadar';
 import { OpsDashboard } from './components/views/OpsDashboard';
 import { RegulatorDashboard } from './components/views/RegulatorDashboard';
 import { AdminDashboard } from './components/views/AdminDashboard';
-import { fetchAccounts, fetchHoldings, fetchIdentities, fetchMarketRates, fetchOffers } from './services/api';
-import type { Perspective, AppSection, DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, ProtocolLog, MarketRate, RwaOffer } from './types';
+import { fetchAccounts, fetchHoldings, fetchIdentities, fetchMarketRates, fetchOffers, fetchTransactions, fetchCollateralPositions } from './services/api';
+import type { Perspective, AppSection, DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, ProtocolLog, MarketRate, RwaOffer, InstitutionalTxn, CollateralPosition } from './types';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
 export function App() {
@@ -27,13 +29,15 @@ export function App() {
   const [identities, setIdentities] = useState<PrincipalProfile[]>([]);
   const [rates, setRates] = useState<MarketRate[]>([]);
   const [offers, setOffers] = useState<RwaOffer[]>([]);
-  const [logs, setLogs] = useState<ProtocolLog[]>([
+  const [transactions, setTransactions] = useState<InstitutionalTxn[]>([]);
+  const [collateral, setCollateral] = useState<CollateralPosition[]>([]);
+  const [logs] = useState<ProtocolLog[]>([
     {
       id: 'PROTO-9ac00fb0-f2b9-4b78-8ee4-062d8935044d',
       type: 'CashTransfer',
       sender: 'Alice Trading Corp',
       recipient: 'Bob Commodities LLC',
-      amount: '100.00',
+      amount: '150.00',
       currency: 'EUR',
       status: 'Finalized',
       step: 'ArchivedInSettlement',
@@ -44,7 +48,7 @@ export function App() {
       type: 'AtomicP2POfferExecution',
       sender: 'Alice Trading Corp',
       recipient: 'Bob Commodities LLC',
-      amount: '50.00',
+      amount: '2.00',
       currency: 'USTB',
       status: 'Finalized',
       step: 'NotarizedByFinalityAuthority',
@@ -55,7 +59,7 @@ export function App() {
       type: 'AtomicDvPTrade',
       sender: 'Alice Trading Corp',
       recipient: 'Swiss Gold Depository',
-      amount: '2.50',
+      amount: '0.50',
       currency: 'GOLD',
       status: 'Finalized',
       step: 'NotarizedByFinalityAuthority',
@@ -67,18 +71,22 @@ export function App() {
 
   const loadData = async () => {
     try {
-      const [accs, holds, ids, rts, ofrs] = await Promise.all([
+      const [accs, holds, ids, rts, ofrs, txns, cols] = await Promise.all([
         fetchAccounts(),
         fetchHoldings(),
         fetchIdentities(),
         fetchMarketRates(),
         fetchOffers(),
+        fetchTransactions(),
+        fetchCollateralPositions(),
       ]);
       setAccounts(accs);
       setHoldings(holds);
       setIdentities(ids);
       setRates(rts);
       setOffers(ofrs);
+      setTransactions(txns);
+      setCollateral(cols);
       setNetworkStatus('healthy');
     } catch {
       setNetworkStatus('offline');
@@ -94,20 +102,7 @@ export function App() {
   const showToast = (message: string, isError = false) => {
     setToast({ message, isError });
     if (!isError) {
-      setLogs((prev) => [
-        {
-          id: `PROTO-${Math.floor(1000 + Math.random() * 9000)}-${Date.now().toString().slice(-4)}`,
-          type: 'AtomicP2POfferExecution',
-          sender: 'Alice Trading Corp',
-          recipient: 'Bob Commodities LLC',
-          amount: 'RWA Move',
-          currency: 'USTB/GOLD',
-          status: 'Finalized',
-          step: 'FinalityProofGenerated',
-          timestamp: 'Just now',
-        },
-        ...prev,
-      ]);
+      loadData();
     }
     setTimeout(() => setToast(null), 4000);
   };
@@ -123,6 +118,10 @@ export function App() {
         return <RwaMarketplace rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
       case 'offers':
         return <RwaOfferDesk offers={offers} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+      case 'accounting':
+        return <TreasuryAccountingView transactions={transactions} onRefresh={loadData} />;
+      case 'collateral':
+        return <CollateralManagementView positions={collateral} onRefresh={loadData} onNotify={showToast} />;
       case 'exchange':
         return <GoldFxExchange rates={rates} />;
       case 'rfq':
@@ -177,7 +176,6 @@ export function App() {
         </div>
       )}
 
-      {/* Main Layout Container */}
       {phoneMode ? (
         <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#EAEAEA' }}>
           <div className="smartphone-frame">
@@ -196,6 +194,8 @@ export function App() {
             accountCount={accounts.length}
             rwaCount={rates.length}
             offerCount={offers.length}
+            txnCount={transactions.length}
+            collateralCount={collateral.length}
             isOpenMobile={isMobileMenuOpen}
             onCloseMobile={() => setIsMobileMenuOpen(false)}
           />
@@ -209,7 +209,7 @@ export function App() {
       )}
 
       <footer style={{ borderTop: '1px solid #E5E5E5', backgroundColor: '#FFFFFF', padding: '12px 20px', textAlign: 'center', fontSize: '11px', color: '#606060' }}>
-        Red Broadcast Smart Financial Application • Enterprise RWA & Banking on Internet Computer • Rust + TypeScript
+        Veritas Gold • Institutional Tokenized Deposits & RWA Market • Licensed to ICP Moneta
       </footer>
     </div>
   );
