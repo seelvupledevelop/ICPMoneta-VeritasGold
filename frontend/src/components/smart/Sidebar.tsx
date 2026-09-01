@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { AppSection } from '../../types';
 import {
   Landmark,
@@ -21,7 +21,14 @@ import {
   Activity,
   Cpu,
   Droplets,
+  KeyRound,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
+import {
+  PERSONA_LIST,
+  type PersonaDefinition,
+} from '../auth/InstitutionalLoginSurface';
 
 interface SidebarProps {
   activeSection: AppSection;
@@ -36,6 +43,9 @@ interface SidebarProps {
   approvalCount?: number;
   canisterCount?: number;
   poolCount?: number;
+  currentPersona?: PersonaDefinition;
+  onSelectPersona?: (p: PersonaDefinition) => void;
+  onOpenPersonaModal?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -51,7 +61,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   approvalCount = 2,
   canisterCount = 3,
   poolCount = 2,
+  currentPersona = PERSONA_LIST[0],
+  onSelectPersona,
+  onOpenPersonaModal,
 }) => {
+  const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const primaryItems: { id: AppSection; label: string; icon: any; badge?: string }[] = [
     { id: 'notaries', label: 'Notaries', icon: ShieldCheck, badge: 'BFT Quorum' },
     { id: 'portfolio', label: 'Portfolio', icon: Landmark, badge: `${accountCount}` },
@@ -126,10 +140,141 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
+        {/* Top Active Persona Card & Quick Switcher */}
+        <div style={{ padding: '12px 10px 8px 10px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div
+            onClick={() => setShowPersonaMenu(!showPersonaMenu)}
+            className="card-interactive"
+            style={{
+              padding: '10px 10px',
+              borderRadius: '8px',
+              backgroundColor: '#150d14',
+              border: '1px solid var(--border-red)',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ShieldCheck size={14} color="var(--red-primary)" />
+                <span style={{ fontSize: '10px', fontWeight: 800, color: 'var(--red-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  ACTIVE PERSONA
+                </span>
+              </div>
+              {showPersonaMenu ? <ChevronUp size={14} color="var(--red-primary)" /> : <ChevronDown size={14} color="var(--text-dim)" />}
+            </div>
+
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {currentPersona.roleTitle}
+              </div>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {currentPersona.institutionName}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '4px' }}>
+              <span style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--green-valid)' }}>
+                {currentPersona.clearanceLevel.split(' ')[0]}
+              </span>
+              <span style={{ fontSize: '9px', color: 'var(--red-primary)', fontWeight: 700 }}>
+                Tap to Switch ▾
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Persona Dropdown Popover */}
+          {showPersonaMenu && (
+            <div
+              className="fade-in"
+              style={{
+                marginTop: '8px',
+                backgroundColor: '#100b12',
+                border: '1px solid var(--border-red)',
+                borderRadius: '8px',
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                maxHeight: '260px',
+                overflowY: 'auto',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.8)',
+              }}
+            >
+              <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', padding: '2px 6px', textTransform: 'uppercase' }}>
+                Switch Institutional Role
+              </div>
+
+              {PERSONA_LIST.map((p) => {
+                const isSelected = p.id === currentPersona.id;
+                const Icon = p.icon;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      if (onSelectPersona) onSelectPersona(p);
+                      setShowPersonaMenu(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '6px 8px',
+                      borderRadius: '6px',
+                      border: isSelected ? '1px solid var(--border-red)' : 'none',
+                      backgroundColor: isSelected ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                      color: isSelected ? '#FFFFFF' : 'var(--text-main)',
+                      fontSize: '11px',
+                      fontWeight: isSelected ? 800 : 500,
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Icon size={14} color={isSelected ? 'var(--red-primary)' : 'var(--text-dim)'} />
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                      <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.roleTitle}</div>
+                    </div>
+                  </button>
+                );
+              })}
+
+              {onOpenPersonaModal && (
+                <button
+                  onClick={() => {
+                    setShowPersonaMenu(false);
+                    onOpenPersonaModal();
+                  }}
+                  style={{
+                    marginTop: '4px',
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-subtle)',
+                    backgroundColor: '#1f131a',
+                    color: 'var(--red-primary)',
+                    fontSize: '10.5px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <KeyRound size={12} />
+                  Open Full Auth Portal ➔
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Primary Navigation Items */}
-        <div style={{ padding: '14px 10px', flex: 1, overflowY: 'auto' }}>
-          <div style={{ fontSize: '9.5px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 8px', marginBottom: '6px' }}>
-            CENTRAL LEDGER & WORKSTATION
+        <div style={{ padding: '10px 10px', flex: 1, overflowY: 'auto' }}>
+          <div style={{ fontSize: '9.5px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 8px', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>CENTRAL LEDGER MODULES</span>
+            <span style={{ fontSize: '9px', color: 'var(--red-primary)' }}>{primaryItems.length}</span>
           </div>
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>

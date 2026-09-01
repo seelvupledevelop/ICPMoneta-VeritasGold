@@ -476,6 +476,12 @@ export function App() {
             approvalCount={approvals.length}
             canisterCount={canisters.length}
             poolCount={liquidityPools.length}
+            currentPersona={authenticatedPersona || PERSONA_LIST[0]}
+            onSelectPersona={(p) => {
+              setAuthenticatedPersona(p);
+              showToast(`Switched persona to ${p.roleTitle} (${p.institutionName})`);
+            }}
+            onOpenPersonaModal={() => setShowLoginModal(true)}
           />
 
           <main style={{ flex: 1, maxWidth: '1440px', width: '100%', margin: '0 auto', padding: '28px 32px' }}>
