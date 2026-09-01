@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Bell, Settings, Wallet, Smartphone, X, ShieldCheck } from 'lucide-react';
+import { Search, Bell, Settings, Wallet, Smartphone, X, ShieldCheck, Building2 } from 'lucide-react';
 import type { DemandDepositRecord } from '../types';
+import { InstitutionalAuthSurface, INSTITUTION_PROFILES, type InstitutionProfile } from './institutional/InstitutionalAuthSurface';
 
 interface NavbarProps {
   networkStatus: 'healthy' | 'connecting' | 'offline';
@@ -14,6 +15,8 @@ interface NavbarProps {
   onSearch?: (query: string) => void;
   accounts?: DemandDepositRecord[];
   onNotify?: (msg: string, isError?: boolean) => void;
+  currentInstitution?: InstitutionProfile;
+  onSelectInstitution?: (profile: InstitutionProfile) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -23,6 +26,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSearch,
   accounts = [],
   onNotify,
+  currentInstitution = INSTITUTION_PROFILES[0],
+  onSelectInstitution,
 }) => {
   const [activeNetwork, setActiveNetwork] = useState<'mainnet' | 'sandbox'>('mainnet');
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +124,30 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '5px' }}>
             Veritas <span style={{ color: 'var(--red-primary)', textShadow: '0 0 12px var(--red-glow)' }}>Gold</span>
           </div>
+
+          {/* Institutional Switcher Badge */}
+          <button
+            type="button"
+            onClick={() => setShowAuthModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '9999px',
+              backgroundColor: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid var(--border-red)',
+              color: 'var(--red-primary)',
+              fontSize: '11px',
+              fontWeight: 800,
+              cursor: 'pointer',
+              marginLeft: '6px',
+            }}
+            title="Switch Institutional Entity"
+          >
+            <Building2 size={13} />
+            <span>{currentInstitution.name.split(' ')[0]} ({currentInstitution.bic.slice(0, 7)})</span>
+          </button>
         </div>
 
         {/* Center: Search Bar */}
@@ -449,6 +479,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal 5: Institutional Entity Switcher */}
+      {showAuthModal && (
+        <InstitutionalAuthSurface
+          currentProfile={currentInstitution}
+          onSelectProfile={(p) => {
+            if (onSelectInstitution) onSelectInstitution(p);
+          }}
+          onClose={() => setShowAuthModal(false)}
+          onNotify={(msg) => {
+            if (onNotify) onNotify(msg);
+          }}
+        />
       )}
     </>
   );

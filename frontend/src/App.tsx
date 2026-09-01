@@ -14,7 +14,8 @@ import { CollateralManagementView } from './components/institutional/CollateralM
 import { SupervisoryRadar } from './components/views/SupervisoryRadar';
 import { OpsDashboard } from './components/views/OpsDashboard';
 import { RegulatorDashboard } from './components/views/RegulatorDashboard';
-import { AdminDashboard } from './components/views/AdminDashboard';
+import { EnterpriseAdminDashboard } from './components/views/EnterpriseAdminDashboard';
+import { INSTITUTION_PROFILES, type InstitutionProfile } from './components/institutional/InstitutionalAuthSurface';
 import { IssuerDashboard } from './components/views/IssuerDashboard';
 import { BondAuctionDesk } from './components/views/BondAuctionDesk';
 import { CorporateActionsView } from './components/views/CorporateActionsView';
@@ -64,6 +65,7 @@ export function App() {
   const [activeSection, setActiveSection] = useState<AppSection>('notaries');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [phoneMode, setPhoneMode] = useState(false);
+  const [currentInstitution, setCurrentInstitution] = useState<InstitutionProfile>(INSTITUTION_PROFILES[0]);
 
   const [accounts, setAccounts] = useState<DemandDepositRecord[]>([]);
   const [holdings, setHoldings] = useState<FungibleAssetHolding[]>([]);
@@ -238,7 +240,7 @@ export function App() {
       case 'logs':
         return <TreasuryAccountingView transactions={transactions} onRefresh={loadData} />;
       case 'support':
-        return <AdminDashboard identities={identities} onRefresh={loadData} onNotify={showToast} />;
+        return <EnterpriseAdminDashboard identities={identities} accounts={accounts} holdings={holdings} onRefresh={loadData} onNotify={showToast} />;
       default:
         return <ConsensusHealthView onNotify={showToast} />;
     }
@@ -257,6 +259,8 @@ export function App() {
         onToggleMobileMenu={() => setIsMobileMenuOpen((p) => !p)}
         accounts={accounts}
         onNotify={showToast}
+        currentInstitution={currentInstitution}
+        onSelectInstitution={setCurrentInstitution}
       />
 
       {toast && (
