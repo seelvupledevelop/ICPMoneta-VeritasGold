@@ -771,82 +771,209 @@ export const InstitutionalMobileSurface: React.FC<InstitutionalMobileSurfaceProp
               </button>
             </div>
 
-            {/* Categorized Menu Links (Instant Auto-Rollback on Click) */}
+            {/* Categorized Menu Links — Full 8-Group Tree Matching Desktop (Instant Auto-Rollback on Click) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* GROUP 1: WORKSPACE */}
               <div>
-                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: '6px' }}>
-                  🏛️ SOVEREIGN & WORKSPACE
+                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--red-primary)', letterSpacing: '0.06em', marginBottom: '6px' }}>
+                  👑 WORKSPACE & MASTER RADAR
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <button
-                    onClick={() => handleMenuClick('admin_overview')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', cursor: 'pointer' }}
-                  >
-                    👑 Master Admin Radar
-                  </button>
-                  <button
-                    onClick={() => handleMenuClick('contract_maker')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', cursor: 'pointer' }}
-                  >
-                    📜 ACTUS Bond Factory
-                  </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <button
                     onClick={() => handleMenuClick('mvp_verification')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(239,68,68,0.15)', border: '1px solid var(--border-red)', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', fontWeight: 800, cursor: 'pointer' }}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(239,68,68,0.15)', border: '1px solid var(--border-red)', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   >
-                    ⚡ Live MVP Verification
+                    <span>⚡ Live MVP Verification</span>
+                    <span style={{ fontSize: '9px', backgroundColor: 'var(--red-primary)', padding: '1px 5px', borderRadius: '4px' }}>6/6 Tests</span>
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('admin_overview')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    👑 Master Dashboard Radar
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('governance')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    👥 Tasks & 2-of-2 Approvals
                   </button>
                 </div>
               </div>
 
+              {/* GROUP 2: ACCOUNTS & CASH */}
               <div>
                 <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: '6px' }}>
-                  🏦 MARKETS & TRADING
+                  💼 ACCOUNTS & CASH LEDGERS
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <button
-                    onClick={() => handleMenuClick('terminal')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', cursor: 'pointer' }}
+                    onClick={() => handleMenuClick('portfolio')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
                   >
-                    📊 RWA TradingView Terminal
-                  </button>
-                  <button
-                    onClick={() => handleMenuClick('auctions')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', cursor: 'pointer' }}
-                  >
-                    🏛️ Dutch Debt Auctions
+                    🏛️ Accounts Overview & Balances
                   </button>
                   <button
                     onClick={() => handleMenuClick('settlement_instruments')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', cursor: 'pointer' }}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
                   >
-                    🪙 Settlement Tokens (sEURD)
+                    🪙 Settlement Tokens (sEURD / sUSDD)
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('sweeper')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    🤖 Liquidity Sweeper & Repos
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('logs')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    📜 Statements & GL (camt.053)
                   </button>
                 </div>
               </div>
 
+              {/* GROUP 3: MARKETS & ASSETS */}
               <div>
                 <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: '6px' }}>
-                  🔐 CUSTODY & GOVERNANCE
+                  📈 MARKETS & ASSET ISSUANCE
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <button
+                    onClick={() => handleMenuClick('terminal')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    📊 RWA TradingView Terminal (9 Timeframes)
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('contract_maker')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    📜 Bond Issuance Factory (ACTUS)
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('auctions')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    🏛️ Primary Dutch Auctions
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('corporate_actions')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    💰 Corporate Actions & Coupons
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('trade')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    ⚡ Trade Blotter & Atomic DvP
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('liquidity_pools')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    💧 Wholesale AMM Liquidity Pools
+                  </button>
+                </div>
+              </div>
+
+              {/* GROUP 4: CUSTODY & COLLATERAL */}
+              <div>
+                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: '6px' }}>
+                  🔐 CUSTODY & COLLATERAL
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <button
                     onClick={() => handleMenuClick('vault')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', cursor: 'pointer' }}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
                   >
                     🔐 Zurich Physical Vault Custody
                   </button>
                   <button
                     onClick={() => handleMenuClick('vault_telemetry')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', cursor: 'pointer' }}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
                   >
-                    📡 IoT Proof of Reserve (PoR)
+                    📡 Proof of Reserve (PoR IoT Live)
                   </button>
                   <button
-                    onClick={() => handleMenuClick('support')}
-                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12.5px', cursor: 'pointer' }}
+                    onClick={() => handleMenuClick('collateral')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
                   >
-                    📖 Support & Docs Portal
+                    🛡️ Collateral Desk & Margins
+                  </button>
+                </div>
+              </div>
+
+              {/* GROUP 5: SETTLEMENT & INTEROPERABILITY */}
+              <div>
+                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: '6px' }}>
+                  🌐 SETTLEMENT & INTEROPERABILITY
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <button
+                    onClick={() => handleMenuClick('notaries')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    ⚡ Settlement Monitor (4/5 BFT)
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('interoperability')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    🌐 ISO 20022 Messages (pacs.008)
+                  </button>
+                  <button
+                    onClick={() => handleMenuClick('bridge')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    🌉 External Connectors & Bridges
+                  </button>
+                </div>
+              </div>
+
+              {/* GROUP 6: RISK & COMPLIANCE */}
+              <div>
+                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: '6px' }}>
+                  ⚖️ RISK & COMPLIANCE
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <button
+                    onClick={() => handleMenuClick('compliance')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    ⚖️ Compliance & 10-Yr GDPR Audit
+                  </button>
+                </div>
+              </div>
+
+              {/* GROUP 7: PLATFORM OPERATIONS */}
+              <div>
+                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: '6px' }}>
+                  ⚙️ PLATFORM OPERATIONS
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <button
+                    onClick={() => handleMenuClick('canister_mgmt')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    ⚙️ Canister Operations (WASMs & Cycles)
+                  </button>
+                </div>
+              </div>
+
+              {/* GROUP 8: HELP & SUPPORT */}
+              <div>
+                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: '6px' }}>
+                  📖 HELP & SUPPORT
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <button
+                    onClick={() => handleMenuClick('support')}
+                    style={{ padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', color: '#FFFFFF', textAlign: 'left', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    📖 Support & Operational Docs Portal
                   </button>
                 </div>
               </div>
