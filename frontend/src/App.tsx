@@ -66,7 +66,20 @@ import type {
   LiquidityPool,
   SovereignBondContract,
 } from './types';
-import { AlertCircle, CheckCircle, LogOut, Smartphone, Monitor, ShieldCheck, KeyRound } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle,
+  LogOut,
+  Smartphone,
+  Tablet,
+  Monitor,
+  ShieldCheck,
+  KeyRound,
+  ShoppingBag,
+  CheckSquare,
+  BarChart2,
+  Send,
+} from 'lucide-react';
 import {
   InstitutionalLoginSurface,
   PERSONA_LIST,
@@ -82,7 +95,7 @@ export function App() {
   // Multi-Persona Authentication & Runtime Mode State
   const [authenticatedPersona, setAuthenticatedPersona] = useState<PersonaDefinition | null>(PERSONA_LIST[0]);
   const [systemEnv, setSystemEnv] = useState<SystemEnvironment>('SANDBOX');
-  const [runtimeMode, setRuntimeMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [runtimeMode, setRuntimeMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [accounts, setAccounts] = useState<DemandDepositRecord[]>([]);
@@ -356,34 +369,67 @@ export function App() {
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Runtime Mode Switcher */}
-          <button
-            onClick={() => setRuntimeMode(runtimeMode === 'desktop' ? 'mobile' : 'desktop')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              fontSize: '11px',
-              fontWeight: 600,
-            }}
-          >
-            {runtimeMode === 'desktop' ? (
-              <>
-                <Smartphone size={13} color="var(--red-primary)" />
-                <span>Switch to Mobile View</span>
-              </>
-            ) : (
-              <>
-                <Monitor size={13} color="var(--red-primary)" />
-                <span>Switch to Workstation</span>
-              </>
-            )}
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* 3-Way Device Runtime Mode Switcher */}
+          <div style={{ display: 'flex', backgroundColor: '#130d19', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-subtle)', gap: '2px' }}>
+            <button
+              onClick={() => setRuntimeMode('desktop')}
+              style={{
+                padding: '3px 8px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: runtimeMode === 'desktop' ? 'var(--red-primary)' : 'transparent',
+                color: runtimeMode === 'desktop' ? '#FFFFFF' : 'var(--text-muted)',
+                fontSize: '10px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <Monitor size={11} />
+              <span>Workstation</span>
+            </button>
+            <button
+              onClick={() => setRuntimeMode('tablet')}
+              style={{
+                padding: '3px 8px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: runtimeMode === 'tablet' ? 'var(--red-primary)' : 'transparent',
+                color: runtimeMode === 'tablet' ? '#FFFFFF' : 'var(--text-muted)',
+                fontSize: '10px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <Tablet size={11} />
+              <span>Tablet (iPad)</span>
+            </button>
+            <button
+              onClick={() => setRuntimeMode('mobile')}
+              style={{
+                padding: '3px 8px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: runtimeMode === 'mobile' ? 'var(--red-primary)' : 'transparent',
+                color: runtimeMode === 'mobile' ? '#FFFFFF' : 'var(--text-muted)',
+                fontSize: '10px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <Smartphone size={11} />
+              <span>Mobile (iPhone)</span>
+            </button>
+          </div>
 
           {/* Switch Persona / Logout */}
           <button
@@ -426,6 +472,112 @@ export function App() {
         </div>
       </div>
 
+      {/* Personal / Institutional Action Hub Ribbon (In Desktop View) */}
+      {runtimeMode === 'desktop' && (
+        <div
+          style={{
+            backgroundColor: '#0f0a15',
+            borderBottom: '1px solid var(--border-subtle)',
+            padding: '6px 20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
+            <span style={{ color: 'var(--text-dim)', fontWeight: 800, textTransform: 'uppercase' }}>
+              ⚡ INSTITUTIONAL ACTION DESK:
+            </span>
+            <span style={{ color: '#FFFFFF', fontWeight: 700 }}>{authenticatedPersona.roleTitle}</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <button
+              onClick={() => setActiveSection('trade')}
+              className="card-interactive"
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid var(--border-red)',
+                color: '#FFFFFF',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <ShoppingBag size={12} color="var(--red-primary)" />
+              Buy / Subscribe Asset
+            </button>
+            <button
+              onClick={() => setActiveSection('governance')}
+              className="card-interactive"
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                backgroundColor: '#191120',
+                border: '1px solid var(--border-subtle)',
+                color: '#FFFFFF',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <CheckSquare size={12} color="var(--green-valid)" />
+              2-of-2 Approvals ({approvals.length})
+            </button>
+            <button
+              onClick={() => setActiveSection('terminal')}
+              className="card-interactive"
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                backgroundColor: '#191120',
+                border: '1px solid var(--border-subtle)',
+                color: '#FFFFFF',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <BarChart2 size={12} color="var(--red-primary)" />
+              Live Markets & Chart
+            </button>
+            <button
+              onClick={() => setActiveSection('portfolio')}
+              className="card-interactive"
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                backgroundColor: '#191120',
+                border: '1px solid var(--border-subtle)',
+                color: '#FFFFFF',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <Send size={12} color="var(--text-dim)" />
+              Data Change & Transfer
+            </button>
+          </div>
+        </div>
+      )}
+
       <Navbar
         networkStatus={networkStatus}
         accountCount={accounts.length}
@@ -466,25 +618,52 @@ export function App() {
         </div>
       )}
 
-      {runtimeMode === 'mobile' ? (
-        <InstitutionalMobileSurface
-          currentPersona={authenticatedPersona || PERSONA_LIST[0]}
-          onSelectPersona={(p) => {
-            setAuthenticatedPersona(p);
-            showToast(`Switched persona to ${p.roleTitle}`);
-          }}
-          accounts={accounts}
-          holdings={holdings}
-          rates={rates}
-          approvals={approvals}
-          onNavigateDesktopSection={(sec) => {
-            setActiveSection(sec);
-            setRuntimeMode('desktop');
-          }}
-          onToggleDesktopMode={() => setRuntimeMode('desktop')}
-          onNotify={showToast}
-          onRefresh={loadData}
-        />
+      {runtimeMode === 'tablet' ? (
+        <div style={{ flex: 1, padding: '24px 16px', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#050308' }}>
+          <div className="tablet-frame">
+            <InstitutionalMobileSurface
+              currentPersona={authenticatedPersona || PERSONA_LIST[0]}
+              onSelectPersona={(p) => {
+                setAuthenticatedPersona(p);
+                showToast(`Switched persona to ${p.roleTitle}`);
+              }}
+              accounts={accounts}
+              holdings={holdings}
+              rates={rates}
+              approvals={approvals}
+              onNavigateDesktopSection={(sec) => {
+                setActiveSection(sec);
+                setRuntimeMode('desktop');
+              }}
+              onToggleDesktopMode={() => setRuntimeMode('desktop')}
+              onNotify={showToast}
+              onRefresh={loadData}
+            />
+          </div>
+        </div>
+      ) : runtimeMode === 'mobile' ? (
+        <div style={{ flex: 1, padding: '24px 16px', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#050308' }}>
+          <div className="smartphone-frame">
+            <InstitutionalMobileSurface
+              currentPersona={authenticatedPersona || PERSONA_LIST[0]}
+              onSelectPersona={(p) => {
+                setAuthenticatedPersona(p);
+                showToast(`Switched persona to ${p.roleTitle}`);
+              }}
+              accounts={accounts}
+              holdings={holdings}
+              rates={rates}
+              approvals={approvals}
+              onNavigateDesktopSection={(sec) => {
+                setActiveSection(sec);
+                setRuntimeMode('desktop');
+              }}
+              onToggleDesktopMode={() => setRuntimeMode('desktop')}
+              onNotify={showToast}
+              onRefresh={loadData}
+            />
+          </div>
+        </div>
       ) : (
         <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
           <Sidebar
