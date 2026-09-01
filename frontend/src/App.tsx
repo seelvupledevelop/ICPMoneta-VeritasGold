@@ -20,6 +20,9 @@ import { CorporateActionsView } from './components/views/CorporateActionsView';
 import { MakerCheckerWorkflow } from './components/views/MakerCheckerWorkflow';
 import { ProofOfReserveTelemetry } from './components/views/ProofOfReserveTelemetry';
 import { LiquiditySweeperView } from './components/views/LiquiditySweeperView';
+import { CrossChainBridgeView } from './components/views/CrossChainBridgeView';
+import { CanisterManagementView } from './components/views/CanisterManagementView';
+import { WholesaleLiquidityView } from './components/views/WholesaleLiquidityView';
 import {
   fetchAccounts,
   fetchHoldings,
@@ -32,6 +35,9 @@ import {
   fetchCorporateActions,
   fetchApprovals,
   fetchSweepingRules,
+  fetchBridgeRoutes,
+  fetchCanisters,
+  fetchLiquidityPools,
 } from './services/api';
 import type {
   AppSection,
@@ -47,6 +53,9 @@ import type {
   CorporateAction,
   PendingApproval,
   SweepingRule,
+  BridgeRoute,
+  CanisterStatusInfo,
+  LiquidityPool,
 } from './types';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -66,6 +75,9 @@ export function App() {
   const [corporateActions, setCorporateActions] = useState<CorporateAction[]>([]);
   const [approvals, setApprovals] = useState<PendingApproval[]>([]);
   const [sweepingRules, setSweepingRules] = useState<SweepingRule[]>([]);
+  const [bridgeRoutes, setBridgeRoutes] = useState<BridgeRoute[]>([]);
+  const [canisters, setCanisters] = useState<CanisterStatusInfo[]>([]);
+  const [liquidityPools, setLiquidityPools] = useState<LiquidityPool[]>([]);
 
   const [logs] = useState<ProtocolLog[]>([
     {
@@ -108,7 +120,7 @@ export function App() {
 
   const loadData = async () => {
     try {
-      const [accs, holds, ids, rts, ofrs, txns, cols, aucs, acts, apprs, sweeps] = await Promise.all([
+      const [accs, holds, ids, rts, ofrs, txns, cols, aucs, acts, apprs, sweeps, brgs, cans, pools] = await Promise.all([
         fetchAccounts(),
         fetchHoldings(),
         fetchIdentities(),
@@ -120,6 +132,9 @@ export function App() {
         fetchCorporateActions(),
         fetchApprovals(),
         fetchSweepingRules(),
+        fetchBridgeRoutes(),
+        fetchCanisters(),
+        fetchLiquidityPools(),
       ]);
       setAccounts(accs);
       setHoldings(holds);
@@ -132,6 +147,9 @@ export function App() {
       setCorporateActions(acts);
       setApprovals(apprs);
       setSweepingRules(sweeps);
+      setBridgeRoutes(brgs);
+      setCanisters(cans);
+      setLiquidityPools(pools);
       setNetworkStatus('healthy');
     } catch {
       setNetworkStatus('offline');
@@ -184,6 +202,12 @@ export function App() {
         return <ProofOfReserveTelemetry onNotify={showToast} />;
       case 'sweeper':
         return <LiquiditySweeperView rules={sweepingRules} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+      case 'bridge':
+        return <CrossChainBridgeView routes={bridgeRoutes} onNotify={showToast} />;
+      case 'canister_mgmt':
+        return <CanisterManagementView canisters={canisters} onRefresh={loadData} onNotify={showToast} />;
+      case 'liquidity_pools':
+        return <WholesaleLiquidityView pools={liquidityPools} onNotify={showToast} />;
       case 'interoperability':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -270,6 +294,8 @@ export function App() {
             collateralCount={collateral.length}
             auctionCount={auctions.length}
             approvalCount={approvals.length}
+            canisterCount={canisters.length}
+            poolCount={liquidityPools.length}
           />
 
           <main style={{ flex: 1, maxWidth: '1440px', width: '100%', margin: '0 auto', padding: '28px 32px' }}>

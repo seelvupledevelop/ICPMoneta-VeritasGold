@@ -1,4 +1,4 @@
-import type { DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, BlindedIdentity, MarketRate, RwaOffer, SupervisionData, InstitutionalTxn, CollateralPosition, BondAuction, AuctionBid, CorporateAction, PendingApproval, VaultSensorTelemetry, SweepingRule } from '../types';
+import type { DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, BlindedIdentity, MarketRate, RwaOffer, SupervisionData, InstitutionalTxn, CollateralPosition, BondAuction, AuctionBid, CorporateAction, PendingApproval, VaultSensorTelemetry, SweepingRule, BridgeRoute, CanisterStatusInfo, LiquidityPool } from '../types';
 
 const API_BASE = 'http://localhost:8080/api/v1';
 
@@ -337,5 +337,55 @@ export async function createSweepingRule(payload: {
     const err = await res.json();
     throw new Error(err.error || 'Failed to create sweeping rule');
   }
+  return res.json();
+}
+
+export async function fetchBridgeRoutes(): Promise<BridgeRoute[]> {
+  const res = await fetch(`${API_BASE}/api/v1/bridge/routes`);
+  if (!res.ok) throw new Error('Failed to fetch bridge routes');
+  return res.json();
+}
+
+export async function executeBridgeTransfer(payload: {
+  source_network: string;
+  target_network: string;
+  asset_symbol: string;
+  amount: string;
+  recipient_address: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/v1/bridge/transfer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Bridge transfer failed');
+  }
+  return res.json();
+}
+
+export async function fetchCanisters(): Promise<CanisterStatusInfo[]> {
+  const res = await fetch(`${API_BASE}/api/v1/canisters`);
+  if (!res.ok) throw new Error('Failed to fetch canisters');
+  return res.json();
+}
+
+export async function topUpCanister(canister_id: string, cycles_to_add_tc: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/v1/canisters/topup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ canister_id, cycles_to_add_tc }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Top-up failed');
+  }
+  return res.json();
+}
+
+export async function fetchLiquidityPools(): Promise<LiquidityPool[]> {
+  const res = await fetch(`${API_BASE}/api/v1/liquidity/pools`);
+  if (!res.ok) throw new Error('Failed to fetch liquidity pools');
   return res.json();
 }

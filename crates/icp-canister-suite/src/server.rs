@@ -145,6 +145,43 @@ pub struct SweepingRule {
     pub total_swept_eur: String,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct BridgeRoute {
+    pub route_id: String,
+    pub source_network: String,
+    pub target_network: String,
+    pub asset_symbol: String,
+    pub estimated_time_sec: u32,
+    pub gas_fee_eur: String,
+    pub threshold_ecdsa_notary: String,
+    pub status: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct CanisterStatusInfo {
+    pub canister_id: String,
+    pub canister_name: String,
+    pub wasm_module_hash: String,
+    pub cycles_balance_tc: String,
+    pub memory_used_mb: String,
+    pub subnet: String,
+    pub status: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct LiquidityPool {
+    pub pool_id: String,
+    pub pair_name: String,
+    pub token_a_symbol: String,
+    pub token_b_symbol: String,
+    pub reserve_a: String,
+    pub reserve_b: String,
+    pub total_liquidity_eur: String,
+    pub fee_tier_pct: String,
+    pub volume_24h_eur: String,
+    pub apy_pct: String,
+}
+
 #[derive(Clone)]
 pub struct ServerState {
     pub env: Arc<CanisterEnvironment>,
@@ -156,6 +193,9 @@ pub struct ServerState {
     pub corporate_actions: Arc<RwLock<Vec<CorporateAction>>>,
     pub approvals: Arc<RwLock<Vec<PendingApproval>>>,
     pub sweeping_rules: Arc<RwLock<Vec<SweepingRule>>>,
+    pub bridge_routes: Arc<RwLock<Vec<BridgeRoute>>>,
+    pub canisters: Arc<RwLock<Vec<CanisterStatusInfo>>>,
+    pub liquidity_pools: Arc<RwLock<Vec<LiquidityPool>>>,
 }
 
 #[derive(Deserialize)]
@@ -268,6 +308,28 @@ pub struct CreateSweepingRuleRequest {
     pub frequency: String,
 }
 
+#[derive(Deserialize)]
+pub struct BridgeTransferRequest {
+    pub source_network: String,
+    pub target_network: String,
+    pub asset_symbol: String,
+    pub amount: String,
+    pub recipient_address: String,
+}
+
+#[derive(Deserialize)]
+pub struct TopUpCanisterRequest {
+    pub canister_id: String,
+    pub cycles_to_add_tc: String,
+}
+
+#[derive(Deserialize)]
+pub struct AddLiquidityRequest {
+    pub pool_id: String,
+    pub amount_a: String,
+    pub amount_b: String,
+}
+
 pub fn create_app(state: ServerState) -> Router {
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -302,6 +364,12 @@ pub fn create_app(state: ServerState) -> Router {
         .route("/api/v1/governance/approve", post(approve_governance_item))
         .route("/api/v1/vault/telemetry", get(get_vault_telemetry))
         .route("/api/v1/treasury/sweeper", get(list_sweeping_rules).post(create_sweeping_rule))
+        // Workspace 2 Stitch Endpoints
+        .route("/api/v1/bridge/routes", get(list_bridge_routes))
+        .route("/api/v1/bridge/transfer", post(execute_bridge_transfer))
+        .route("/api/v1/canisters", get(list_canisters))
+        .route("/api/v1/canisters/topup", post(topup_canister))
+        .route("/api/v1/liquidity/pools", get(list_liquidity_pools).post(add_liquidity))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)
@@ -974,4 +1042,85 @@ async fn create_sweeping_rule(
     lock.insert(0, rule.clone());
 
     Ok((StatusCode::CREATED, Json(rule)))
+}
+
+// ----------------------------------------------------
+// Workspace 2 Stitch Screen Handlers
+// ----------------------------------------------------
+
+async fn list_bridge_routes(State(state): State<ServerState>) -> impl IntoResponse {
+    let routes = state.bridge_routes.read().unwrap().clone();
+    (StatusCode::OK, Json(routes))
+}
+
+async fn execute_bridge_transfer(
+    State(_state): State<ServerState>,
+    Json(payload): Json<BridgeTransferRequest>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    let now = chrono::Utc::now();
+    let tx_hash = format!("0x{:x}", md5::compute(format!("{}-{}-{}", payload.source_network, payload.target_network, now.timestamp_millis())));
+
+    Ok(Json(json!({
+        "status": "Notarized_In_Flight",
+        "bridge_tx_id": format!("BRG-{}", &uuid::Uuid::new_v4().to_string()[..8].to_uppercase()),
+        "source_network": payload.source_network,
+        "target_network": payload.target_network,
+        "asset_symbol": payload.asset_symbol,
+        "amount": payload.amount,
+        "recipient_address": payload.recipient_address,
+        "threshold_ecdsa_signature": "0x4f82a1...notarized",
+        "onchain_hash": tx_hash,
+        "timestamp": now.timestamp_millis() as u64
+    })))
+}
+
+async fn list_canisters(State(state): State<ServerState>) -> impl IntoResponse {
+    let canisters = state.canisters.read().unwrap().clone();
+    (StatusCode::OK, Json(canisters))
+}
+
+async fn topup_canister(
+    State(state): State<ServerState>,
+    Json(payload): Json<TopUpCanisterRequest>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    let mut lock = state.canisters.write().unwrap();
+    let canister = lock
+        .iter_mut()
+        .find(|c| c.canister_id == payload.canister_id)
+        .ok_or_else(|| (StatusCode::NOT_FOUND, Json(json!({ "error": "Canister not found" }))))?;
+
+    let current = canister.cycles_balance_tc.trim_end_matches(" TC").parse::<f64>().unwrap_or(4.5);
+    let add = payload.cycles_to_add_tc.parse::<f64>().unwrap_or(2.0);
+    canister.cycles_balance_tc = format!("{:.1} TC", current + add);
+
+    Ok(Json(json!({
+        "canister_id": canister.canister_id,
+        "new_cycles_balance": canister.cycles_balance_tc,
+        "status": "TopUp_Successful"
+    })))
+}
+
+async fn list_liquidity_pools(State(state): State<ServerState>) -> impl IntoResponse {
+    let pools = state.liquidity_pools.read().unwrap().clone();
+    (StatusCode::OK, Json(pools))
+}
+
+async fn add_liquidity(
+    State(state): State<ServerState>,
+    Json(payload): Json<AddLiquidityRequest>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    let mut lock = state.liquidity_pools.write().unwrap();
+    let pool = lock
+        .iter_mut()
+        .find(|p| p.pool_id == payload.pool_id)
+        .ok_or_else(|| (StatusCode::NOT_FOUND, Json(json!({ "error": "Pool not found" }))))?;
+
+    Ok(Json(json!({
+        "pool_id": pool.pool_id,
+        "pair_name": pool.pair_name,
+        "added_a": payload.amount_a,
+        "added_b": payload.amount_b,
+        "lp_tokens_minted": "500.00 LP",
+        "status": "Liquidity_Provided"
+    })))
 }

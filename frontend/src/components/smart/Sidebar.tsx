@@ -17,6 +17,8 @@ import {
   UserCheck,
   Bot,
   Activity,
+  Cpu,
+  Droplets,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -30,6 +32,8 @@ interface SidebarProps {
   collateralCount?: number;
   auctionCount?: number;
   approvalCount?: number;
+  canisterCount?: number;
+  poolCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -43,11 +47,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   collateralCount = 2,
   auctionCount = 2,
   approvalCount = 2,
+  canisterCount = 3,
+  poolCount = 2,
 }) => {
   const primaryItems: { id: AppSection; label: string; icon: any; badge?: string }[] = [
+    { id: 'notaries', label: 'Notaries', icon: ShieldCheck, badge: 'BFT Quorum' },
     { id: 'portfolio', label: 'Portfolio', icon: Landmark, badge: `${accountCount}` },
     { id: 'vault', label: 'Vault Custody', icon: Key, badge: `${holdingCount} Assets` },
-    { id: 'notaries', label: 'Notaries', icon: ShieldCheck, badge: 'BFT Quorum' },
     { id: 'trade', label: 'Trade & DvP', icon: TrendingUp, badge: `${offerCount} Offers` },
     { id: 'collateral', label: 'Collateral Desk', icon: Layers, badge: `${collateralCount}` },
     { id: 'auctions', label: 'Bond Auctions', icon: Gavel, badge: `${auctionCount} Live` },
@@ -55,6 +61,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'governance', label: 'Maker-Checker', icon: UserCheck, badge: `${approvalCount} Pending` },
     { id: 'vault_telemetry', label: 'PoR Telemetry', icon: Activity, badge: 'IoT Live' },
     { id: 'sweeper', label: 'Liquidity Sweeper', icon: Bot, badge: 'Active' },
+    { id: 'bridge', label: 'Harmonix Bridge', icon: ArrowLeftRight, badge: 'Chain-Key' },
+    { id: 'canister_mgmt', label: 'Smart Contracts', icon: Cpu, badge: `${canisterCount} Canisters` },
+    { id: 'liquidity_pools', label: 'Wholesale Pools', icon: Droplets, badge: `${poolCount} Pools` },
     { id: 'interoperability', label: 'Interoperability', icon: ArrowLeftRight, badge: 'SWIFT' },
     { id: 'compliance', label: 'Compliance', icon: Scale, badge: 'Radar' },
   ];

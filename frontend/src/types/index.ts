@@ -15,6 +15,9 @@ export type AppSection =
   | 'governance'
   | 'vault_telemetry'
   | 'sweeper'
+  | 'bridge'
+  | 'canister_mgmt'
+  | 'liquidity_pools'
   | 'interoperability'
   | 'compliance'
   | 'logs'
@@ -243,4 +246,38 @@ export interface SweepingRule {
   frequency: string;
   is_active: boolean;
   total_swept_eur: string;
+}
+
+export interface BridgeRoute {
+  route_id: string;
+  source_network: string;
+  target_network: string;
+  asset_symbol: string;
+  estimated_time_sec: number;
+  gas_fee_eur: string;
+  threshold_ecdsa_notary: string;
+  status: string;
+}
+
+export interface CanisterStatusInfo {
+  canister_id: string;
+  canister_name: string;
+  wasm_module_hash: string;
+  cycles_balance_tc: string;
+  memory_used_mb: string;
+  subnet: string;
+  status: string;
+}
+
+export interface LiquidityPool {
+  pool_id: string;
+  pair_name: string;
+  token_a_symbol: string;
+  token_b_symbol: string;
+  reserve_a: string;
+  reserve_b: string;
+  total_liquidity_eur: string;
+  fee_tier_pct: string;
+  volume_24h_eur: string;
+  apy_pct: string;
 }

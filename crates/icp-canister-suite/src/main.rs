@@ -3,8 +3,8 @@ mod server;
 use domain::primitives::{Amount, CurrencyCode, PrincipalId};
 use icp_canister_suite::CanisterEnvironment;
 use server::{
-    BondAuction, CollateralPosition, CorporateAction, InstitutionalTxn, PendingApproval, RwaOffer,
-    ServerState, SweepingRule,
+    BondAuction, BridgeRoute, CanisterStatusInfo, CollateralPosition, CorporateAction,
+    InstitutionalTxn, LiquidityPool, PendingApproval, RwaOffer, ServerState, SweepingRule,
 };
 use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
@@ -307,6 +307,86 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
     ];
 
+    let initial_bridge_routes = vec![
+        BridgeRoute {
+            route_id: "BRG-ETH-ICP-01".to_string(),
+            source_network: "Ethereum Mainnet (ERC-20)".to_string(),
+            target_network: "Internet Computer (Canister UTXO)".to_string(),
+            asset_symbol: "EURD / USDC".to_string(),
+            estimated_time_sec: 12,
+            gas_fee_eur: "€1.20".to_string(),
+            threshold_ecdsa_notary: "ECDSA_SECP256K1_VAULT_KEY".to_string(),
+            status: "Operational".to_string(),
+        },
+        BridgeRoute {
+            route_id: "BRG-SWIFT-ICP-02".to_string(),
+            source_network: "SWIFT Alliance Gateway".to_string(),
+            target_network: "ICP Position Ledger Canister".to_string(),
+            asset_symbol: "EUR / USD Demand Deposit".to_string(),
+            estimated_time_sec: 2,
+            gas_fee_eur: "€0.00".to_string(),
+            threshold_ecdsa_notary: "ISO_20022_PACS008_NOTARY".to_string(),
+            status: "Operational".to_string(),
+        },
+    ];
+
+    let initial_canisters = vec![
+        CanisterStatusInfo {
+            canister_id: "rrkah-fqaaa-aaaaa-aaaaq-cai".to_string(),
+            canister_name: "position-ledger (Demand Deposits)".to_string(),
+            wasm_module_hash: "0x8f2a91...b9e1".to_string(),
+            cycles_balance_tc: "4.8 TC".to_string(),
+            memory_used_mb: "128.4 MB".to_string(),
+            subnet: "System Subnet #1 (High-Throughput)".to_string(),
+            status: "Running_Healthy".to_string(),
+        },
+        CanisterStatusInfo {
+            canister_id: "ryjl3-hexae-mc6xm-gopwt-x5jg7-2a".to_string(),
+            canister_name: "asset-ledger (RWA Gold & Bonds)".to_string(),
+            wasm_module_hash: "0x3e11cb...44a9".to_string(),
+            cycles_balance_tc: "5.2 TC".to_string(),
+            memory_used_mb: "210.1 MB".to_string(),
+            subnet: "European Subnet #2".to_string(),
+            status: "Running_Healthy".to_string(),
+        },
+        CanisterStatusInfo {
+            canister_id: "h64fh-eybaq-aaaaa-aaaaa-cai".to_string(),
+            canister_name: "identity-registry (KYC / Blinded Keys)".to_string(),
+            wasm_module_hash: "0x77ba12...e308".to_string(),
+            cycles_balance_tc: "3.9 TC".to_string(),
+            memory_used_mb: "64.2 MB".to_string(),
+            subnet: "Fiduciary Subnet #3".to_string(),
+            status: "Running_Healthy".to_string(),
+        },
+    ];
+
+    let initial_liquidity_pools = vec![
+        LiquidityPool {
+            pool_id: "POOL-EURD-GOLD".to_string(),
+            pair_name: "EURD / LBMA Gold (1 oz)".to_string(),
+            token_a_symbol: "EURD".to_string(),
+            token_b_symbol: "GOLD".to_string(),
+            reserve_a: "€12,710,500.00".to_string(),
+            reserve_b: "5,000.00 oz".to_string(),
+            total_liquidity_eur: "€25,421,000.00".to_string(),
+            fee_tier_pct: "0.05%".to_string(),
+            volume_24h_eur: "€4,850,200.00".to_string(),
+            apy_pct: "6.85%".to_string(),
+        },
+        LiquidityPool {
+            pool_id: "POOL-EURD-USTB".to_string(),
+            pair_name: "EURD / US Treasury 3M Bill".to_string(),
+            token_a_symbol: "EURD".to_string(),
+            token_b_symbol: "USTB".to_string(),
+            reserve_a: "€45,705,000.00".to_string(),
+            reserve_b: "50,000.00 Units".to_string(),
+            total_liquidity_eur: "€91,410,000.00".to_string(),
+            fee_tier_pct: "0.02%".to_string(),
+            volume_24h_eur: "€18,250,000.00".to_string(),
+            apy_pct: "4.15%".to_string(),
+        },
+    ];
+
     let state = ServerState {
         env,
         offers: Arc::new(RwLock::new(initial_offers)),
@@ -317,6 +397,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         corporate_actions: Arc::new(RwLock::new(initial_corporate_actions)),
         approvals: Arc::new(RwLock::new(initial_approvals)),
         sweeping_rules: Arc::new(RwLock::new(initial_sweeping_rules)),
+        bridge_routes: Arc::new(RwLock::new(initial_bridge_routes)),
+        canisters: Arc::new(RwLock::new(initial_canisters)),
+        liquidity_pools: Arc::new(RwLock::new(initial_liquidity_pools)),
     };
 
     let app = server::create_app(state);
