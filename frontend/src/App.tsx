@@ -63,13 +63,24 @@ import type {
   LiquidityPool,
   SovereignBondContract,
 } from './types';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, LogOut, Smartphone, Monitor, ShieldCheck, KeyRound } from 'lucide-react';
+import {
+  InstitutionalLoginSurface,
+  PERSONA_LIST,
+  type PersonaDefinition,
+  type SystemEnvironment,
+} from './components/auth/InstitutionalLoginSurface';
 
 export function App() {
   const [activeSection, setActiveSection] = useState<AppSection>('notaries');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [phoneMode, setPhoneMode] = useState(false);
   const [currentInstitution, setCurrentInstitution] = useState<InstitutionProfile>(INSTITUTION_PROFILES[0]);
+
+  // Multi-Persona Authentication & Runtime Mode State
+  const [authenticatedPersona, setAuthenticatedPersona] = useState<PersonaDefinition | null>(PERSONA_LIST[0]);
+  const [systemEnv, setSystemEnv] = useState<SystemEnvironment>('SANDBOX');
+  const [runtimeMode, setRuntimeMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [accounts, setAccounts] = useState<DemandDepositRecord[]>([]);
   const [holdings, setHoldings] = useState<FungibleAssetHolding[]>([]);
@@ -257,16 +268,151 @@ export function App() {
     }
   };
 
+  if (!authenticatedPersona || showLoginModal) {
+    return (
+      <InstitutionalLoginSurface
+        onLoginSuccess={(persona, env, mode) => {
+          setAuthenticatedPersona(persona);
+          setSystemEnv(env);
+          setRuntimeMode(mode);
+          setShowLoginModal(false);
+          showToast(`Authenticated as ${persona.roleTitle} (${persona.institutionName})`);
+        }}
+      />
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-app)', color: 'var(--text-main)', display: 'flex', flexDirection: 'column' }}>
+      {/* Top Institutional Persona Status Ribbon */}
+      <div
+        style={{
+          height: '32px',
+          backgroundColor: '#08060b',
+          borderBottom: '1px solid var(--border-subtle)',
+          padding: '0 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '11px',
+          color: 'var(--text-muted)',
+          zIndex: 1001,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <ShieldCheck size={14} color="var(--red-primary)" />
+            <span style={{ fontWeight: 800, color: '#FFFFFF' }}>{authenticatedPersona.roleTitle}</span>
+            <span style={{ color: 'var(--text-dim)' }}>•</span>
+            <span style={{ color: 'var(--text-muted)' }}>{authenticatedPersona.institutionName}</span>
+          </div>
+          <span
+            style={{
+              padding: '1px 6px',
+              borderRadius: '3px',
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              color: 'var(--red-primary)',
+              fontSize: '9.5px',
+              fontWeight: 800,
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
+            {authenticatedPersona.clearanceLevel}
+          </span>
+          <span
+            style={{
+              padding: '1px 6px',
+              borderRadius: '3px',
+              backgroundColor: systemEnv === 'SANDBOX' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              border: `1px solid ${systemEnv === 'SANDBOX' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+              color: systemEnv === 'SANDBOX' ? '#f59e0b' : 'var(--green-valid)',
+              fontSize: '9.5px',
+              fontWeight: 800,
+            }}
+          >
+            ENV: {systemEnv} (sEURD / sUSDD)
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Runtime Mode Switcher */}
+          <button
+            onClick={() => setRuntimeMode(runtimeMode === 'desktop' ? 'mobile' : 'desktop')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontWeight: 600,
+            }}
+          >
+            {runtimeMode === 'desktop' ? (
+              <>
+                <Smartphone size={13} color="var(--red-primary)" />
+                <span>Switch to Mobile View</span>
+              </>
+            ) : (
+              <>
+                <Monitor size={13} color="var(--red-primary)" />
+                <span>Switch to Workstation</span>
+              </>
+            )}
+          </button>
+
+          {/* Switch Persona / Logout */}
+          <button
+            onClick={() => setShowLoginModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--red-primary)',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontWeight: 700,
+            }}
+          >
+            <KeyRound size={12} />
+            Switch Persona
+          </button>
+
+          <button
+            onClick={() => {
+              setAuthenticatedPersona(null);
+              setShowLoginModal(true);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-dim)',
+              cursor: 'pointer',
+              fontSize: '11px',
+            }}
+          >
+            <LogOut size={12} />
+            Logout
+          </button>
+        </div>
+      </div>
+
       <Navbar
         networkStatus={networkStatus}
         accountCount={accounts.length}
         holdingCount={holdings.length}
         protocolCount={logs.length}
         identityCount={identities.length}
-        phoneMode={phoneMode}
-        setPhoneMode={setPhoneMode}
+        phoneMode={runtimeMode === 'mobile'}
+        setPhoneMode={(m) => setRuntimeMode(m ? 'mobile' : 'desktop')}
         onToggleMobileMenu={() => setIsMobileMenuOpen((p) => !p)}
         accounts={accounts}
         onNotify={showToast}
@@ -299,7 +445,7 @@ export function App() {
         </div>
       )}
 
-      {phoneMode ? (
+      {runtimeMode === 'mobile' ? (
         <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#060608' }}>
           <div className="smartphone-frame">
             <div className="smartphone-notch" />
@@ -339,7 +485,7 @@ export function App() {
       )}
 
       <footer style={{ borderTop: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-navbar)', padding: '12px 20px', textAlign: 'center', fontSize: '11px', color: 'var(--text-dim)' }}>
-        Veritas Gold • Sovereign Institutional Ledger • Verified Sub-Second Finality on ICP
+        Veritas Sovereign Ledger • DFINITY Canister Architecture • Sub-Second DvP Finality • Sandbox EUR & USD Settlement Tokens
       </footer>
     </div>
   );
