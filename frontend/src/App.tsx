@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/smart/Sidebar';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { StitchExecutiveDashboard } from './components/views/StitchExecutiveDashboard';
 import { ConsensusHealthView } from './components/views/ConsensusHealthView';
 import { BankCardSurface } from './components/smart/BankCardSurface';
 import { RwaMarketplace } from './components/smart/RwaMarketplace';
@@ -173,7 +174,19 @@ export function App() {
   const renderContent = () => {
     switch (activeSection) {
       case 'notaries':
-        return <ConsensusHealthView onNotify={showToast} />;
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+            <StitchExecutiveDashboard
+              accounts={accounts}
+              holdings={holdings}
+              rates={rates}
+              onOpenTransfer={() => setActiveSection('portfolio')}
+              onOpenAudit={() => setActiveSection('logs')}
+              onNotify={showToast}
+            />
+            <ConsensusHealthView onNotify={showToast} />
+          </div>
+        );
       case 'portfolio':
         return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
       case 'vault':
@@ -252,8 +265,8 @@ export function App() {
             position: 'fixed',
             bottom: '70px',
             right: '20px',
-            backgroundColor: toast.isError ? '#ef4444' : '#0e172a',
-            border: `1px solid ${toast.isError ? '#dc2626' : 'var(--cyan-primary)'}`,
+            backgroundColor: toast.isError ? '#ef4444' : '#140c11',
+            border: `1px solid ${toast.isError ? '#dc2626' : 'var(--red-primary)'}`,
             color: '#FFFFFF',
             padding: '12px 18px',
             borderRadius: '9999px',
@@ -262,7 +275,7 @@ export function App() {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+            boxShadow: '0 4px 24px rgba(239, 68, 68, 0.35)',
             zIndex: 3000,
           }}
         >
@@ -272,7 +285,7 @@ export function App() {
       )}
 
       {phoneMode ? (
-        <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#050912' }}>
+        <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#060608' }}>
           <div className="smartphone-frame">
             <div className="smartphone-notch" />
             <div style={{ overflowY: 'auto', flex: 1, padding: '34px 16px 70px 16px', display: 'flex', flexDirection: 'column' }}>
