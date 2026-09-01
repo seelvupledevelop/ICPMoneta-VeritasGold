@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Bell, Settings, Wallet, Smartphone, X, ShieldCheck, Building2 } from 'lucide-react';
+import { Search, Bell, Settings, Wallet, Smartphone, X, ShieldCheck, Building2, Rocket, CheckCircle, AlertCircle } from 'lucide-react';
 import type { DemandDepositRecord } from '../types';
 import { InstitutionalAuthSurface, INSTITUTION_PROFILES, type InstitutionProfile } from './institutional/InstitutionalAuthSurface';
 
@@ -37,6 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showRoadmapModal, setShowRoadmapModal] = useState(false);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -252,6 +253,28 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Smartphone size={14} />
             {phoneMode ? 'Exit Mobile' : 'Phone View'}
+          </button>
+
+          {/* Production Roadmap & Readiness Notes */}
+          <button
+            onClick={() => setShowRoadmapModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+              color: 'var(--green-valid)',
+              border: '1px solid rgba(16, 185, 129, 0.35)',
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '11.5px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Rocket size={14} />
+            Status & Roadmap
           </button>
 
           {/* Action Icons */}
@@ -493,6 +516,92 @@ export const Navbar: React.FC<NavbarProps> = ({
             if (onNotify) onNotify(msg);
           }}
         />
+      )}
+
+      {/* Modal 6: Production Readiness Status & Roadmap */}
+      {showRoadmapModal && (
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: '780px', width: '92vw', maxHeight: '88vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Rocket size={20} color="var(--green-valid)" />
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
+                  Veritas Sovereign Ledger • Production Readiness & Roadmap
+                </h3>
+              </div>
+              <button onClick={() => setShowRoadmapModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '13px' }}>
+              {/* Working Features Summary */}
+              <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <CheckCircle size={16} color="var(--green-valid)" />
+                  <span style={{ fontWeight: 800, color: 'var(--green-valid)', fontSize: '14px' }}>100% Operational In MVP</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                  <div>• <b>ACTUS Sovereign Bond Factory</b> (ISIN / DTI)</div>
+                  <div>• <b>TradingView Candlesticks</b> (Multi-Mode + Volume)</div>
+                  <div>• <b>Instant DvP Primary Market</b> (&lt; 400ms finality)</div>
+                  <div>• <b>Dutch Debt Auction Console</b> (Yield Bidding)</div>
+                  <div>• <b>Maker-Checker Dual Custody</b> (2-of-2 Signatures)</div>
+                  <div>• <b>Harmonix Multi-Chain Bridge</b> (Chain-Key ECDSA)</div>
+                  <div>• <b>Automated Liquidity Sweeper</b> (Gold Reserves)</div>
+                  <div>• <b>Wholesale AMM Pools</b> (EURD / LBMA Gold)</div>
+                  <div>• <b>10-Crate Rust Backend</b> (Zero Panics, Invariant Verified)</div>
+                  <div>• <b>Full Desktop & Mobile Parity</b> (Zero Dead Buttons)</div>
+                </div>
+              </div>
+
+              {/* What Remains to be Added for Production */}
+              <div style={{ backgroundColor: 'var(--bg-card)', padding: '14px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <AlertCircle size={16} color="var(--red-primary)" />
+                  <span style={{ fontWeight: 800, color: 'var(--red-primary)', fontSize: '14px' }}>Milestones Required For Production & Mainnet</span>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12.5px' }}>
+                  <div style={{ padding: '10px', backgroundColor: '#130d12', borderRadius: '6px', border: '1px solid #271f28' }}>
+                    <b style={{ color: '#fff' }}>1. Hardware-Backed Multi-Tier Login</b>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)', fontSize: '11.5px' }}>
+                      FIPS 140-2 Level 3 HSM / YubiKey WebAuthn for Central Bank Governors, Internet Identity for Commercial Banks, and 2-of-3 Multi-Sig Keyrings for Corporate Treasurers.
+                    </p>
+                  </div>
+
+                  <div style={{ padding: '10px', backgroundColor: '#130d12', borderRadius: '6px', border: '1px solid #271f28' }}>
+                    <b style={{ color: '#fff' }}>2. Live Financial Feeds via ICP HTTPS Outcalls</b>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)', fontSize: '11.5px' }}>
+                      Direct on-chain 2/3+ BFT consensus ingestion from LBMA Physical Gold, ECB SDW FX rates (EUR/USD, EUR/CHF, EUR/TRY), and US Treasury/FRED yield curves.
+                    </p>
+                  </div>
+
+                  <div style={{ padding: '10px', backgroundColor: '#130d12', borderRadius: '6px', border: '1px solid #271f28' }}>
+                    <b style={{ color: '#fff' }}>3. Enterprise PostgreSQL Persistence & Core Banking Connectors</b>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)', fontSize: '11.5px' }}>
+                      Parameterized SQLx caching with ISO 20022 (pacs.008, camt.053) ledger exports and direct API connectors for Temenos, Murex, Avaloq, and FIS.
+                    </p>
+                  </div>
+
+                  <div style={{ padding: '10px', backgroundColor: '#130d12', borderRadius: '6px', border: '1px solid #271f28' }}>
+                    <b style={{ color: '#fff' }}>4. ICP Canister Sandbox & Mainnet Deployment</b>
+                    <p style={{ margin: '4px 0 0 0', color: 'var(--text-muted)', fontSize: '11.5px' }}>
+                      Candid (.did) bindings compilation, 30-min ICP Sandbox verification, and Fiduciary Subnet production deployment with custom sovereign domain binding.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                  Detailed Report: <code>MDFILES/production_readiness_status_and_implementation_roadmap.md</code>
+                </span>
+                <button className="btn-red" onClick={() => setShowRoadmapModal(false)}>Acknowledge & Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
