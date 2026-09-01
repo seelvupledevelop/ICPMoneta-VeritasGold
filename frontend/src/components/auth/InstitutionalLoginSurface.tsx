@@ -36,6 +36,20 @@ export interface PersonaDefinition {
 
 export const PERSONA_LIST: PersonaDefinition[] = [
   {
+    id: 'persona_super_admin',
+    roleTitle: 'Platform Super Admin & Operator',
+    category: 'Supervisory & Audit',
+    institutionName: 'Sovereign Network Operations Center (NOC)',
+    bic: 'VERITASSOVXXX',
+    lei: '98450000000000000000',
+    jurisdiction: 'Global Fiduciary Subnet Root',
+    clearanceLevel: 'Level 5 (Platform Root Authority)',
+    description: 'Unrestricted master operations clearance. Real-time participant monitoring, global liquidity radar, canister cycles management, and invariant auditing.',
+    keyPermissions: ['Master Admin Radar', 'Canister Fleet Upgrades', 'Global Invariant Audits', 'Multi-Entity Impersonation', 'All 18 Modules'],
+    icon: Shield,
+    defaultMode: 'desktop',
+  },
+  {
     id: 'persona_cb_governor',
     roleTitle: 'Central Bank Operator & Governor',
     category: 'Central Bank',
@@ -297,6 +311,58 @@ export const InstitutionalLoginSurface: React.FC<InstitutionalLoginSurfaceProps>
                   }}
                 >
                   {env === 'SANDBOX' ? '⚡ SANDBOX (sEURD)' : env}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 4 Direct Test Portals Bar */}
+        <div
+          style={{
+            padding: '12px 28px',
+            backgroundColor: '#110c16',
+            borderBottom: '1px solid var(--border-subtle)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '10px',
+          }}
+        >
+          <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--red-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            ⚡ DIRECT TEST PORTALS:
+          </span>
+
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {[
+              { id: 'persona_super_admin', label: '👑 Admin (test-admin)' },
+              { id: 'persona_cb_governor', label: '🏛️ Central Bank (test-centralbank)' },
+              { id: 'persona_comm_treasury', label: '🏦 Bank (test-institutional)' },
+              { id: 'persona_issuer_dmo', label: '📜 Agency DMO (test-agency)' },
+            ].map((portal) => {
+              const isSelected = selectedPersona.id === portal.id;
+              const target = PERSONA_LIST.find((p) => p.id === portal.id);
+              return (
+                <button
+                  key={portal.id}
+                  onClick={() => {
+                    if (target) handleSelectPersona(target);
+                  }}
+                  className="card-interactive"
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    border: isSelected ? '1px solid var(--border-red)' : '1px solid var(--border-subtle)',
+                    backgroundColor: isSelected ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255,255,255,0.03)',
+                    color: isSelected ? '#FFFFFF' : 'var(--text-main)',
+                    fontSize: '11px',
+                    fontWeight: isSelected ? 800 : 600,
+                    cursor: 'pointer',
+                    boxShadow: isSelected ? '0 0 10px rgba(239, 68, 68, 0.3)' : 'none',
+                  }}
+                >
+                  {portal.label}
                 </button>
               );
             })}

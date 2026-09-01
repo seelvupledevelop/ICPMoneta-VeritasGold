@@ -48,6 +48,12 @@ interface SidebarProps {
   onOpenPersonaModal?: () => void;
 }
 
+interface NavCategory {
+  title: string;
+  badge?: string;
+  items: { id: AppSection; label: string; icon: any; badge?: string }[];
+}
+
 export const Sidebar: React.FC<SidebarProps> = ({
   activeSection,
   setActiveSection,
@@ -66,30 +72,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenPersonaModal,
 }) => {
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
-  const primaryItems: { id: AppSection; label: string; icon: any; badge?: string }[] = [
-    { id: 'admin_overview', label: 'Master Admin Radar', icon: ShieldCheck, badge: 'All Nodes' },
-    { id: 'notaries', label: 'Notaries', icon: ShieldCheck, badge: 'BFT Quorum' },
-    { id: 'portfolio', label: 'Portfolio', icon: Landmark, badge: `${accountCount}` },
-    { id: 'terminal', label: 'RWA Terminal', icon: BarChart2, badge: 'Live Chart' },
-    { id: 'contract_maker', label: 'Contract Maker', icon: FileCode2, badge: 'Factory' },
-    { id: 'vault', label: 'Vault Custody', icon: Key, badge: `${holdingCount} Assets` },
-    { id: 'trade', label: 'Trade & DvP', icon: TrendingUp, badge: `${offerCount} Offers` },
-    { id: 'collateral', label: 'Collateral Desk', icon: Layers, badge: `${collateralCount}` },
-    { id: 'auctions', label: 'Bond Auctions', icon: Gavel, badge: `${auctionCount} Live` },
-    { id: 'corporate_actions', label: 'Coupon Engine', icon: Coins, badge: 'ACTUS' },
-    { id: 'governance', label: 'Maker-Checker', icon: UserCheck, badge: `${approvalCount} Pending` },
-    { id: 'vault_telemetry', label: 'PoR Telemetry', icon: Activity, badge: 'IoT Live' },
-    { id: 'sweeper', label: 'Liquidity Sweeper', icon: Bot, badge: 'Active' },
-    { id: 'bridge', label: 'Harmonix Bridge', icon: ArrowLeftRight, badge: 'Chain-Key' },
-    { id: 'canister_mgmt', label: 'Smart Contracts', icon: Cpu, badge: `${canisterCount} Canisters` },
-    { id: 'liquidity_pools', label: 'Wholesale Pools', icon: Droplets, badge: `${poolCount} Pools` },
-    { id: 'interoperability', label: 'Interoperability', icon: ArrowLeftRight, badge: 'SWIFT' },
-    { id: 'compliance', label: 'Compliance', icon: Scale, badge: 'Radar' },
+
+  const categories: NavCategory[] = [
+    {
+      title: '🏛️ SOVEREIGN & REGULATORY',
+      items: [
+        { id: 'admin_overview', label: 'Master Admin Radar', icon: ShieldCheck, badge: 'All Nodes' },
+        { id: 'notaries', label: 'Notaries & Quorum', icon: ShieldCheck, badge: '4/5 BFT' },
+        { id: 'contract_maker', label: 'Bond Factory', icon: FileCode2, badge: 'ACTUS' },
+        { id: 'sweeper', label: 'Liquidity Sweeper', icon: Bot, badge: 'Active' },
+        { id: 'compliance', label: 'Compliance Radar', icon: Scale, badge: '10-Yr GDPR' },
+      ],
+    },
+    {
+      title: '🏦 MARKETS, TRADING & DVP',
+      items: [
+        { id: 'portfolio', label: 'Portfolio & Cash', icon: Landmark, badge: `${accountCount}` },
+        { id: 'terminal', label: 'RWA Terminal', icon: BarChart2, badge: 'TradingView' },
+        { id: 'trade', label: 'Trade & DvP', icon: TrendingUp, badge: `${offerCount} Offers` },
+        { id: 'auctions', label: 'Dutch Auctions', icon: Gavel, badge: `${auctionCount} Live` },
+        { id: 'liquidity_pools', label: 'Wholesale Pools', icon: Droplets, badge: `${poolCount} AMM` },
+        { id: 'collateral', label: 'Collateral Desk', icon: Layers, badge: `${collateralCount}` },
+      ],
+    },
+    {
+      title: '🔐 CUSTODY & CLEARING',
+      items: [
+        { id: 'vault', label: 'Vault Custody', icon: Key, badge: `${holdingCount} Assets` },
+        { id: 'vault_telemetry', label: 'PoR Telemetry', icon: Activity, badge: 'IoT Live' },
+        { id: 'governance', label: 'Maker-Checker', icon: UserCheck, badge: `${approvalCount} Pending` },
+        { id: 'corporate_actions', label: 'Coupon Engine', icon: Coins, badge: 'ACTUS' },
+        { id: 'bridge', label: 'Harmonix Bridge', icon: ArrowLeftRight, badge: 'Chain-Key' },
+        { id: 'canister_mgmt', label: 'Canister Fleet', icon: Cpu, badge: `${canisterCount} WASMs` },
+        { id: 'interoperability', label: 'Interoperability', icon: ArrowLeftRight, badge: 'SWIFT' },
+      ],
+    },
   ];
 
-  const bottomItems: { id: AppSection; label: string; icon: any }[] = [
-    { id: 'support', label: 'Support & Docs', icon: HelpCircle },
-    { id: 'logs', label: 'Logs & ERP Export', icon: FileText },
+  const bottomItems: { id: AppSection; label: string; icon: any; badge?: string }[] = [
+    { id: 'support', label: 'Support & Docs', icon: HelpCircle, badge: 'v2.4' },
+    { id: 'logs', label: 'Audit Logs & ERP', icon: FileText, badge: 'ISO 20022' },
   ];
 
   const handleSelect = (id: AppSection) => {
@@ -271,65 +293,72 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Primary Navigation Items */}
-        <div style={{ padding: '10px 10px', flex: 1, overflowY: 'auto' }}>
-          <div style={{ fontSize: '9.5px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 8px', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>CENTRAL LEDGER MODULES</span>
-            <span style={{ fontSize: '9px', color: 'var(--red-primary)' }}>{primaryItems.length}</span>
-          </div>
+        {/* Categorized Navigation Groups */}
+        <div style={{ padding: '10px 10px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {categories.map((cat, idx) => (
+            <div key={idx}>
+              <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', padding: '0 8px', marginBottom: '4px' }}>
+                {cat.title}
+              </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            {primaryItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeSection === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleSelect(item.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 10px',
-                    borderRadius: '7px',
-                    backgroundColor: isActive ? '#2d0f16' : 'transparent',
-                    color: isActive ? 'var(--red-primary)' : 'var(--text-muted)',
-                    fontWeight: isActive ? 700 : 500,
-                    fontSize: '12.5px',
-                    textAlign: 'left',
-                    transition: 'all 0.15s ease',
-                    border: isActive ? '1px solid rgba(239, 68, 68, 0.45)' : '1px solid transparent',
-                    boxShadow: isActive ? '0 0 14px rgba(239, 68, 68, 0.2)' : 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Icon size={15} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
-                    {item.label}
-                  </div>
-                  {item.badge && (
-                    <span
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {cat.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeSection === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelect(item.id)}
                       style={{
-                        fontSize: '9px',
-                        fontWeight: 700,
-                        padding: '2px 5px',
-                        borderRadius: '9999px',
-                        backgroundColor: isActive ? 'rgba(239, 68, 68, 0.25)' : '#180f14',
-                        color: isActive ? 'var(--red-primary)' : 'var(--text-dim)',
-                        border: `1px solid ${isActive ? 'rgba(239, 68, 68, 0.5)' : '#33161e'}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '7px 10px',
+                        borderRadius: '7px',
+                        backgroundColor: isActive ? '#2d0f16' : 'transparent',
+                        color: isActive ? 'var(--red-primary)' : 'var(--text-muted)',
+                        fontWeight: isActive ? 700 : 500,
+                        fontSize: '12px',
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease',
+                        border: isActive ? '1px solid rgba(239, 68, 68, 0.45)' : '1px solid transparent',
+                        boxShadow: isActive ? '0 0 14px rgba(239, 68, 68, 0.2)' : 'none',
+                        cursor: 'pointer',
                       }}
                     >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Icon size={14} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
+                        {item.label}
+                      </div>
+                      {item.badge && (
+                        <span
+                          style={{
+                            fontSize: '8.5px',
+                            fontWeight: 700,
+                            padding: '1px 5px',
+                            borderRadius: '9999px',
+                            backgroundColor: isActive ? 'rgba(239, 68, 68, 0.25)' : '#180f14',
+                            color: isActive ? 'var(--red-primary)' : 'var(--text-dim)',
+                            border: `1px solid ${isActive ? 'rgba(239, 68, 68, 0.5)' : '#33161e'}`,
+                          }}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
         </div>
 
         {/* Bottom Support & Logs Items */}
         <div style={{ marginTop: 'auto', padding: '10px', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', padding: '0 8px', marginBottom: '2px' }}>
+            📖 OPERATIONS & MANUAL
+          </div>
+
           {bottomItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
@@ -340,7 +369,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  justifyContent: 'space-between',
                   padding: '7px 10px',
                   borderRadius: '7px',
                   backgroundColor: isActive ? '#2d0f16' : 'transparent',
@@ -348,13 +377,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   fontWeight: isActive ? 700 : 500,
                   fontSize: '12px',
                   textAlign: 'left',
-                  border: 'none',
+                  border: isActive ? '1px solid rgba(239, 68, 68, 0.45)' : 'none',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                 }}
               >
-                <Icon size={14} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
-                {item.label}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Icon size={14} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
+                  {item.label}
+                </div>
+                {item.badge && (
+                  <span
+                    style={{
+                      fontSize: '8.5px',
+                      fontWeight: 700,
+                      padding: '1px 5px',
+                      borderRadius: '9999px',
+                      backgroundColor: isActive ? 'rgba(239, 68, 68, 0.25)' : '#180f14',
+                      color: isActive ? 'var(--red-primary)' : 'var(--text-dim)',
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           })}
