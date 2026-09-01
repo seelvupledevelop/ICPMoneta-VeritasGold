@@ -98,6 +98,24 @@ export function App() {
   const [runtimeMode, setRuntimeMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // Check URL parameters for Direct Route Addresses (?mode=mobile, ?mode=tablet, ?login=true)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const modeParam = params.get('mode');
+    const hash = window.location.hash;
+    const path = window.location.pathname;
+
+    if (modeParam === 'mobile' || hash === '#mobile' || path.includes('/mobile')) {
+      setRuntimeMode('mobile');
+    } else if (modeParam === 'tablet' || hash === '#tablet' || path.includes('/tablet')) {
+      setRuntimeMode('tablet');
+    }
+
+    if (params.get('login') === 'true' || params.get('auth') === 'true' || params.get('persona') === 'select') {
+      setShowLoginModal(true);
+    }
+  }, []);
+
   const [accounts, setAccounts] = useState<DemandDepositRecord[]>([]);
   const [holdings, setHoldings] = useState<FungibleAssetHolding[]>([]);
   const [identities, setIdentities] = useState<PrincipalProfile[]>([]);
@@ -698,6 +716,46 @@ export function App() {
       <footer style={{ borderTop: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-navbar)', padding: '12px 20px', textAlign: 'center', fontSize: '11px', color: 'var(--text-dim)' }}>
         Veritas Sovereign Ledger • DFINITY Canister Architecture • Sub-Second DvP Finality • Sandbox EUR & USD Settlement Tokens
       </footer>
+
+      {/* INSTITUTIONAL MULTI-PERSONA LOGIN PORTAL (FULL MODAL / LOGIN GATE) */}
+      {(showLoginModal || !authenticatedPersona) && (
+        <div
+          className="fade-in"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999,
+            backgroundColor: '#070509',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {authenticatedPersona && (
+            <div style={{ position: 'absolute', top: 20, right: 24, zIndex: 10001 }}>
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="btn-outline"
+                style={{ padding: '8px 16px', fontSize: '12px', fontWeight: 800, borderRadius: '8px' }}
+              >
+                ✕ Close & Return to Workstation
+              </button>
+            </div>
+          )}
+          <InstitutionalLoginSurface
+            onLoginSuccess={(persona, env, mode) => {
+              setAuthenticatedPersona(persona);
+              setSystemEnv(env);
+              setRuntimeMode(mode);
+              setShowLoginModal(false);
+              showToast(`Authenticated as ${persona.roleTitle} (${persona.institutionName})`);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
