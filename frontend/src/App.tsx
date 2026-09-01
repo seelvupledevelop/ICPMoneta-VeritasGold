@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/smart/Sidebar';
-import { MobileBottomNav } from './components/MobileBottomNav';
+import { MobileAppPrototype } from './MobileAppPrototype';
 import { StitchExecutiveDashboard } from './components/views/StitchExecutiveDashboard';
 import { ConsensusHealthView } from './components/views/ConsensusHealthView';
 import { BankCardSurface } from './components/smart/BankCardSurface';
@@ -288,10 +288,15 @@ export function App() {
         <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#060608' }}>
           <div className="smartphone-frame">
             <div className="smartphone-notch" />
-            <div style={{ overflowY: 'auto', flex: 1, padding: '34px 16px 70px 16px', display: 'flex', flexDirection: 'column' }}>
-              {renderContent()}
-            </div>
-            <MobileBottomNav activeSection={activeSection} setActiveSection={setActiveSection} />
+            <MobileAppPrototype
+              accounts={accounts}
+              holdings={holdings}
+              rates={rates}
+              transactions={transactions}
+              offers={offers}
+              onNotify={showToast}
+              onRefresh={loadData}
+            />
           </div>
         </div>
       ) : (
