@@ -386,19 +386,19 @@ body {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 25px var(--red-glow);
 }
 
-/* Smartphone Frame */
+/* Smartphone Frame with Dynamic Island & Safe Area */
 .smartphone-frame {
-  max-width: 400px;
+  max-width: 414px;
   width: 100%;
-  height: 840px;
-  background-color: #0d0b10;
-  border: 4px solid #381a20;
-  border-radius: 40px;
+  height: 860px;
+  background-color: #060608;
+  border: 5px solid #2d161d;
+  border-radius: 46px;
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), inset 0 0 12px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 20px rgba(239, 68, 68, 0.2);
 }
 
 .smartphone-notch {
@@ -406,11 +406,44 @@ body {
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 110px;
-  height: 22px;
-  background-color: #1a1215;
+  width: 120px;
+  height: 26px;
+  background-color: #000000;
   border-radius: 20px;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.smartphone-notch::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  background-color: #0f172a;
+  border-radius: 50%;
+  border: 1.5px solid #1e293b;
+  box-shadow: inset 0 0 4px #38bdf8;
+}
+
+/* Mobile Safe-Area and Notch Spacers */
+.mobile-safe-area-top {
+  height: 38px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  background-color: #0c0b0e;
+  z-index: 45;
+  user-select: none;
 }
 
 /* Pulse animation */

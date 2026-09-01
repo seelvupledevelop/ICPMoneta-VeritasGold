@@ -201,10 +201,20 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#060608', color: '#f8fafc', position: 'relative', overflow: 'hidden' }}>
-      {/* Mobile Top App Bar */}
+      {/* Mobile Safe Area & Notch Clearance Status Bar */}
+      <div className="mobile-safe-area-top">
+        <span>09:41</span>
+        <div style={{ width: '120px' }}>{/* Safe cutout spacing under camera island */}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '9px' }}>5G</span>
+          <span style={{ fontSize: '10px' }}>100%</span>
+        </div>
+      </div>
+
+      {/* Mobile Top App Bar (Clear of Notch/Camera) */}
       <header
         style={{
-          height: '56px',
+          height: '52px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
