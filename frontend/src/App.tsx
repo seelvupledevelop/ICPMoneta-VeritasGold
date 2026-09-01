@@ -29,6 +29,7 @@ import { WholesaleLiquidityView } from './components/views/WholesaleLiquidityVie
 import { SupportDocsPortalView } from './components/docs/SupportDocsPortalView';
 import { MasterAdminOverview } from './components/admin/MasterAdminOverview';
 import { SettlementInstrumentRegistryView } from './components/views/SettlementInstrumentRegistryView';
+import { MvpVerificationSuiteView } from './components/views/MvpVerificationSuiteView';
 import {
   fetchAccounts,
   fetchHoldings,
@@ -209,6 +210,8 @@ export function App() {
             <ConsensusHealthView onNotify={showToast} />
           </div>
         );
+      case 'mvp_verification':
+        return <MvpVerificationSuiteView onNotify={showToast} />;
       case 'portfolio':
         return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
       case 'settlement_instruments':

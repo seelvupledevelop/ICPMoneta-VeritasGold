@@ -21,6 +21,7 @@ import {
   Cpu,
   Droplets,
   KeyRound,
+  Zap,
   ChevronDown,
   ChevronUp,
   CheckSquare,
@@ -77,6 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       groupName: 'WORKSPACE',
       items: [
+        { id: 'mvp_verification', label: 'Live MVP Verification', icon: Zap, badge: '⚡ 6/6 Tests' },
         { id: 'admin_overview', label: 'Master Dashboard', icon: ShieldCheck, badge: 'Radar' },
         { id: 'governance', label: 'Tasks & Approvals', icon: CheckSquare, badge: `${approvalCount} Pending` },
       ],
