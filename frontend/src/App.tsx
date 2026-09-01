@@ -323,7 +323,7 @@ export function App() {
       )}
 
       <footer style={{ borderTop: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-navbar)', padding: '12px 20px', textAlign: 'center', fontSize: '11px', color: 'var(--text-dim)' }}>
-        Sovereign Ledger • Central Bank Node Alpha-1 • Verified Sub-Second Finality on ICP
+        Veritas Gold • Sovereign Institutional Ledger • Verified Sub-Second Finality on ICP
       </footer>
     </div>
   );

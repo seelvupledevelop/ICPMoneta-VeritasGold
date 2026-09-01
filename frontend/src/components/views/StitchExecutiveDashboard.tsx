@@ -42,7 +42,7 @@ export const StitchExecutiveDashboard: React.FC<StitchExecutiveDashboardProps> =
           </div>
           <div>
             <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
-              SOVEREIGN WEALTH & CENTRAL DESK
+              VERITAS GOLD • SOVEREIGN WEALTH DESK
             </h1>
             <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span className="pill-valid" style={{ fontSize: '10px' }}>● Verified Sovereign Node</span>

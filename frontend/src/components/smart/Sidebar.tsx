@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         {isOpenMobile && (
           <div style={{ padding: '16px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--red-primary)' }}>SOVEREIGN LEDGER</div>
+            <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--red-primary)' }}>VERITAS GOLD</div>
             <button onClick={onCloseMobile} style={{ backgroundColor: '#260d13', border: 'none', color: '#fff', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}>
               <X size={16} />
             </button>

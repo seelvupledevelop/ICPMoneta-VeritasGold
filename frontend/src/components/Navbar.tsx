@@ -116,7 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Brand Name */}
           <div style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            Sovereign <span style={{ color: 'var(--red-primary)', textShadow: '0 0 12px var(--red-glow)' }}>Ledger</span>
+            Veritas <span style={{ color: 'var(--red-primary)', textShadow: '0 0 12px var(--red-glow)' }}>Gold</span>
           </div>
         </div>
 
