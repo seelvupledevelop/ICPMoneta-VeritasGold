@@ -458,6 +458,42 @@ export const InstitutionalLoginSurface: React.FC<InstitutionalLoginSurfaceProps>
                 </div>
               </div>
 
+              {/* Database & Storage Engine Selector */}
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>
+                    DATABASE & BACKEND ENGINE
+                  </label>
+                  <span style={{ fontSize: '9.5px', color: 'var(--green-valid)', fontWeight: 700 }}>10-Yr GDPR Hash Protocol Active</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                  {[
+                    { id: 'ICP_CANISTER', label: '🌐 ICP Canister', sub: 'On-Chain WASM' },
+                    { id: 'POSTGRES_WEB2', label: '🐘 PostgreSQL', sub: '10-Yr Off-Chain' },
+                    { id: 'LOCAL_MOCK', label: '🧪 Localhost', sub: 'InMemory Mock' },
+                  ].map((db) => (
+                    <button
+                      key={db.id}
+                      type="button"
+                      style={{
+                        padding: '8px 6px',
+                        borderRadius: '6px',
+                        border: '1px solid var(--border-subtle)',
+                        backgroundColor: db.id === 'ICP_CANISTER' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.02)',
+                        color: db.id === 'ICP_CANISTER' ? '#FFFFFF' : 'var(--text-muted)',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <div>{db.label}</div>
+                      <div style={{ fontSize: '8.5px', color: 'var(--text-dim)', marginTop: '2px' }}>{db.sub}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Surface & Device Mode Selector */}
               <div style={{ marginBottom: '18px' }}>
                 <label style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700, display: 'block', marginBottom: '6px' }}>
