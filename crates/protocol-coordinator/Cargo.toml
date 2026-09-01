@@ -1,0 +1,13 @@
+[package]
+name = "protocol-coordinator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+domain = { workspace = true }
+settlement-engine = { workspace = true }
+position-ledger = { workspace = true }
+asset-ledger = { workspace = true }
+identity-registry = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }

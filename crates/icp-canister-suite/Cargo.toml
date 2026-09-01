@@ -1,0 +1,27 @@
+[package]
+name = "icp-canister-suite"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+domain = { workspace = true }
+settlement-engine = { workspace = true }
+finality-authority = { workspace = true }
+policy-engine = { workspace = true }
+identity-registry = { workspace = true }
+position-ledger = { workspace = true }
+asset-ledger = { workspace = true }
+protocol-coordinator = { workspace = true }
+candid = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+axum = { version = "0.7", features = ["macros"] }
+tokio = { version = "1.38", features = ["full"] }
+tower = { version = "0.4", features = ["util"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+rust_decimal = { workspace = true }

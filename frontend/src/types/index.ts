@@ -1,0 +1,107 @@
+export type PrincipalId = string;
+export type AccountId = string;
+export type HoldingId = string;
+export type CurrencyCode = string;
+
+export type Perspective = 'trader' | 'issuer' | 'ops' | 'regulator' | 'admin';
+export type AppSection = 'banking' | 'marketplace' | 'offers' | 'exchange' | 'rfq' | 'protocols' | 'audit' | 'supervision';
+
+export interface Amount {
+  value_str: string;
+}
+
+export interface DemandDepositRecord {
+  account_id: string;
+  custodian: string;
+  owner: string;
+  currency: string;
+  balance: Amount;
+  overdraft_limit: Amount;
+  daily_withdrawal_limit: Amount;
+  daily_transfer_limit: Amount;
+  accumulated_daily_debit: Amount;
+  status: 'Active' | { Suspended: { reason: string; by: string; timestamp: number } } | { Closed: { by: string; timestamp: number } };
+  updated_at: number;
+}
+
+export interface FungibleAssetHolding {
+  holding_id: string;
+  asset_symbol: string;
+  issuer: string;
+  holder: string;
+  amount: Amount;
+  pointer: {
+    update_id: string;
+    output_index: number;
+  };
+  status: 'Unconsumed' | { Consumed: { consuming_update_id: string; consumed_at: number } };
+}
+
+export interface PrincipalProfile {
+  principal: string;
+  legal_name: string;
+  role: string;
+  is_verified: boolean;
+  registered_at: number;
+}
+
+export interface BlindedIdentity {
+  anonymous_principal: string;
+  well_known_principal: string;
+  ownership_proof_signature: number[];
+  created_at: number;
+}
+
+export interface MarketRate {
+  symbol: string;
+  name: string;
+  category: string;
+  price_usd: string;
+  price_eur: string;
+  change_24h: string;
+  backing: string;
+  liquidity_depth: string;
+}
+
+export interface RwaOffer {
+  offer_id: string;
+  seller_principal: string;
+  seller_legal_name: string;
+  asset_symbol: string;
+  asset_name: string;
+  asset_amount: string;
+  price_per_unit_eur: string;
+  total_price_eur: string;
+  status: string;
+  created_at: number;
+}
+
+export interface UnmaskedFlow {
+  anonymous_id: string;
+  unmasked_legal_owner: string;
+  net_exposure_eur: string;
+  rwa_gold_holdings_oz?: string;
+  rwa_bond_holdings_usd?: string;
+  risk_tier: string;
+}
+
+export interface SupervisionData {
+  supervision_timestamp: number;
+  radar_status: string;
+  double_spend_attempts_intercepted: number;
+  total_active_canister_partitions: number;
+  regulatory_unmasking_authority: string;
+  unmasked_active_flows: UnmaskedFlow[];
+}
+
+export interface ProtocolLog {
+  id: string;
+  type: 'CashTransfer' | 'AssetTransfer' | 'BlindedSwap' | 'AssetIssue' | 'AtomicDvPTrade' | 'AtomicP2POfferExecution';
+  sender: string;
+  recipient: string;
+  amount: string;
+  currency: string;
+  status: 'Finalized' | 'InputsLocked' | 'Validating' | 'Failed';
+  step: string;
+  timestamp: string;
+}

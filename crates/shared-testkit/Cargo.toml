@@ -1,0 +1,21 @@
+[package]
+name = "shared-testkit"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+domain = { workspace = true }
+policy-engine = { workspace = true }
+finality-authority = { workspace = true }
+settlement-engine = { workspace = true }
+identity-registry = { workspace = true }
+position-ledger = { workspace = true }
+asset-ledger = { workspace = true }
+protocol-coordinator = { workspace = true }
+icp-canister-suite = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+rust_decimal = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
