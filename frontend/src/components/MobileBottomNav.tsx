@@ -1,6 +1,6 @@
 import React from 'react';
 import type { AppSection } from '../types';
-import { Landmark, Key, ShieldCheck, TrendingUp, Layers, Gavel, ArrowLeftRight } from 'lucide-react';
+import { Landmark, Key, ShieldCheck, TrendingUp, Gavel, ArrowLeftRight } from 'lucide-react';
 
 interface MobileBottomNavProps {
   activeSection: AppSection;
