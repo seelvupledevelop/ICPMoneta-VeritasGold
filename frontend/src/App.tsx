@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/smart/Sidebar';
-import { MobileAppPrototype } from './MobileAppPrototype';
 import { StitchExecutiveDashboard } from './components/views/StitchExecutiveDashboard';
 import { ConsensusHealthView } from './components/views/ConsensusHealthView';
 import { BankCardSurface } from './components/smart/BankCardSurface';
@@ -30,6 +29,7 @@ import { SupportDocsPortalView } from './components/docs/SupportDocsPortalView';
 import { MasterAdminOverview } from './components/admin/MasterAdminOverview';
 import { SettlementInstrumentRegistryView } from './components/views/SettlementInstrumentRegistryView';
 import { MvpVerificationSuiteView } from './components/views/MvpVerificationSuiteView';
+import { InstitutionalMobileSurface } from './components/mobile/InstitutionalMobileSurface';
 import {
   fetchAccounts,
   fetchHoldings,
@@ -467,21 +467,24 @@ export function App() {
       )}
 
       {runtimeMode === 'mobile' ? (
-        <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#060608' }}>
-          <div className="smartphone-frame">
-            <div className="smartphone-notch" />
-            <MobileAppPrototype
-              accounts={accounts}
-              holdings={holdings}
-              rates={rates}
-              transactions={transactions}
-              offers={offers} collateral={collateral} auctions={auctions} corporateActions={corporateActions} approvals={approvals} sweepingRules={sweepingRules} bridgeRoutes={bridgeRoutes} canisters={canisters} liquidityPools={liquidityPools} identities={identities}
-              bondContracts={bondContracts}
-              onNotify={showToast}
-              onRefresh={loadData}
-            />
-          </div>
-        </div>
+        <InstitutionalMobileSurface
+          currentPersona={authenticatedPersona || PERSONA_LIST[0]}
+          onSelectPersona={(p) => {
+            setAuthenticatedPersona(p);
+            showToast(`Switched persona to ${p.roleTitle}`);
+          }}
+          accounts={accounts}
+          holdings={holdings}
+          rates={rates}
+          approvals={approvals}
+          onNavigateDesktopSection={(sec) => {
+            setActiveSection(sec);
+            setRuntimeMode('desktop');
+          }}
+          onToggleDesktopMode={() => setRuntimeMode('desktop')}
+          onNotify={showToast}
+          onRefresh={loadData}
+        />
       ) : (
         <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
           <Sidebar
