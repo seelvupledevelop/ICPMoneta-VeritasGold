@@ -177,7 +177,7 @@ export const InstitutionalMobileSurface: React.FC<InstitutionalMobileSurfaceProp
   const pendingCount = localApprovals.filter((a) => a.status === 'Pending').length;
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#070509', color: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100%', width: '100%', backgroundColor: '#070509', color: '#FFFFFF', display: 'flex', flexDirection: 'column', position: 'relative', overflowX: 'hidden' }}>
       {/* Mobile Top App Bar */}
       <header
         style={{
@@ -735,13 +735,13 @@ export const InstitutionalMobileSurface: React.FC<InstitutionalMobileSurfaceProp
         <div
           className="fade-in"
           style={{
-            position: 'fixed',
+            position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
             zIndex: 2000,
-            backgroundColor: 'rgba(0,0,0,0.8)',
+            backgroundColor: 'rgba(0,0,0,0.85)',
             display: 'flex',
           }}
         >
@@ -907,18 +907,21 @@ export const InstitutionalMobileSurface: React.FC<InstitutionalMobileSurfaceProp
       )}
 
       {/* Bottom Sticky Mobile Navigation Bar */}
+      {/* Sticky Bottom Navigation Bar */}
       <nav
         style={{
-          position: 'fixed',
+          position: 'sticky',
           bottom: 0,
           left: 0,
           right: 0,
-          backgroundColor: '#0b0711',
+          backgroundColor: '#0c0812',
           borderTop: '1px solid var(--border-subtle)',
           display: 'flex',
           justifyContent: 'space-around',
-          padding: '8px 4px',
+          padding: '10px 6px 14px',
           zIndex: 1000,
+          marginTop: 'auto',
+          backdropFilter: 'blur(10px)',
         }}
       >
         {[

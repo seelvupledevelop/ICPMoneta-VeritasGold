@@ -578,20 +578,22 @@ export function App() {
         </div>
       )}
 
-      <Navbar
-        networkStatus={networkStatus}
-        accountCount={accounts.length}
-        holdingCount={holdings.length}
-        protocolCount={logs.length}
-        identityCount={identities.length}
-        phoneMode={runtimeMode === 'mobile'}
-        setPhoneMode={(m) => setRuntimeMode(m ? 'mobile' : 'desktop')}
-        onToggleMobileMenu={() => setIsMobileMenuOpen((p) => !p)}
-        accounts={accounts}
-        onNotify={showToast}
-        currentInstitution={currentInstitution}
-        onSelectInstitution={setCurrentInstitution}
-      />
+      {runtimeMode === 'desktop' && (
+        <Navbar
+          networkStatus={networkStatus}
+          accountCount={accounts.length}
+          holdingCount={holdings.length}
+          protocolCount={logs.length}
+          identityCount={identities.length}
+          phoneMode={false}
+          setPhoneMode={(m) => setRuntimeMode(m ? 'mobile' : 'desktop')}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((p) => !p)}
+          accounts={accounts}
+          onNotify={showToast}
+          currentInstitution={currentInstitution}
+          onSelectInstitution={setCurrentInstitution}
+        />
+      )}
 
       {toast && (
         <div
