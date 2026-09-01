@@ -102,19 +102,19 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
 
   const menuSections: { id: AppSection; label: string; icon: any }[] = [
     { id: 'portfolio', label: 'Global AUM', icon: Landmark },
-    { id: 'vault', label: 'Asset Market', icon: Diamond },
+    { id: 'vault', label: 'Markets', icon: Diamond },
     { id: 'trade', label: 'Trade & DvP', icon: TrendingUp },
-    { id: 'notaries', label: 'Consensus Quorum', icon: ShieldCheck },
-    { id: 'auctions', label: 'Bond Auctions', icon: Gavel },
-    { id: 'corporate_actions', label: 'Coupon Engine', icon: Coins },
-    { id: 'governance', label: 'Maker-Checker', icon: UserCheck },
-    { id: 'vault_telemetry', label: 'PoR Telemetry', icon: Activity },
-    { id: 'sweeper', label: 'Liquidity Sweeper', icon: Bot },
-    { id: 'bridge', label: 'Harmonix Bridge', icon: ArrowLeftRight },
-    { id: 'canister_mgmt', label: 'Smart Contracts', icon: Cpu },
-    { id: 'liquidity_pools', label: 'Wholesale Pools', icon: Droplets },
-    { id: 'collateral', label: 'Collateral Desk', icon: Building },
-    { id: 'compliance', label: 'Compliance Radar', icon: Scale },
+    { id: 'notaries', label: 'Consensus', icon: ShieldCheck },
+    { id: 'auctions', label: 'Auctions', icon: Gavel },
+    { id: 'corporate_actions', label: 'Coupons', icon: Coins },
+    { id: 'governance', label: 'Multi-Sig', icon: UserCheck },
+    { id: 'vault_telemetry', label: 'PoR IoT', icon: Activity },
+    { id: 'sweeper', label: 'Sweeper', icon: Bot },
+    { id: 'bridge', label: 'Bridge', icon: ArrowLeftRight },
+    { id: 'canister_mgmt', label: 'Contracts', icon: Cpu },
+    { id: 'liquidity_pools', label: 'AMM Pools', icon: Droplets },
+    { id: 'collateral', label: 'Collateral', icon: Building },
+    { id: 'compliance', label: 'Compliance', icon: Scale },
     { id: 'logs', label: 'Audit Logs', icon: FileText },
   ];
 
@@ -253,17 +253,18 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
         </div>
       </header>
 
-      {/* Upper Horizontal Scrollable Pill Navigation Menu */}
+      {/* Upper 2-Row Responsive Pill Navigation Matrix */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
+          display: 'grid',
+          gridTemplateRows: 'repeat(2, 32px)',
+          gridAutoFlow: 'column',
+          gridAutoColumns: 'max-content',
           gap: '6px',
           padding: '8px 12px',
           backgroundColor: '#0e0c12',
           borderBottom: '1px solid var(--border-subtle)',
           overflowX: 'auto',
-          whiteSpace: 'nowrap',
           scrollbarWidth: 'none',
           zIndex: 30,
         }}
@@ -282,15 +283,17 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '5px',
-                padding: '5px 10px',
+                padding: '4px 10px',
+                height: '30px',
                 borderRadius: '9999px',
                 fontSize: '11px',
                 fontWeight: isActive ? 800 : 500,
-                backgroundColor: isActive ? 'rgba(239, 68, 68, 0.2)' : '#16121a',
+                backgroundColor: isActive ? 'rgba(239, 68, 68, 0.22)' : '#16121a',
                 color: isActive ? 'var(--red-primary)' : 'var(--text-muted)',
                 border: `1px solid ${isActive ? 'var(--border-red)' : '#271f28'}`,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
+                whiteSpace: 'nowrap',
               }}
             >
               <Icon size={12} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
