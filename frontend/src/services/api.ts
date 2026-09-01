@@ -1,6 +1,27 @@
-import type { DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, BlindedIdentity, MarketRate, RwaOffer, SupervisionData, InstitutionalTxn, CollateralPosition, BondAuction, AuctionBid, CorporateAction, PendingApproval, VaultSensorTelemetry, SweepingRule, BridgeRoute, CanisterStatusInfo, LiquidityPool } from '../types';
+import type {
+  DemandDepositRecord,
+  FungibleAssetHolding,
+  PrincipalProfile,
+  BlindedIdentity,
+  MarketRate,
+  RwaOffer,
+  SupervisionData,
+  InstitutionalTxn,
+  CollateralPosition,
+  BondAuction,
+  AuctionBid,
+  CorporateAction,
+  PendingApproval,
+  VaultSensorTelemetry,
+  SweepingRule,
+  BridgeRoute,
+  CanisterStatusInfo,
+  LiquidityPool,
+} from '../types';
 
-const API_BASE = 'http://localhost:8080/api/v1';
+const API_BASE = typeof window !== 'undefined' && (window.location.port === '8080' || window.location.host.includes(':8080'))
+  ? '/api/v1'
+  : 'http://localhost:8080/api/v1';
 
 export async function fetchMarketRates(): Promise<MarketRate[]> {
   const res = await fetch(`${API_BASE}/rates`);
@@ -15,7 +36,7 @@ export async function fetchAccounts(): Promise<DemandDepositRecord[]> {
   return res.json();
 }
 
-export async function createAccount(data: {
+export async function createAccount(payload: {
   custodian: string;
   owner: string;
   currency: string;
@@ -25,7 +46,7 @@ export async function createAccount(data: {
   const res = await fetch(`${API_BASE}/accounts`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -34,32 +55,32 @@ export async function createAccount(data: {
   return res.json();
 }
 
-export async function transferCash(data: {
+export async function transferCash(payload: {
   sender_id: string;
   recipient_id: string;
   amount: string;
   memo?: string;
   gl_code?: string;
-}) {
+}): Promise<any> {
   const res = await fetch(`${API_BASE}/accounts/transfer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || 'Failed to execute cash transfer');
+    throw new Error(err.error || 'Failed to transfer cash');
   }
   return res.json();
 }
 
 export async function fetchHoldings(): Promise<FungibleAssetHolding[]> {
   const res = await fetch(`${API_BASE}/holdings`);
-  if (!res.ok) throw new Error('Failed to fetch digital assets');
+  if (!res.ok) throw new Error('Failed to fetch holdings');
   return res.json();
 }
 
-export async function issueAsset(data: {
+export async function issueAsset(payload: {
   issuer: string;
   holder: string;
   currency: string;
@@ -68,7 +89,7 @@ export async function issueAsset(data: {
   const res = await fetch(`${API_BASE}/assets/issue`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -77,16 +98,16 @@ export async function issueAsset(data: {
   return res.json();
 }
 
-export async function transferAsset(data: {
+export async function transferAsset(payload: {
   sender: string;
   recipient: string;
   currency: string;
   amount: string;
-}) {
+}): Promise<any> {
   const res = await fetch(`${API_BASE}/assets/transfer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -97,11 +118,11 @@ export async function transferAsset(data: {
 
 export async function fetchIdentities(): Promise<PrincipalProfile[]> {
   const res = await fetch(`${API_BASE}/identities`);
-  if (!res.ok) throw new Error('Failed to fetch verified identities');
+  if (!res.ok) throw new Error('Failed to fetch identities');
   return res.json();
 }
 
-export async function registerIdentity(data: {
+export async function registerIdentity(payload: {
   principal: string;
   legal_name: string;
   role: string;
@@ -109,7 +130,7 @@ export async function registerIdentity(data: {
   const res = await fetch(`${API_BASE}/identities`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -118,14 +139,14 @@ export async function registerIdentity(data: {
   return res.json();
 }
 
-export async function issueBlindedIdentity(data: {
+export async function blindIdentity(payload: {
   well_known: string;
   anonymous: string;
 }): Promise<BlindedIdentity> {
   const res = await fetch(`${API_BASE}/identities/blind`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -134,21 +155,21 @@ export async function issueBlindedIdentity(data: {
   return res.json();
 }
 
-export async function executeRfqTrade(data: {
+export async function executeRfqTrade(payload: {
   account_id: string;
   buyer_principal: string;
   asset_symbol: string;
   asset_amount: string;
   cash_amount: string;
-}) {
+}): Promise<any> {
   const res = await fetch(`${API_BASE}/rfq/execute`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || 'Failed to execute RFQ atomic trade');
+    throw new Error(err.error || 'RFQ Trade Execution Failed');
   }
   return res.json();
 }
@@ -159,7 +180,7 @@ export async function fetchOffers(): Promise<RwaOffer[]> {
   return res.json();
 }
 
-export async function createOffer(data: {
+export async function createOffer(payload: {
   seller_principal: string;
   seller_legal_name: string;
   asset_symbol: string;
@@ -170,24 +191,24 @@ export async function createOffer(data: {
   const res = await fetch(`${API_BASE}/offers`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || 'Failed to create offer');
+    throw new Error(err.error || 'Failed to create RWA offer');
   }
   return res.json();
 }
 
-export async function acceptOffer(data: {
+export async function acceptOffer(payload: {
   offer_id: string;
   buyer_principal: string;
   buyer_account_id: string;
-}) {
+}): Promise<any> {
   const res = await fetch(`${API_BASE}/offers/accept`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -196,20 +217,22 @@ export async function acceptOffer(data: {
   return res.json();
 }
 
-export async function fetchSupervisionData(): Promise<SupervisionData> {
+export async function fetchSupervision(): Promise<SupervisionData> {
   const res = await fetch(`${API_BASE}/admin/supervision`);
-  if (!res.ok) throw new Error('Failed to fetch supervision data');
+  if (!res.ok) throw new Error('Failed to fetch supervisory data');
   return res.json();
 }
 
 export async function fetchTransactions(): Promise<InstitutionalTxn[]> {
   const res = await fetch(`${API_BASE}/reporting/transactions`);
-  if (!res.ok) throw new Error('Failed to fetch transaction history');
+  if (!res.ok) throw new Error('Failed to fetch institutional transactions');
   return res.json();
 }
 
-export function getCsvExportUrl(): string {
-  return `${API_BASE}/reporting/export/csv`;
+export async function fetchStandardsMapping(): Promise<any> {
+  const res = await fetch(`${API_BASE}/standards/mapping`);
+  if (!res.ok) throw new Error('Failed to fetch standards mapping');
+  return res.json();
 }
 
 export async function fetchCollateralPositions(): Promise<CollateralPosition[]> {
@@ -218,7 +241,7 @@ export async function fetchCollateralPositions(): Promise<CollateralPosition[]> 
   return res.json();
 }
 
-export async function postCollateral(data: {
+export async function postCollateral(payload: {
   asset_symbol: string;
   asset_name: string;
   amount: string;
@@ -229,7 +252,7 @@ export async function postCollateral(data: {
   const res = await fetch(`${API_BASE}/collateral/positions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -238,19 +261,9 @@ export async function postCollateral(data: {
   return res.json();
 }
 
-export function getJsonExportUrl(): string {
-  return `${API_BASE}/reporting/export/json`;
-}
-
-export async function fetchStandardsMapping() {
-  const res = await fetch(`${API_BASE}/standards/mapping`);
-  if (!res.ok) throw new Error('Failed to fetch standards mapping');
-  return res.json();
-}
-
 export async function fetchAuctions(): Promise<BondAuction[]> {
-  const res = await fetch(`${API_BASE}/api/v1/auctions`);
-  if (!res.ok) throw new Error('Failed to fetch auctions');
+  const res = await fetch(`${API_BASE}/auctions`);
+  if (!res.ok) throw new Error('Failed to fetch bond auctions');
   return res.json();
 }
 
@@ -260,64 +273,64 @@ export async function submitAuctionBid(payload: {
   amount_eur: string;
   bid_yield_pct: string;
 }): Promise<AuctionBid> {
-  const res = await fetch(`${API_BASE}/api/v1/auctions/bid`, {
+  const res = await fetch(`${API_BASE}/auctions/bid`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || 'Failed to submit auction bid');
+    throw new Error(err.error || 'Failed to submit bid');
   }
   return res.json();
 }
 
 export async function fetchCorporateActions(): Promise<CorporateAction[]> {
-  const res = await fetch(`${API_BASE}/api/v1/corporate-actions`);
+  const res = await fetch(`${API_BASE}/corporate-actions`);
   if (!res.ok) throw new Error('Failed to fetch corporate actions');
   return res.json();
 }
 
 export async function executeCorporateAction(action_id: string): Promise<any> {
-  const res = await fetch(`${API_BASE}/api/v1/corporate-actions/distribute`, {
+  const res = await fetch(`${API_BASE}/corporate-actions/distribute`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action_id }),
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || 'Failed to execute corporate action');
+    throw new Error(err.error || 'Corporate action payout failed');
   }
   return res.json();
 }
 
 export async function fetchApprovals(): Promise<PendingApproval[]> {
-  const res = await fetch(`${API_BASE}/api/v1/governance/approvals`);
-  if (!res.ok) throw new Error('Failed to fetch approvals');
+  const res = await fetch(`${API_BASE}/governance/approvals`);
+  if (!res.ok) throw new Error('Failed to fetch approval queue');
   return res.json();
 }
 
 export async function approveGovernanceItem(approval_id: string, checker_signer: string): Promise<any> {
-  const res = await fetch(`${API_BASE}/api/v1/governance/approve`, {
+  const res = await fetch(`${API_BASE}/governance/approve`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ approval_id, checker_signer }),
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || 'Failed to approve item');
+    throw new Error(err.error || 'Governance signature rejected');
   }
   return res.json();
 }
 
 export async function fetchVaultTelemetry(): Promise<VaultSensorTelemetry> {
-  const res = await fetch(`${API_BASE}/api/v1/vault/telemetry`);
+  const res = await fetch(`${API_BASE}/vault/telemetry`);
   if (!res.ok) throw new Error('Failed to fetch vault telemetry');
   return res.json();
 }
 
 export async function fetchSweepingRules(): Promise<SweepingRule[]> {
-  const res = await fetch(`${API_BASE}/api/v1/treasury/sweeper`);
+  const res = await fetch(`${API_BASE}/treasury/sweeper`);
   if (!res.ok) throw new Error('Failed to fetch sweeping rules');
   return res.json();
 }
@@ -328,7 +341,7 @@ export async function createSweepingRule(payload: {
   threshold_eur: string;
   frequency: string;
 }): Promise<SweepingRule> {
-  const res = await fetch(`${API_BASE}/api/v1/treasury/sweeper`, {
+  const res = await fetch(`${API_BASE}/treasury/sweeper`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -341,7 +354,7 @@ export async function createSweepingRule(payload: {
 }
 
 export async function fetchBridgeRoutes(): Promise<BridgeRoute[]> {
-  const res = await fetch(`${API_BASE}/api/v1/bridge/routes`);
+  const res = await fetch(`${API_BASE}/bridge/routes`);
   if (!res.ok) throw new Error('Failed to fetch bridge routes');
   return res.json();
 }
@@ -353,7 +366,7 @@ export async function executeBridgeTransfer(payload: {
   amount: string;
   recipient_address: string;
 }): Promise<any> {
-  const res = await fetch(`${API_BASE}/api/v1/bridge/transfer`, {
+  const res = await fetch(`${API_BASE}/bridge/transfer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -366,13 +379,13 @@ export async function executeBridgeTransfer(payload: {
 }
 
 export async function fetchCanisters(): Promise<CanisterStatusInfo[]> {
-  const res = await fetch(`${API_BASE}/api/v1/canisters`);
+  const res = await fetch(`${API_BASE}/canisters`);
   if (!res.ok) throw new Error('Failed to fetch canisters');
   return res.json();
 }
 
 export async function topUpCanister(canister_id: string, cycles_to_add_tc: string): Promise<any> {
-  const res = await fetch(`${API_BASE}/api/v1/canisters/topup`, {
+  const res = await fetch(`${API_BASE}/canisters/topup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ canister_id, cycles_to_add_tc }),
@@ -385,7 +398,18 @@ export async function topUpCanister(canister_id: string, cycles_to_add_tc: strin
 }
 
 export async function fetchLiquidityPools(): Promise<LiquidityPool[]> {
-  const res = await fetch(`${API_BASE}/api/v1/liquidity/pools`);
+  const res = await fetch(`${API_BASE}/liquidity/pools`);
   if (!res.ok) throw new Error('Failed to fetch liquidity pools');
   return res.json();
+}
+
+export const issueBlindedIdentity = blindIdentity;
+export const fetchSupervisionData = fetchSupervision;
+
+export function getCsvExportUrl(): string {
+  return `${API_BASE}/reporting/export/csv`;
+}
+
+export function getJsonExportUrl(): string {
+  return `${API_BASE}/reporting/export/json`;
 }

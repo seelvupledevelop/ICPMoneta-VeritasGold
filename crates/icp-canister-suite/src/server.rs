@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::sync::{Arc, RwLock};
 use tower_http::cors::{Any, CorsLayer};
+use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -336,6 +337,9 @@ pub fn create_app(state: ServerState) -> Router {
         .allow_methods(Any)
         .allow_headers(Any);
 
+    let static_service = ServeDir::new("frontend/dist")
+        .not_found_service(ServeFile::new("frontend/dist/index.html"));
+
     Router::new()
         .route("/health", get(health_check))
         .route("/api/v1/rates", get(get_market_rates))
@@ -370,6 +374,7 @@ pub fn create_app(state: ServerState) -> Router {
         .route("/api/v1/canisters", get(list_canisters))
         .route("/api/v1/canisters/topup", post(topup_canister))
         .route("/api/v1/liquidity/pools", get(list_liquidity_pools).post(add_liquidity))
+        .fallback_service(static_service)
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)
