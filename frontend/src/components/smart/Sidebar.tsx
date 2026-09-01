@@ -89,7 +89,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(5, 8, 15, 0.7)',
+            backgroundColor: 'rgba(6, 4, 8, 0.75)',
             backdropFilter: 'blur(3px)',
             zIndex: 1100,
           }}
@@ -115,8 +115,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         {isOpenMobile && (
           <div style={{ padding: '16px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--text-main)' }}>SOVEREIGN LEDGER</div>
-            <button onClick={onCloseMobile} style={{ backgroundColor: '#1e293b', border: 'none', color: '#fff', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}>
+            <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--red-primary)' }}>SOVEREIGN LEDGER</div>
+            <button onClick={onCloseMobile} style={{ backgroundColor: '#260d13', border: 'none', color: '#fff', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}>
               <X size={16} />
             </button>
           </div>
@@ -142,18 +142,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     justifyContent: 'space-between',
                     padding: '8px 10px',
                     borderRadius: '7px',
-                    backgroundColor: isActive ? '#1c2d52' : 'transparent',
-                    color: isActive ? 'var(--cyan-primary)' : 'var(--text-muted)',
+                    backgroundColor: isActive ? '#2d0f16' : 'transparent',
+                    color: isActive ? 'var(--red-primary)' : 'var(--text-muted)',
                     fontWeight: isActive ? 700 : 500,
                     fontSize: '12.5px',
                     textAlign: 'left',
                     transition: 'all 0.15s ease',
-                    border: isActive ? '1px solid rgba(0, 210, 238, 0.3)' : '1px solid transparent',
+                    border: isActive ? '1px solid rgba(239, 68, 68, 0.45)' : '1px solid transparent',
+                    boxShadow: isActive ? '0 0 14px rgba(239, 68, 68, 0.2)' : 'none',
                     cursor: 'pointer',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Icon size={15} color={isActive ? 'var(--cyan-primary)' : 'var(--text-dim)'} />
+                    <Icon size={15} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
                     {item.label}
                   </div>
                   {item.badge && (
@@ -163,9 +164,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         fontWeight: 700,
                         padding: '2px 5px',
                         borderRadius: '9999px',
-                        backgroundColor: isActive ? 'rgba(0, 210, 238, 0.2)' : '#121b2d',
-                        color: isActive ? 'var(--cyan-primary)' : 'var(--text-dim)',
-                        border: `1px solid ${isActive ? 'rgba(0, 210, 238, 0.4)' : '#1e2d4a'}`,
+                        backgroundColor: isActive ? 'rgba(239, 68, 68, 0.25)' : '#180f14',
+                        color: isActive ? 'var(--red-primary)' : 'var(--text-dim)',
+                        border: `1px solid ${isActive ? 'rgba(239, 68, 68, 0.5)' : '#33161e'}`,
                       }}
                     >
                       {item.badge}
@@ -192,8 +193,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   gap: '8px',
                   padding: '7px 10px',
                   borderRadius: '7px',
-                  backgroundColor: isActive ? '#1c2d52' : 'transparent',
-                  color: isActive ? 'var(--cyan-primary)' : 'var(--text-muted)',
+                  backgroundColor: isActive ? '#2d0f16' : 'transparent',
+                  color: isActive ? 'var(--red-primary)' : 'var(--text-muted)',
                   fontWeight: isActive ? 700 : 500,
                   fontSize: '12px',
                   textAlign: 'left',
@@ -202,14 +203,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   transition: 'all 0.15s ease',
                 }}
               >
-                <Icon size={14} color={isActive ? 'var(--cyan-primary)' : 'var(--text-dim)'} />
+                <Icon size={14} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
                 {item.label}
               </button>
             );
           })}
 
           {/* Notary Consensus Live Status Badge */}
-          <div style={{ marginTop: '6px', backgroundColor: '#0b1324', border: '1px solid var(--border-subtle)', padding: '6px 8px', borderRadius: '7px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ marginTop: '6px', backgroundColor: '#140c11', border: '1px solid var(--border-subtle)', padding: '6px 8px', borderRadius: '7px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Radio size={13} color="var(--green-valid)" className="pulse-glow" />
             <div>
               <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-main)' }}>Raft Quorum 4/5</div>

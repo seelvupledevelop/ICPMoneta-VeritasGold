@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ☰
           </button>
 
-          {/* Node Alpha Badge with Gold Ring */}
+          {/* Node Alpha Badge with Sovereign Red Ring */}
           <div
             onClick={() => setShowProfileModal(true)}
             style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
@@ -89,15 +89,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 width: '36px',
                 height: '36px',
                 borderRadius: '9999px',
-                backgroundColor: '#18181b',
-                border: '1px solid var(--border-gold)',
-                color: 'var(--gold-primary)',
+                backgroundColor: '#1f0d12',
+                border: '1px solid var(--border-red)',
+                color: 'var(--red-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
                 fontSize: '13px',
-                boxShadow: '0 0 12px rgba(212, 175, 55, 0.25)',
+                boxShadow: '0 0 14px var(--red-glow)',
               }}
             >
               N1
@@ -116,7 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Brand Name */}
           <div style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            Sovereign <span style={{ color: 'var(--gold-primary)' }}>Ledger</span>
+            Sovereign <span style={{ color: 'var(--red-primary)', textShadow: '0 0 12px var(--red-glow)' }}>Ledger</span>
           </div>
         </div>
 
@@ -160,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div
             style={{
               display: 'flex',
-              backgroundColor: '#0c0c0e',
+              backgroundColor: '#120c10',
               borderRadius: 'var(--radius-sm)',
               padding: '2px',
               border: '1px solid var(--border-subtle)',
@@ -175,9 +175,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 borderRadius: '4px',
                 border: 'none',
                 cursor: 'pointer',
-                backgroundColor: activeNetwork === 'mainnet' ? '#d4af37' : 'transparent',
-                color: activeNetwork === 'mainnet' ? '#050505' : 'var(--text-muted)',
+                backgroundColor: activeNetwork === 'mainnet' ? '#ef4444' : 'transparent',
+                color: activeNetwork === 'mainnet' ? '#ffffff' : 'var(--text-muted)',
                 fontWeight: 800,
+                boxShadow: activeNetwork === 'mainnet' ? '0 0 10px var(--red-glow)' : 'none',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -190,9 +191,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 borderRadius: '4px',
                 border: 'none',
                 cursor: 'pointer',
-                backgroundColor: activeNetwork === 'sandbox' ? '#d4af37' : 'transparent',
-                color: activeNetwork === 'sandbox' ? '#050505' : 'var(--text-muted)',
+                backgroundColor: activeNetwork === 'sandbox' ? '#ef4444' : 'transparent',
+                color: activeNetwork === 'sandbox' ? '#ffffff' : 'var(--text-muted)',
                 fontWeight: 700,
+                boxShadow: activeNetwork === 'sandbox' ? '0 0 10px var(--red-glow)' : 'none',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -207,9 +209,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              backgroundColor: phoneMode ? 'rgba(212, 175, 55, 0.15)' : 'var(--bg-card)',
-              color: phoneMode ? 'var(--gold-primary)' : 'var(--text-muted)',
-              border: `1px solid ${phoneMode ? 'var(--border-gold)' : 'var(--border-subtle)'}`,
+              backgroundColor: phoneMode ? 'rgba(239, 68, 68, 0.15)' : 'var(--bg-card)',
+              color: phoneMode ? 'var(--red-primary)' : 'var(--text-muted)',
+              border: `1px solid ${phoneMode ? 'var(--border-red)' : 'var(--border-subtle)'}`,
               padding: '6px 12px',
               borderRadius: 'var(--radius-sm)',
               fontSize: '11.5px',
@@ -260,7 +262,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   right: '5px',
                   width: '6px',
                   height: '6px',
-                  backgroundColor: 'var(--gold-primary)',
+                  backgroundColor: 'var(--red-primary)',
                   borderRadius: '9999px',
                 }}
               />
@@ -281,16 +283,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Settings size={15} />
             </button>
 
-            {/* User Profile Avatar */}
+            {/* User Profile Avatar with Red Accent */}
             <div
               onClick={() => setShowProfileModal(true)}
               style={{
                 width: '30px',
                 height: '30px',
                 borderRadius: '9999px',
-                backgroundColor: '#1c1c20',
-                border: '1px solid var(--border-gold)',
-                color: 'var(--gold-primary)',
+                backgroundColor: '#260d13',
+                border: '1px solid var(--border-red)',
+                color: 'var(--red-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -312,7 +314,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Wallet size={18} color="var(--gold-primary)" />
+                <Wallet size={18} color="var(--red-primary)" />
                 <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>Institutional Wallet & Balances</h3>
               </div>
               <button onClick={() => setShowWalletModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
@@ -323,7 +325,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
               <div style={{ backgroundColor: 'var(--bg-input)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Node Principal ID</div>
-                <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold-primary)', fontSize: '12px', wordBreak: 'break-all' }}>
+                <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--red-primary)', fontSize: '12px', wordBreak: 'break-all' }}>
                   lpmt4-wqbam-aaaaa-aaaaa-cai
                 </code>
               </div>
@@ -338,16 +340,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px' }}>Active Demand Deposit Accounts:</div>
                 {accounts.map((a) => (
-                  <div key={a.account_id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: '#0c0c0e', borderRadius: '6px', marginBottom: '4px', fontSize: '12px' }}>
+                  <div key={a.account_id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: '#0d0b10', borderRadius: '6px', marginBottom: '4px', fontSize: '12px' }}>
                     <code style={{ fontFamily: 'var(--font-mono)' }}>{a.account_id}</code>
-                    <b style={{ color: 'var(--gold-primary)' }}>€{a.balance.value_str} {a.currency}</b>
+                    <b style={{ color: 'var(--red-primary)' }}>€{a.balance.value_str} {a.currency}</b>
                   </div>
                 ))}
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button className="btn-gold" onClick={() => setShowWalletModal(false)}>Close</button>
+              <button className="btn-red" onClick={() => setShowWalletModal(false)}>Close</button>
             </div>
           </div>
         </div>
@@ -359,7 +361,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Bell size={18} color="var(--gold-primary)" />
+                <Bell size={18} color="var(--red-primary)" />
                 <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>Consensus Alerts & Notifications</h3>
               </div>
               <button onClick={() => setShowNotificationModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
@@ -368,19 +370,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12.5px' }}>
-              <div style={{ padding: '10px 12px', backgroundColor: '#0c0c0e', borderRadius: '8px', borderLeft: '3px solid var(--green-valid)' }}>
+              <div style={{ padding: '10px 12px', backgroundColor: '#0d0b10', borderRadius: '8px', borderLeft: '3px solid var(--green-valid)' }}>
                 <b style={{ color: 'var(--green-valid)' }}>Consensus Finality Nominal</b>
                 <p style={{ color: 'var(--text-muted)', fontSize: '11.5px', marginTop: '2px' }}>Sub-second finality verified at 0.4s (Throughput: 1,245 TPS).</p>
               </div>
 
-              <div style={{ padding: '10px 12px', backgroundColor: '#0c0c0e', borderRadius: '8px', borderLeft: '3px solid var(--red-reject)' }}>
+              <div style={{ padding: '10px 12px', backgroundColor: '#0d0b10', borderRadius: '8px', borderLeft: '3px solid var(--red-reject)' }}>
                 <b style={{ color: 'var(--red-reject)' }}>Double-Spend Attempt Intercepted</b>
                 <p style={{ color: 'var(--text-muted)', fontSize: '11.5px', marginTop: '2px' }}>StateRef 4A1F02...E3:0 rejected with 0/5 signatures.</p>
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button className="btn-gold" onClick={() => setShowNotificationModal(false)}>Acknowledge All</button>
+              <button className="btn-red" onClick={() => setShowNotificationModal(false)}>Acknowledge All</button>
             </div>
           </div>
         </div>
@@ -392,7 +394,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Settings size={18} color="var(--gold-primary)" />
+                <Settings size={18} color="var(--red-primary)" />
                 <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>Node Alpha-1 Configuration</h3>
               </div>
               <button onClick={() => setShowSettingsModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
@@ -413,7 +415,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button className="btn-gold" onClick={() => setShowSettingsModal(false)}>Save & Close</button>
+              <button className="btn-red" onClick={() => setShowSettingsModal(false)}>Save & Close</button>
             </div>
           </div>
         </div>
@@ -425,7 +427,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ShieldCheck size={18} color="var(--gold-primary)" />
+                <ShieldCheck size={18} color="var(--red-primary)" />
                 <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>Institutional Node Identity</h3>
               </div>
               <button onClick={() => setShowProfileModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
@@ -443,7 +445,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button className="btn-gold" onClick={() => setShowProfileModal(false)}>Close</button>
+              <button className="btn-red" onClick={() => setShowProfileModal(false)}>Close</button>
             </div>
           </div>
         </div>
