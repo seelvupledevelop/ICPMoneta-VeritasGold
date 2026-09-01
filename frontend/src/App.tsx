@@ -14,6 +14,7 @@ import { SupervisoryRadar } from './components/views/SupervisoryRadar';
 import { OpsDashboard } from './components/views/OpsDashboard';
 import { RegulatorDashboard } from './components/views/RegulatorDashboard';
 import { AdminDashboard } from './components/views/AdminDashboard';
+import { IssuerDashboard } from './components/views/IssuerDashboard';
 import { fetchAccounts, fetchHoldings, fetchIdentities, fetchMarketRates, fetchOffers, fetchTransactions, fetchCollateralPositions } from './services/api';
 import type { Perspective, AppSection, DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, ProtocolLog, MarketRate, RwaOffer, InstitutionalTxn, CollateralPosition } from './types';
 import { AlertCircle, CheckCircle } from 'lucide-react';
@@ -108,9 +109,21 @@ export function App() {
   };
 
   const renderContent = () => {
+    // 1. Perspective Overrides
+    if (perspective === 'issuer') {
+      return <IssuerDashboard holdings={holdings} onRefresh={loadData} onNotify={showToast} />;
+    }
+    if (perspective === 'ops') {
+      return <OpsDashboard logs={logs} onRefresh={loadData} />;
+    }
+    if (perspective === 'regulator') {
+      return <RegulatorDashboard accounts={accounts} holdings={holdings} onNotify={showToast} />;
+    }
     if (perspective === 'admin') {
       return <AdminDashboard identities={identities} onRefresh={loadData} onNotify={showToast} />;
     }
+
+    // 2. Default Trader Perspective Modular Sections
     switch (activeSection) {
       case 'banking':
         return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
@@ -150,7 +163,13 @@ export function App() {
         onToggleMobileMenu={() => setIsMobileMenuOpen((p) => !p)}
       />
 
-      <PersonaSwitcher perspective={perspective} setPerspective={setPerspective} />
+      <PersonaSwitcher
+        perspective={perspective}
+        setPerspective={(p) => {
+          setPerspective(p);
+          if (p === 'trader') setActiveSection('banking');
+        }}
+      />
 
       {toast && (
         <div
@@ -190,7 +209,10 @@ export function App() {
         <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
           <Sidebar
             activeSection={activeSection}
-            setActiveSection={setActiveSection}
+            setActiveSection={(s) => {
+              setPerspective('trader');
+              setActiveSection(s);
+            }}
             accountCount={accounts.length}
             rwaCount={rates.length}
             offerCount={offers.length}
@@ -204,7 +226,13 @@ export function App() {
             {renderContent()}
           </main>
 
-          <MobileBottomNav activeSection={activeSection} setActiveSection={setActiveSection} />
+          <MobileBottomNav
+            activeSection={activeSection}
+            setActiveSection={(s) => {
+              setPerspective('trader');
+              setActiveSection(s);
+            }}
+          />
         </div>
       )}
 
