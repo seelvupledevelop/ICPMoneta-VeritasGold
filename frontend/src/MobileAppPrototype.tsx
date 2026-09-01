@@ -52,6 +52,10 @@ import {
   BarChart2,
   FileCode2,
 } from 'lucide-react';
+import { AnimatedCounter } from './components/ui/motion/AnimatedCounter';
+import { PulseBadge } from './components/ui/motion/PulseBadge';
+import { BiometricAuthScanner } from './components/ui/motion/BiometricAuthScanner';
+import { triggerSettlementConfetti } from './components/ui/motion/ConfettiTrigger';
 
 interface MobileAppPrototypeProps {
   accounts: DemandDepositRecord[];
@@ -95,6 +99,7 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
   const [activeSection, setActiveSection] = useState<AppSection>('portfolio');
   const [showDrawer, setShowDrawer] = useState(false);
   const [activeRange, setActiveRange] = useState<'1H' | '1D' | '1W'>('1D');
+  const [showBioModal, setShowBioModal] = useState<{ title: string; amount: string; action: () => void } | null>(null);
 
   // Transfer state
   const [senderAcc, setSenderAcc] = useState(accounts[0]?.account_id || 'ACC-EUR-ALICE-01');
@@ -136,24 +141,31 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
     { id: 'logs', label: 'Audit Logs', icon: FileText },
   ];
 
-  const handleExecuteWire = async (e: React.FormEvent) => {
+  const handleExecuteWire = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmittingWire(true);
-    try {
-      const res = await transferCash({
-        sender_id: senderAcc,
-        recipient_id: recipientAcc,
-        amount: transferAmt,
-        memo,
-        gl_code: '1010-01',
-      });
-      onNotify(`Settlement Finalized! TxID: ${res.txn_id} (pacs.008 on-chain)`);
-      onRefresh();
-    } catch (err: any) {
-      onNotify(err.message, true);
-    } finally {
-      setSubmittingWire(false);
-    }
+    setShowBioModal({
+      title: `pacs.008 Interbank Wire (${senderAcc} ➔ ${recipientAcc})`,
+      amount: `€${transferAmt} EUR`,
+      action: async () => {
+        setSubmittingWire(true);
+        try {
+          const res = await transferCash({
+            sender_id: senderAcc,
+            recipient_id: recipientAcc,
+            amount: transferAmt,
+            memo,
+            gl_code: '1010-01',
+          });
+          onNotify(`Settlement Finalized! TxID: ${res.txn_id} (pacs.008 on-chain)`);
+          triggerSettlementConfetti();
+          onRefresh();
+        } catch (err: any) {
+          onNotify(err.message, true);
+        } finally {
+          setSubmittingWire(false);
+        }
+      },
+    });
   };
 
   const handlePlaceBid = async (auction_id: string) => {
@@ -383,16 +395,16 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
         {/* 1. GLOBAL AUM */}
         {activeSection === 'portfolio' && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div className="card card-red-accent" style={{ padding: '16px' }}>
+            <div className="card card-red-accent card-interactive shimmer-gold" style={{ padding: '18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '9.5px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
                   Total Assets Under Management
                 </span>
-                <span className="pill-valid" style={{ fontSize: '9px' }}>+1.24%</span>
+                <PulseBadge label="+1.24% 24h" variant="green" />
               </div>
 
-              <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--text-main)', marginTop: '4px' }}>
-                $14,245,680,000.00
+              <div style={{ fontSize: '26px', fontWeight: 900, color: '#FFFFFF', marginTop: '6px' }}>
+                <AnimatedCounter prefix="$" value={14245680000.00} decimals={2} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '14px', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
@@ -1198,6 +1210,19 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
           <span style={{ fontSize: '8.5px', fontWeight: activeSection === 'auctions' ? 800 : 500 }}>Auctions</span>
         </button>
       </nav>
+
+      {/* Biometric Scan Trigger Modal */}
+      {showBioModal && (
+        <BiometricAuthScanner
+          actionTitle={showBioModal.title}
+          amountText={showBioModal.amount}
+          onSuccess={() => {
+            showBioModal.action();
+            setShowBioModal(null);
+          }}
+          onCancel={() => setShowBioModal(null)}
+        />
+      )}
     </div>
   );
 };
