@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { DemandDepositRecord } from '../../types';
 import { transferCash } from '../../services/api';
-import { Send, CreditCard, Wifi } from 'lucide-react';
+import { Send, ArrowUpRight, Landmark, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface BankCardSurfaceProps {
   accounts: DemandDepositRecord[];
@@ -10,35 +10,35 @@ interface BankCardSurfaceProps {
 }
 
 export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRefresh, onNotify }) => {
-  const [selectedAccIndex, setSelectedAccIndex] = useState(0);
-  const [showSendModal, setShowSendModal] = useState(false);
-  const [recipientId, setRecipientId] = useState('');
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [senderId, setSenderId] = useState(accounts[0]?.account_id || '');
+  const [recipientId, setRecipientId] = useState(accounts[1]?.account_id || '');
   const [amount, setAmount] = useState('150.00');
+  const [memo, setMemo] = useState('Cross-border liquidity settlement');
   const [submitting, setSubmitting] = useState(false);
 
-  const activeAccount = accounts[selectedAccIndex] || accounts[0];
+  const selectedAccount = accounts.find((a) => a.account_id === senderId) || accounts[0];
+  const balanceNum = selectedAccount ? parseFloat(selectedAccount.balance.value_str) : 0;
+  const overdraftNum = selectedAccount ? parseFloat(selectedAccount.overdraft_limit.value_str) : 0;
+  const totalAvailable = (balanceNum + overdraftNum).toFixed(2);
 
-  const quickContacts = [
-    { name: 'Bob Commodities', principal: 'h64fh-eybaq-aaaaa-aaaaa-cai', accountId: accounts[1]?.account_id || '' },
-    { name: 'Swiss Gold Depository', principal: 'jsrcu-gibai-aaaaa-aaaaa-cai', accountId: accounts[0]?.account_id || '' },
-    { name: 'Zurich Liquidity Desk', principal: 'lpmt4-wqbam-aaaaa-aaaaa-cai', accountId: accounts[0]?.account_id || '' },
-  ];
-
-  const handleSend = async (e: React.FormEvent) => {
+  const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeAccount || !recipientId || !amount) {
-      onNotify('Please select destination account and amount', true);
+    if (!senderId || !recipientId) {
+      onNotify('Please select valid sender and recipient accounts', true);
       return;
     }
     setSubmitting(true);
     try {
       const res = await transferCash({
-        sender_id: activeAccount.account_id,
+        sender_id: senderId,
         recipient_id: recipientId,
         amount: Number(amount).toFixed(2),
+        memo,
+        gl_code: '1010-01',
       });
-      onNotify(`Money Sent Instantly! Protocol ID: ${res.protocol_id}`);
-      setShowSendModal(false);
+      onNotify(`Transfer Executed! TxID: ${res.txn_id || res.protocol_id} via pacs.008`);
+      setShowTransferModal(false);
       onRefresh();
     } catch (err: any) {
       onNotify(err.message, true);
@@ -47,190 +47,244 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
     }
   };
 
-  const handleQuickPay = (destAccId: string) => {
-    setRecipientId(destAccId);
-    setShowSendModal(true);
-  };
-
-  const balanceNum = activeAccount ? parseFloat(activeAccount.balance.value_str) : 0;
-  const overdraftNum = activeAccount ? parseFloat(activeAccount.overdraft_limit.value_str) : 0;
-  const spendingPower = (balanceNum + overdraftNum).toFixed(2);
-
   return (
-    <div className="fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+    <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge badge-active">Digital Banking Surface</span>
-            <span style={{ fontSize: '11px', color: '#606060' }}>Instant Blockchain Wire Network</span>
-          </div>
-          <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 700, marginTop: '4px' }}>Bank Accounts, Cards & Payments</h2>
+          <h1 style={{ fontSize: '30px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
+            Portfolio & Tokenized Deposits
+          </h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
+            Multi-currency demand deposit partitions with sub-second ICP settlement.
+          </p>
         </div>
 
-        <button className="btn-accent" onClick={() => setShowSendModal(true)}>
-          <Send size={16} /> Send Money
+        <button className="btn-cyan" onClick={() => setShowTransferModal(true)}>
+          <Send size={15} /> Initiate On-Chain Wire
         </button>
       </div>
 
-      <div className="grid-banking" style={{ marginBottom: '28px' }}>
-        {/* Virtual Titanium Debit Card */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%)',
-            borderRadius: '20px',
-            padding: 'clamp(18px, 4vw, 24px)',
-            color: '#FFFFFF',
-            boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
-            position: 'relative',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            minHeight: '210px',
-            border: '1px solid rgba(255,255,255,0.1)',
-          }}
-        >
-          <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '150px', height: '150px', borderRadius: '50%', backgroundColor: 'rgba(255,0,0,0.25)', filter: 'blur(40px)' }}></div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '26px', height: '26px', borderRadius: '6px', backgroundColor: '#FF0000', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px' }}>
-                ⚡
+      {/* Grid: Titanium Card & Quick Pay */}
+      <div className="grid-banking">
+        {/* Virtual Titanium Corporate Card */}
+        <div className="titanium-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--cyan-primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                CENTRAL CLEARING CARD
               </div>
-              <span style={{ fontWeight: 700, letterSpacing: '0.04em', fontSize: '13px' }}>RED BROADCAST</span>
+              <div style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.01em', marginTop: '2px' }}>
+                Node Alpha-1 Corporate
+              </div>
             </div>
-            <Wifi size={18} color="rgba(255,255,255,0.7)" />
+            <span className="pill-cyan" style={{ fontSize: '10px' }}>JPMD / EURD</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '10px 0' }}>
-            <div style={{ width: '38px', height: '28px', borderRadius: '5px', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', border: '1px solid rgba(0,0,0,0.3)' }}></div>
-            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-mono)' }}>ICP ON-CHAIN ACCOUNT</span>
-          </div>
-
-          <div>
-            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>Available Spending Power</div>
-            <div style={{ fontSize: 'clamp(24px, 5vw, 28px)', fontWeight: 700, letterSpacing: '-0.02em', marginTop: '2px' }}>
-              €{spendingPower} <span style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>EUR</span>
+          <div style={{ margin: '26px 0 16px 0' }}>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>Total Spending Power (Balance + Overdraft)</div>
+            <div style={{ fontSize: '32px', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', marginTop: '2px' }}>
+              €{totalAvailable} <span style={{ fontSize: '16px', fontWeight: 500, color: 'var(--cyan-primary)' }}>EUR</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontSize: '10px', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '14px' }}>
             <div>
-              <div>ACCOUNT ID</div>
-              <div style={{ color: '#FFFFFF', fontWeight: 600, marginTop: '2px' }}>{activeAccount?.account_id.slice(0, 16)}...</div>
+              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>Account Identifier</div>
+              <code style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>
+                {selectedAccount?.account_id || 'ACC-EUR-ALICE-01'}
+              </code>
             </div>
-            <div>
-              <div>STATUS</div>
-              <div style={{ color: '#2BA640', fontWeight: 700, marginTop: '2px' }}>ACTIVE</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--green-valid)' }}>
+              <ShieldCheck size={14} /> Active
             </div>
           </div>
         </div>
 
-        {/* Account Details & Quick Pay Contacts */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {/* Account Selector Chips */}
-          <div className="card" style={{ padding: '14px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 600, color: '#606060', marginBottom: '8px' }}>Select Account Partition</div>
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              {accounts.map((acc, idx) => (
-                <button
-                  key={acc.account_id}
-                  onClick={() => setSelectedAccIndex(idx)}
-                  className={`chip ${selectedAccIndex === idx ? 'active' : ''}`}
-                >
-                  <CreditCard size={13} />
-                  {acc.account_id.slice(0, 12)}... (€{acc.balance.value_str})
-                </button>
-              ))}
+        {/* Quick Transfer & Velocity Limits */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-main)' }}>Velocity & Account Limits</h3>
+              <span className="pill-valid">● RTGS Interoperable</span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="card-elevated">
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Daily Transfer Limit</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginTop: '2px' }}>
+                  €{selectedAccount?.daily_transfer_limit?.value_str || '5,000.00'}
+                </div>
+              </div>
+
+              <div className="card-elevated">
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Approved Overdraft Facility</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--cyan-primary)', marginTop: '2px' }}>
+                  €{selectedAccount?.overdraft_limit?.value_str || '1,000.00'}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Quick Pay Contacts */}
-          <div className="card" style={{ padding: '14px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>Quick Send to Approved Counterparties</div>
-            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '4px' }}>
-              {quickContacts.map((c) => (
-                <button
-                  key={c.name}
-                  onClick={() => handleQuickPay(c.accountId)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '8px 12px',
-                    borderRadius: '10px',
-                    backgroundColor: '#F9F9F9',
-                    border: '1px solid #EAEAEA',
-                    minWidth: '95px',
-                    flexShrink: 0,
-                  }}
-                >
-                  <div style={{ width: '34px', height: '34px', borderRadius: '50%', backgroundColor: '#FFEBEE', color: '#FF0000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '13px' }}>
-                    {c.name.charAt(0)}
-                  </div>
-                  <span style={{ fontSize: '10px', fontWeight: 600, textAlign: 'center', whiteSpace: 'nowrap' }}>{c.name}</span>
-                </button>
-              ))}
+          {/* Quick Pay Buttons */}
+          <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '16px', marginTop: '16px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '8px', textTransform: 'uppercase' }}>
+              1-Tap Quick Pay Counterparties:
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                className="btn-outline"
+                style={{ padding: '6px 12px', fontSize: '11.5px' }}
+                onClick={() => {
+                  setRecipientId(accounts[1]?.account_id || 'ACC-EUR-BOB-02');
+                  setAmount('250.00');
+                  setShowTransferModal(true);
+                }}
+              >
+                <ArrowUpRight size={13} color="var(--cyan-primary)" /> Bob Commodities (€250)
+              </button>
+
+              <button
+                className="btn-outline"
+                style={{ padding: '6px 12px', fontSize: '11.5px' }}
+                onClick={() => {
+                  setRecipientId('ACC-VAULT-ZURICH-01');
+                  setAmount('500.00');
+                  setShowTransferModal(true);
+                }}
+              >
+                <ArrowUpRight size={13} color="var(--green-valid)" /> Swiss Vault (€500)
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {showSendModal && (
+      {/* Demand Deposit Accounts Table */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Landmark size={18} color="var(--cyan-primary)" />
+            <h3 style={{ fontSize: '15.5px', fontWeight: 700, color: 'var(--text-main)' }}>
+              Active Demand Deposit Partitions
+            </h3>
+          </div>
+          <span className="pill-cyan">ISO 20022 camt.053</span>
+        </div>
+
+        <div className="table-responsive">
+          <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12.5px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#09101f', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-dim)', fontSize: '10.5px', textTransform: 'uppercase' }}>
+                <th style={{ padding: '12px 18px' }}>Account ID</th>
+                <th style={{ padding: '12px 18px' }}>Currency</th>
+                <th style={{ padding: '12px 18px' }}>Settled Balance</th>
+                <th style={{ padding: '12px 18px' }}>Overdraft Limit</th>
+                <th style={{ padding: '12px 18px' }}>Status</th>
+                <th style={{ padding: '12px 18px', textAlign: 'right' }}>Quick Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {accounts.map((acc) => (
+                <tr key={acc.account_id} style={{ borderBottom: '1px solid #131f36' }}>
+                  <td style={{ padding: '14px 18px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--cyan-primary)' }}>
+                    {acc.account_id}
+                  </td>
+                  <td style={{ padding: '14px 18px' }}>
+                    <span className="pill-cyan">{acc.currency}</span>
+                  </td>
+                  <td style={{ padding: '14px 18px', fontWeight: 800, color: '#ffffff' }}>
+                    €{acc.balance.value_str} {acc.currency}
+                  </td>
+                  <td style={{ padding: '14px 18px', color: 'var(--text-muted)' }}>
+                    €{acc.overdraft_limit.value_str}
+                  </td>
+                  <td style={{ padding: '14px 18px' }}>
+                    <span className="pill-valid">
+                      <CheckCircle2 size={12} /> Active
+                    </span>
+                  </td>
+                  <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                    <button
+                      className="btn-outline"
+                      style={{ padding: '4px 10px', fontSize: '11px' }}
+                      onClick={() => {
+                        setSenderId(acc.account_id);
+                        setShowTransferModal(true);
+                      }}
+                    >
+                      <Send size={12} /> Transfer
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Transfer Modal */}
+      {showTransferModal && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px' }}>Send Money via Blockchain Wire</h3>
-            <p style={{ fontSize: '13px', color: '#606060', marginBottom: '16px' }}>
-              Instant finality atomic cash wire on the Internet Computer settlement engine.
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px' }}>
+              Initiate On-Chain Wire Transfer
+            </h3>
+            <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+              Real-time pacs.008 atomic settlement via the Internet Computer Canister Suite.
             </p>
 
-            <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleTransfer} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>From Account (Sender)</label>
-                <input
-                  type="text"
-                  value={`${activeAccount?.account_id} (€${spendingPower})`}
-                  disabled
-                  className="input-flat"
-                  style={{ backgroundColor: '#EFEFEF', color: '#606060' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>To Account (Recipient)</label>
-                <select
-                  value={recipientId}
-                  onChange={(e) => setRecipientId(e.target.value)}
-                  className="input-flat"
-                  required
-                >
-                  <option value="">Select Destination Account...</option>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '4px', display: 'block' }}>Debit Account</label>
+                <select value={senderId} onChange={(e) => setSenderId(e.target.value)} className="input-dark">
                   {accounts.map((a) => (
                     <option key={a.account_id} value={a.account_id}>
-                      {a.account_id} ({a.owner.slice(0, 10)}...)
+                      {a.account_id} (€{a.balance.value_str} {a.currency})
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>Transfer Amount (€ EUR)</label>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '4px', display: 'block' }}>Recipient Account</label>
+                <input
+                  type="text"
+                  value={recipientId}
+                  onChange={(e) => setRecipientId(e.target.value)}
+                  className="input-dark"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '4px', display: 'block' }}>Amount (€ EUR)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0.01"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="input-flat"
+                  className="input-dark"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '4px', display: 'block' }}>Commercial Memo / GL Tag</label>
+                <input
+                  type="text"
+                  value={memo}
+                  onChange={(e) => setMemo(e.target.value)}
+                  className="input-dark"
                   required
                 />
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button type="button" className="btn-secondary" onClick={() => setShowSendModal(false)}>Cancel</button>
-                <button type="submit" className="btn-accent" disabled={submitting}>
-                  {submitting ? 'Sending on-chain...' : 'Send Wire Instantly'}
+                <button type="button" className="btn-outline" onClick={() => setShowTransferModal(false)}>Cancel</button>
+                <button type="submit" className="btn-cyan" disabled={submitting}>
+                  {submitting ? 'Executing on ICP...' : 'Confirm & Settle Wire'}
                 </button>
               </div>
             </form>

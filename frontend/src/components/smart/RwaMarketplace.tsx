@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { MarketRate, DemandDepositRecord } from '../../types';
 import { executeRfqTrade } from '../../services/api';
-import { ShoppingBag } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 interface RwaMarketplaceProps {
   rates: MarketRate[];
@@ -12,31 +12,32 @@ interface RwaMarketplaceProps {
 
 export const RwaMarketplace: React.FC<RwaMarketplaceProps> = ({ rates, accounts, onRefresh, onNotify }) => {
   const [selectedAsset, setSelectedAsset] = useState<MarketRate | null>(null);
-  const [buyAmount, setBuyAmount] = useState('1.00');
-  const [selectedAccount, setSelectedAccount] = useState('');
+  const [quantity, setQuantity] = useState('1.00');
+  const [buyerAccountId, setBuyerAccountId] = useState(accounts[0]?.account_id || '');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleBuy = async (e: React.FormEvent) => {
+  const handleQuickPurchase = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedAsset || !selectedAccount) {
+    if (!selectedAsset || !buyerAccountId) {
       onNotify('Please select payment account', true);
       return;
     }
 
     const pricePerUnit = parseFloat(selectedAsset.price_eur);
-    const totalCost = (pricePerUnit * parseFloat(buyAmount)).toFixed(2);
+    const qty = parseFloat(quantity);
+    const totalCost = (pricePerUnit * qty).toFixed(2);
 
     setSubmitting(true);
     try {
       await executeRfqTrade({
-        account_id: selectedAccount,
+        account_id: buyerAccountId,
         buyer_principal: 'lpmt4-wqbam-aaaaa-aaaaa-cai',
         asset_symbol: selectedAsset.symbol,
-        asset_amount: Number(buyAmount).toFixed(2),
+        asset_amount: Number(quantity).toFixed(2),
         cash_amount: totalCost,
       });
 
-      onNotify(`RWA Purchased Successfully! Received ${buyAmount} ${selectedAsset.symbol} for €${totalCost}`);
+      onNotify(`DvP Settlement Finalized! Bought ${quantity} ${selectedAsset.symbol} for €${totalCost} EUR`);
       setSelectedAsset(null);
       onRefresh();
     } catch (err: any) {
@@ -47,150 +48,140 @@ export const RwaMarketplace: React.FC<RwaMarketplaceProps> = ({ rates, accounts,
   };
 
   return (
-    <div className="fade-in">
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="badge badge-active">RWA Institutional Catalog</span>
-          <span style={{ fontSize: '12px', color: '#606060' }}>Tokenized Real-World Assets & Vault Collateral</span>
+    <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <h1 style={{ fontSize: '30px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
+            Swiss Vault Bullion & RWA Market
+          </h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
+            Allocated physical gold, sovereign US Treasury bonds, and real estate equity with instant DvP.
+          </p>
         </div>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginTop: '4px' }}>Common List of Buyable Assets</h2>
+
+        <span className="pill-valid">● 100% Reserve Backed</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px' }}>
-        {rates.map((asset) => {
-          const isGold = asset.symbol === 'GOLD';
+      {/* Asset Cards Grid */}
+      <div className="grid-3col">
+        {rates.map((rate) => {
+          const isGold = rate.symbol === 'GOLD';
+          const isBond = rate.symbol === 'USTB';
           return (
-            <div
-              key={asset.symbol}
-              className="card"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '16px',
-                border: isGold ? '2px solid #FFD700' : '1px solid #E5E5E5',
-              }}
-            >
+            <div key={rate.symbol} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div
                       style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '10px',
-                        backgroundColor: isGold ? '#FFF8E1' : '#F2F2F2',
-                        color: isGold ? '#FFA000' : '#0F0F0F',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        backgroundColor: '#121d33',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontWeight: 800,
+                        border: '1px solid var(--border-subtle)',
                       }}
                     >
-                      {asset.symbol === 'GOLD' ? '🏆' : asset.symbol === 'USTB' ? '🏛️' : asset.symbol === 'PROP_ZH' ? '🏢' : '🪙'}
+                      {isGold ? '🏆' : isBond ? '🏛️' : '🏢'}
                     </div>
                     <div>
-                      <h3 style={{ fontSize: '15px', fontWeight: 700 }}>{asset.name}</h3>
-                      <div style={{ fontSize: '11px', color: '#606060' }}>{asset.category}</div>
+                      <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--text-main)' }}>{rate.name}</div>
+                      <code style={{ fontSize: '10px', color: 'var(--cyan-primary)' }}>{rate.iso24165_dti || rate.symbol}</code>
                     </div>
                   </div>
-                  <span className="badge badge-active" style={{ fontSize: '10px' }}>
-                    {asset.change_24h}
-                  </span>
+                  <span className="pill-cyan" style={{ fontSize: '10px' }}>{rate.change_24h}</span>
                 </div>
 
-                <div style={{ backgroundColor: '#F9F9F9', padding: '14px', borderRadius: '8px', marginBottom: '12px' }}>
-                  <div style={{ fontSize: '11px', color: '#606060' }}>Live Spot Price (EUR / USD)</div>
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#0F0F0F', marginTop: '2px' }}>
-                    €{asset.price_eur} <span style={{ fontSize: '14px', fontWeight: 500, color: '#606060' }}>/ ${asset.price_usd}</span>
+                <div style={{ margin: '16px 0' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Institutional Spot Rate</div>
+                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', marginTop: '2px' }}>
+                    €{rate.price_eur} <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)' }}>EUR</span>
                   </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>${rate.price_usd} USD</div>
                 </div>
 
-                <div style={{ fontSize: '11px', color: '#606060', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Collateral Backing:</span>
-                    <span style={{ fontWeight: 600, color: '#0F0F0F', textAlign: 'right' }}>{asset.backing}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Available Liquidity:</span>
-                    <span style={{ fontWeight: 600, color: '#2BA640' }}>{asset.liquidity_depth}</span>
-                  </div>
+                <div style={{ backgroundColor: '#09101f', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontSize: '11.5px', marginBottom: '16px' }}>
+                  <div style={{ color: 'var(--text-dim)', fontSize: '10px', textTransform: 'uppercase' }}>Vault Custody Backing:</div>
+                  <div style={{ color: 'var(--text-main)', fontWeight: 600, marginTop: '2px' }}>{rate.backing}</div>
                 </div>
               </div>
 
-              <button
-                className={isGold ? 'btn-accent' : 'btn-primary'}
-                style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}
-                onClick={() => {
-                  setSelectedAsset(asset);
-                  setSelectedAccount(accounts[0]?.account_id || '');
-                }}
-              >
-                <ShoppingBag size={15} /> Buy Asset with Cash
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '14px' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Depth: {rate.liquidity_depth}</span>
+                <button
+                  className="btn-cyan"
+                  style={{ padding: '6px 14px', fontSize: '11.5px' }}
+                  onClick={() => {
+                    setSelectedAsset(rate);
+                    setQuantity('1.00');
+                    setBuyerAccountId(accounts[0]?.account_id || '');
+                  }}
+                >
+                  <Zap size={13} /> Buy on ICP
+                </button>
+              </div>
             </div>
           );
         })}
       </div>
 
+      {/* Quick Buy Modal */}
       {selectedAsset && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px' }}>
-              Buy {selectedAsset.name}
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px' }}>
+              Instant DvP: {selectedAsset.name}
             </h3>
-            <p style={{ fontSize: '13px', color: '#606060', marginBottom: '20px' }}>
-              Direct atomic Delivery-versus-Payment (DvP) on ICP: Debits cash account and issues verifiable RWA token.
+            <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+              Execute Delivery-versus-Payment against Swiss Vault reserves with sub-second finality.
             </p>
 
-            <form onSubmit={handleBuy} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleQuickPurchase} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>Payment Source (Debit Account)</label>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '4px', display: 'block' }}>Payment Source (Debit Account)</label>
                 <select
-                  value={selectedAccount}
-                  onChange={(e) => setSelectedAccount(e.target.value)}
-                  className="input-flat"
+                  value={buyerAccountId}
+                  onChange={(e) => setBuyerAccountId(e.target.value)}
+                  className="input-dark"
                   required
                 >
-                  <option value="">Select Cash Account...</option>
                   {accounts.map((a) => (
                     <option key={a.account_id} value={a.account_id}>
-                      {a.account_id} (Available: €{a.balance.value_str})
+                      {a.account_id} (€{a.balance.value_str} {a.currency})
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>Quantity / Units</label>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-dim)', marginBottom: '4px', display: 'block' }}>Quantity to Acquire</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0.01"
-                  value={buyAmount}
-                  onChange={(e) => setBuyAmount(e.target.value)}
-                  className="input-flat"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="input-dark"
                   required
                 />
               </div>
 
-              <div style={{ backgroundColor: '#F9F9F9', padding: '14px', borderRadius: '8px', fontSize: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span>Price Per Unit:</span>
-                  <b>€{selectedAsset.price_eur} EUR</b>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 700, borderTop: '1px solid #E5E5E5', paddingTop: '8px', marginTop: '4px' }}>
-                  <span>Total Cost:</span>
-                  <span style={{ color: '#FF0000' }}>
-                    €{(parseFloat(selectedAsset.price_eur) * parseFloat(buyAmount || '0')).toFixed(2)} EUR
-                  </span>
+              <div style={{ backgroundColor: '#09101f', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontSize: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Total Settle Debit:</span>
+                  <b style={{ color: 'var(--cyan-primary)', fontSize: '15px' }}>
+                    €{(parseFloat(selectedAsset.price_eur) * parseFloat(quantity || '0')).toFixed(2)} EUR
+                  </b>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
-                <button type="button" className="btn-secondary" onClick={() => setSelectedAsset(null)}>Cancel</button>
-                <button type="submit" className="btn-accent" disabled={submitting}>
-                  {submitting ? 'Executing DvP...' : 'Confirm Purchase'}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button type="button" className="btn-outline" onClick={() => setSelectedAsset(null)}>Cancel</button>
+                <button type="submit" className="btn-cyan" disabled={submitting}>
+                  {submitting ? 'Executing DvP...' : 'Confirm Atomic Trade'}
                 </button>
               </div>
             </form>
