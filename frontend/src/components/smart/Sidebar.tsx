@@ -16,7 +16,6 @@ import {
   Radio,
   Gavel,
   Coins,
-  UserCheck,
   Bot,
   Activity,
   Cpu,
@@ -24,6 +23,7 @@ import {
   KeyRound,
   ChevronDown,
   ChevronUp,
+  CheckSquare,
 } from 'lucide-react';
 import {
   PERSONA_LIST,
@@ -48,9 +48,8 @@ interface SidebarProps {
   onOpenPersonaModal?: () => void;
 }
 
-interface NavCategory {
-  title: string;
-  badge?: string;
+interface NavGroup {
+  groupName: string;
   items: { id: AppSection; label: string; icon: any; badge?: string }[];
 }
 
@@ -73,45 +72,69 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
 
-  const categories: NavCategory[] = [
+  // Exact Section 3.1 Specification Navigation Groups
+  const navigationGroups: NavGroup[] = [
     {
-      title: '🏛️ SOVEREIGN & REGULATORY',
+      groupName: 'WORKSPACE',
       items: [
-        { id: 'admin_overview', label: 'Master Admin Radar', icon: ShieldCheck, badge: 'All Nodes' },
-        { id: 'notaries', label: 'Notaries & Quorum', icon: ShieldCheck, badge: '4/5 BFT' },
-        { id: 'contract_maker', label: 'Bond Factory', icon: FileCode2, badge: 'ACTUS' },
-        { id: 'sweeper', label: 'Liquidity Sweeper', icon: Bot, badge: 'Active' },
-        { id: 'compliance', label: 'Compliance Radar', icon: Scale, badge: '10-Yr GDPR' },
+        { id: 'admin_overview', label: 'Master Dashboard', icon: ShieldCheck, badge: 'Radar' },
+        { id: 'governance', label: 'Tasks & Approvals', icon: CheckSquare, badge: `${approvalCount} Pending` },
       ],
     },
     {
-      title: '🏦 MARKETS, TRADING & DVP',
+      groupName: 'ACCOUNTS & CASH',
       items: [
-        { id: 'portfolio', label: 'Portfolio & Cash', icon: Landmark, badge: `${accountCount}` },
+        { id: 'portfolio', label: 'Accounts Overview', icon: Landmark, badge: `${accountCount}` },
+        { id: 'settlement_instruments', label: 'Settlement Tokens (sEURD)', icon: Coins, badge: 'Registry' },
+        { id: 'sweeper', label: 'Liquidity Management', icon: Bot, badge: 'Sweeper' },
+        { id: 'logs', label: 'Statements & GL', icon: FileText, badge: 'camt.053' },
+      ],
+    },
+    {
+      groupName: 'MARKETS & ASSETS',
+      items: [
         { id: 'terminal', label: 'RWA Terminal', icon: BarChart2, badge: 'TradingView' },
-        { id: 'trade', label: 'Trade & DvP', icon: TrendingUp, badge: `${offerCount} Offers` },
-        { id: 'auctions', label: 'Dutch Auctions', icon: Gavel, badge: `${auctionCount} Live` },
-        { id: 'liquidity_pools', label: 'Wholesale Pools', icon: Droplets, badge: `${poolCount} AMM` },
-        { id: 'collateral', label: 'Collateral Desk', icon: Layers, badge: `${collateralCount}` },
+        { id: 'contract_maker', label: 'Bond Issuance (ACTUS)', icon: FileCode2, badge: 'Factory' },
+        { id: 'auctions', label: 'Primary Dutch Auctions', icon: Gavel, badge: `${auctionCount} Live` },
+        { id: 'corporate_actions', label: 'Corporate Actions / Coupons', icon: Coins, badge: 'Payouts' },
+        { id: 'trade', label: 'Trade Blotter & DvP', icon: TrendingUp, badge: `${offerCount} Offers` },
+        { id: 'liquidity_pools', label: 'Wholesale AMM Pools', icon: Droplets, badge: `${poolCount} Pools` },
       ],
     },
     {
-      title: '🔐 CUSTODY & CLEARING',
+      groupName: 'CUSTODY & COLLATERAL',
       items: [
-        { id: 'vault', label: 'Vault Custody', icon: Key, badge: `${holdingCount} Assets` },
-        { id: 'vault_telemetry', label: 'PoR Telemetry', icon: Activity, badge: 'IoT Live' },
-        { id: 'governance', label: 'Maker-Checker', icon: UserCheck, badge: `${approvalCount} Pending` },
-        { id: 'corporate_actions', label: 'Coupon Engine', icon: Coins, badge: 'ACTUS' },
-        { id: 'bridge', label: 'Harmonix Bridge', icon: ArrowLeftRight, badge: 'Chain-Key' },
-        { id: 'canister_mgmt', label: 'Canister Fleet', icon: Cpu, badge: `${canisterCount} WASMs` },
-        { id: 'interoperability', label: 'Interoperability', icon: ArrowLeftRight, badge: 'SWIFT' },
+        { id: 'vault', label: 'Custody Positions', icon: Key, badge: `${holdingCount} Bars` },
+        { id: 'vault_telemetry', label: 'Proof of Reserve (PoR)', icon: Activity, badge: 'IoT Live' },
+        { id: 'collateral', label: 'Collateral Desk', icon: Layers, badge: `${collateralCount} Pledges` },
       ],
     },
-  ];
-
-  const bottomItems: { id: AppSection; label: string; icon: any; badge?: string }[] = [
-    { id: 'support', label: 'Support & Docs', icon: HelpCircle, badge: 'v2.4' },
-    { id: 'logs', label: 'Audit Logs & ERP', icon: FileText, badge: 'ISO 20022' },
+    {
+      groupName: 'SETTLEMENT & INTEROPERABILITY',
+      items: [
+        { id: 'notaries', label: 'Settlement Monitor', icon: ShieldCheck, badge: '4/5 BFT' },
+        { id: 'interoperability', label: 'ISO 20022 Messages', icon: ArrowLeftRight, badge: 'pacs.008' },
+        { id: 'bridge', label: 'External Connectors', icon: ArrowLeftRight, badge: 'Sandbox' },
+      ],
+    },
+    {
+      groupName: 'RISK & COMPLIANCE',
+      items: [
+        { id: 'compliance', label: 'Compliance Dashboard', icon: Scale, badge: '10-Yr GDPR' },
+      ],
+    },
+    {
+      groupName: 'PLATFORM OPERATIONS',
+      items: [
+        { id: 'canister_mgmt', label: 'Canister Operations', icon: Cpu, badge: `${canisterCount} WASMs` },
+      ],
+    },
+    {
+      groupName: 'HELP & SUPPORT',
+      items: [
+        { id: 'support', label: 'Support & Docs Portal', icon: HelpCircle, badge: 'v2.4' },
+      ],
+    },
   ];
 
   const handleSelect = (id: AppSection) => {
@@ -140,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className="desktop-sidebar"
         style={{
-          width: '240px',
+          width: '250px',
           backgroundColor: 'var(--bg-sidebar)',
           borderRight: '1px solid var(--border-subtle)',
           display: 'flex',
@@ -293,16 +316,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Categorized Navigation Groups */}
+        {/* Categorized Navigation Groups (Section 3.1 Specification) */}
         <div style={{ padding: '10px 10px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {categories.map((cat, idx) => (
-            <div key={idx}>
+          {navigationGroups.map((group, gIdx) => (
+            <div key={gIdx}>
               <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', padding: '0 8px', marginBottom: '4px' }}>
-                {cat.title}
+                {group.groupName}
               </div>
 
               <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                {cat.items.map((item) => {
+                {group.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeSection === item.id;
                   return (
@@ -318,7 +341,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         backgroundColor: isActive ? '#2d0f16' : 'transparent',
                         color: isActive ? 'var(--red-primary)' : 'var(--text-muted)',
                         fontWeight: isActive ? 700 : 500,
-                        fontSize: '12px',
+                        fontSize: '11.5px',
                         textAlign: 'left',
                         transition: 'all 0.15s ease',
                         border: isActive ? '1px solid rgba(239, 68, 68, 0.45)' : '1px solid transparent',
@@ -353,62 +376,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ))}
         </div>
 
-        {/* Bottom Support & Logs Items */}
-        <div style={{ marginTop: 'auto', padding: '10px', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.06em', padding: '0 8px', marginBottom: '2px' }}>
-            📖 OPERATIONS & MANUAL
-          </div>
-
-          {bottomItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeSection === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleSelect(item.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '7px 10px',
-                  borderRadius: '7px',
-                  backgroundColor: isActive ? '#2d0f16' : 'transparent',
-                  color: isActive ? 'var(--red-primary)' : 'var(--text-muted)',
-                  fontWeight: isActive ? 700 : 500,
-                  fontSize: '12px',
-                  textAlign: 'left',
-                  border: isActive ? '1px solid rgba(239, 68, 68, 0.45)' : 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Icon size={14} color={isActive ? 'var(--red-primary)' : 'var(--text-dim)'} />
-                  {item.label}
-                </div>
-                {item.badge && (
-                  <span
-                    style={{
-                      fontSize: '8.5px',
-                      fontWeight: 700,
-                      padding: '1px 5px',
-                      borderRadius: '9999px',
-                      backgroundColor: isActive ? 'rgba(239, 68, 68, 0.25)' : '#180f14',
-                      color: isActive ? 'var(--red-primary)' : 'var(--text-dim)',
-                    }}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-
-          {/* Notary Consensus Live Status Badge */}
-          <div style={{ marginTop: '6px', backgroundColor: '#140c11', border: '1px solid var(--border-subtle)', padding: '6px 8px', borderRadius: '7px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {/* Footer Consensus Beacon */}
+        <div style={{ marginTop: 'auto', padding: '10px', borderTop: '1px solid var(--border-subtle)' }}>
+          <div style={{ backgroundColor: '#140c11', border: '1px solid var(--border-subtle)', padding: '6px 8px', borderRadius: '7px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Radio size={13} color="var(--green-valid)" className="pulse-glow" />
             <div>
-              <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-main)' }}>Raft Quorum 4/5</div>
+              <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-main)' }}>Subnet Quorum 4/5</div>
               <div style={{ fontSize: '8.5px', color: 'var(--green-valid)' }}>● Zero Double-Spend Active</div>
             </div>
           </div>

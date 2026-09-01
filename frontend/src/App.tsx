@@ -28,6 +28,7 @@ import { CanisterManagementView } from './components/views/CanisterManagementVie
 import { WholesaleLiquidityView } from './components/views/WholesaleLiquidityView';
 import { SupportDocsPortalView } from './components/docs/SupportDocsPortalView';
 import { MasterAdminOverview } from './components/admin/MasterAdminOverview';
+import { SettlementInstrumentRegistryView } from './components/views/SettlementInstrumentRegistryView';
 import {
   fetchAccounts,
   fetchHoldings,
@@ -210,6 +211,8 @@ export function App() {
         );
       case 'portfolio':
         return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+      case 'settlement_instruments':
+        return <SettlementInstrumentRegistryView />;
       case 'terminal':
         return <RwaTerminalView accounts={accounts} rates={rates} onRefresh={loadData} onNotify={showToast} />;
       case 'contract_maker':
