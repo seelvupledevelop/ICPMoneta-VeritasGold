@@ -67,6 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const primaryItems: { id: AppSection; label: string; icon: any; badge?: string }[] = [
+    { id: 'admin_overview', label: 'Master Admin Radar', icon: ShieldCheck, badge: 'All Nodes' },
     { id: 'notaries', label: 'Notaries', icon: ShieldCheck, badge: 'BFT Quorum' },
     { id: 'portfolio', label: 'Portfolio', icon: Landmark, badge: `${accountCount}` },
     { id: 'terminal', label: 'RWA Terminal', icon: BarChart2, badge: 'Live Chart' },

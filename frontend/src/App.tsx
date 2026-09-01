@@ -16,7 +16,6 @@ import { CollateralManagementView } from './components/institutional/CollateralM
 import { SupervisoryRadar } from './components/views/SupervisoryRadar';
 import { OpsDashboard } from './components/views/OpsDashboard';
 import { RegulatorDashboard } from './components/views/RegulatorDashboard';
-import { EnterpriseAdminDashboard } from './components/views/EnterpriseAdminDashboard';
 import { INSTITUTION_PROFILES, type InstitutionProfile } from './components/institutional/InstitutionalAuthSurface';
 import { IssuerDashboard } from './components/views/IssuerDashboard';
 import { BondAuctionDesk } from './components/views/BondAuctionDesk';
@@ -27,6 +26,8 @@ import { LiquiditySweeperView } from './components/views/LiquiditySweeperView';
 import { CrossChainBridgeView } from './components/views/CrossChainBridgeView';
 import { CanisterManagementView } from './components/views/CanisterManagementView';
 import { WholesaleLiquidityView } from './components/views/WholesaleLiquidityView';
+import { SupportDocsPortalView } from './components/docs/SupportDocsPortalView';
+import { MasterAdminOverview } from './components/admin/MasterAdminOverview';
 import {
   fetchAccounts,
   fetchHoldings,
@@ -252,6 +253,20 @@ export function App() {
             <OpsDashboard logs={logs} onRefresh={loadData} />
           </div>
         );
+      case 'admin_overview':
+        return (
+          <MasterAdminOverview
+            accounts={accounts}
+            holdings={holdings}
+            canisters={canisters}
+            onSelectPersona={(p) => {
+              setAuthenticatedPersona(p);
+              showToast(`Switched active session to ${p.roleTitle}`);
+            }}
+            onNotify={showToast}
+            onRefresh={loadData}
+          />
+        );
       case 'compliance':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -262,7 +277,7 @@ export function App() {
       case 'logs':
         return <TreasuryAccountingView transactions={transactions} onRefresh={loadData} />;
       case 'support':
-        return <EnterpriseAdminDashboard identities={identities} accounts={accounts} holdings={holdings} onRefresh={loadData} onNotify={showToast} />;
+        return <SupportDocsPortalView />;
       default:
         return <ConsensusHealthView onNotify={showToast} />;
     }
