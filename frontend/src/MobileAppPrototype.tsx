@@ -22,12 +22,11 @@ import {
   Fingerprint,
   TrendingUp,
   Landmark,
-
+  MessageSquare,
   ArrowUpRight,
   FileText,
   Download,
   Diamond,
-  Building,
   Zap,
   Radio,
   Gavel,
@@ -113,7 +112,7 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
     { id: 'bridge', label: 'Bridge', icon: ArrowLeftRight },
     { id: 'canister_mgmt', label: 'Contracts', icon: Cpu },
     { id: 'liquidity_pools', label: 'AMM Pools', icon: Droplets },
-    { id: 'collateral', label: 'Collateral', icon: Building },
+    { id: 'interoperability', label: 'Whisper Chat', icon: MessageSquare },
     { id: 'compliance', label: 'Compliance', icon: Scale },
     { id: 'logs', label: 'Audit Logs', icon: FileText },
   ];
@@ -635,27 +634,64 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
           </div>
         )}
 
-        {/* 7. POR TELEMETRY */}
+        {/* 7. DUAL-CUSTODY POR TELEMETRY (ZURICH & HONG KONG) */}
         {activeSection === 'vault_telemetry' && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>Swiss Vault IoT Telemetry</h3>
-              <span className="pill-valid" style={{ fontSize: '9px' }}>VERIFIED</span>
+              <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>Dual-Custody Bullion Corridors</h3>
+              <span className="pill-valid" style={{ fontSize: '9px' }}>2 VAULTS SYNCED</span>
             </div>
 
+            {/* Vault 1: Zurich */}
             <div className="card card-red-accent" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div>
-                <div style={{ fontSize: '9.5px', color: 'var(--text-dim)' }}>Physical Bullion Weight</div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '20px', fontWeight: 900, color: 'var(--red-primary)' }}>15,551.75 kg</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🇨🇭</span>
+                  <span style={{ fontSize: '12.5px', fontWeight: 800, color: 'var(--red-primary)' }}>Zurich Duty-Free Vault (ZRH-01)</span>
+                </div>
+                <span className="pill-valid" style={{ fontSize: '8.5px' }}>WESTERN HUB</span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', borderTop: '1px solid var(--border-subtle)', paddingTop: '8px', fontSize: '11px' }}>
-                <div>Ultrasonic: <b style={{ color: 'var(--green-valid)' }}>99.992%</b></div>
-                <div>Temp: <b>18.4 °C</b></div>
-                <div>Verified Bars: <b>1,250</b></div>
-                <div>Merkle: <b style={{ fontFamily: 'var(--font-mono)', fontSize: '9.5px' }}>0x98f4...0f</b></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 900, color: '#FFFFFF' }}>15,551.75 kg</div>
+                <div style={{ fontSize: '11px', color: 'var(--green-valid)', fontFamily: 'var(--font-mono)' }}>99.992% Density</div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', borderTop: '1px solid var(--border-subtle)', paddingTop: '6px', fontSize: '10px', color: 'var(--text-dim)' }}>
+                <div>Temp: 18.4 °C (Nominal)</div>
+                <div>Merkle: 0x98f4...0f12</div>
               </div>
             </div>
+
+            {/* Vault 2: Hong Kong */}
+            <div className="card card-red-accent" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🇭🇰</span>
+                  <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#FFFFFF' }}>Hong Kong Depository (HKG-01)</span>
+                </div>
+                <span className="pill-gold" style={{ fontSize: '8.5px' }}>EASTERN HUB</span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 900, color: '#FFFFFF' }}>12,400.00 kg</div>
+                <div style={{ fontSize: '11px', color: 'var(--green-valid)', fontFamily: 'var(--font-mono)' }}>99.995% Density</div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', borderTop: '1px solid var(--border-subtle)', paddingTop: '6px', fontSize: '10px', color: 'var(--text-dim)' }}>
+                <div>Temp: 19.1 °C (Nominal)</div>
+                <div>Merkle: 0x7c3a...e4b1</div>
+              </div>
+            </div>
+
+            {/* Atomic Cross-Vault Swap Button */}
+            <button
+              onClick={() => onNotify('Atomic Cross-Vault Swap Succeeded! Rebalanced 200 oz Gold between Zurich and Hong Kong in 380ms!')}
+              className="btn-red"
+              style={{ justifyContent: 'center', padding: '10px', fontSize: '12px' }}
+            >
+              <Zap size={14} /> Atomic Cross-Vault Swap (Zurich ⇄ HK)
+            </button>
           </div>
         )}
 
@@ -761,7 +797,76 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
           </div>
         )}
 
-        {/* 12. AUDIT LOGS */}
+        {/* 12. WHISPER SIGNAL E2EE CHAT & INSTANT SETTLEMENT */}
+        {activeSection === 'interoperability' && (
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <MessageSquare size={16} color="var(--red-primary)" />
+                <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>Signal E2EE Whisper Pay</h3>
+              </div>
+              <span className="pill-valid" style={{ fontSize: '8.5px' }}>VETKEYS E2EE</span>
+            </div>
+
+            {/* Central Bank Contacts */}
+            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+              {[
+                { name: 'Turkey (CBRT)', flag: '🇹🇷' },
+                { name: 'Swiss (SNB)', flag: '🇨🇭' },
+                { name: 'Hong Kong (HKMA)', flag: '🇭🇰' },
+                { name: 'Ukraine (NBU)', flag: '🇺🇦' },
+              ].map((cb, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => onNotify(`Connected to ${cb.name} Sovereign Encrypted Channel`)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '5px 10px',
+                    borderRadius: '9999px',
+                    backgroundColor: idx === 0 ? 'rgba(239, 68, 68, 0.25)' : '#16121a',
+                    border: `1px solid ${idx === 0 ? 'var(--border-red)' : '#271f28'}`,
+                    color: '#FFFFFF',
+                    fontSize: '11px',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span>{cb.flag}</span>
+                  <span>{cb.name}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* In-Chat Payment Simulation Card */}
+            <div className="card card-red-accent" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--red-primary)' }}>
+                  INCOMING SOVEREIGN PROPOSAL
+                </div>
+                <span className="pill-gold" style={{ fontSize: '8.5px' }}>PENDING DVP</span>
+              </div>
+
+              <div style={{ fontSize: '18px', fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-mono)' }}>
+                500.00 oz Gold (€1,271,050.00)
+              </div>
+              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>
+                From: 🇹🇷 Central Bank of Turkey ➔ 🇨🇭 Swiss Vault ZRH-01
+              </div>
+
+              <button
+                onClick={() => onNotify('Atomic DvP Executed! 500 oz Swiss Gold swapped for €1,271,050.00 in 380ms!')}
+                className="btn-red"
+                style={{ marginTop: '4px', justifyContent: 'center', padding: '8px', fontSize: '11.5px' }}
+              >
+                <Zap size={13} /> Accept & Settle in Chat (&lt; 400ms)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 13. AUDIT LOGS */}
         {activeSection === 'logs' && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
