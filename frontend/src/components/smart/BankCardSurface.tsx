@@ -58,28 +58,27 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
 
   return (
     <div className="fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="badge badge-active">Digital Banking Surface</span>
-            <span style={{ fontSize: '12px', color: '#606060' }}>Instant Blockchain Wire Network</span>
+            <span style={{ fontSize: '11px', color: '#606060' }}>Instant Blockchain Wire Network</span>
           </div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700, marginTop: '4px' }}>Bank Accounts, Cards & Payments</h2>
+          <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 700, marginTop: '4px' }}>Bank Accounts, Cards & Payments</h2>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn-accent" onClick={() => setShowSendModal(true)}>
-            <Send size={16} /> Send Money
-          </button>
-        </div>
+        <button className="btn-accent" onClick={() => setShowSendModal(true)}>
+          <Send size={16} /> Send Money
+        </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 420px) 1fr', gap: '24px', marginBottom: '32px' }}>
+      <div className="grid-banking" style={{ marginBottom: '28px' }}>
+        {/* Virtual Titanium Debit Card */}
         <div
           style={{
             background: 'linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%)',
             borderRadius: '20px',
-            padding: '26px',
+            padding: 'clamp(18px, 4vw, 24px)',
             color: '#FFFFFF',
             boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
             position: 'relative',
@@ -87,7 +86,7 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            minHeight: '230px',
+            minHeight: '210px',
             border: '1px solid rgba(255,255,255,0.1)',
           }}
         >
@@ -95,27 +94,27 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#FF0000', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}>
+              <div style={{ width: '26px', height: '26px', borderRadius: '6px', backgroundColor: '#FF0000', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px' }}>
                 ⚡
               </div>
-              <span style={{ fontWeight: 700, letterSpacing: '0.04em', fontSize: '14px' }}>RED BROADCAST</span>
+              <span style={{ fontWeight: 700, letterSpacing: '0.04em', fontSize: '13px' }}>RED BROADCAST</span>
             </div>
-            <Wifi size={20} color="rgba(255,255,255,0.7)" />
+            <Wifi size={18} color="rgba(255,255,255,0.7)" />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '14px 0' }}>
-            <div style={{ width: '42px', height: '32px', borderRadius: '6px', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', border: '1px solid rgba(0,0,0,0.3)' }}></div>
-            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-mono)' }}>ICP ON-CHAIN ACCOUNT</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '10px 0' }}>
+            <div style={{ width: '38px', height: '28px', borderRadius: '5px', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', border: '1px solid rgba(0,0,0,0.3)' }}></div>
+            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-mono)' }}>ICP ON-CHAIN ACCOUNT</span>
           </div>
 
           <div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>Available Spending Power</div>
-            <div style={{ fontSize: '28px', fontWeight: 700, letterSpacing: '-0.02em', marginTop: '2px' }}>
-              €{spendingPower} <span style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>EUR</span>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>Available Spending Power</div>
+            <div style={{ fontSize: 'clamp(24px, 5vw, 28px)', fontWeight: 700, letterSpacing: '-0.02em', marginTop: '2px' }}>
+              €{spendingPower} <span style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>EUR</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontSize: '10px', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-mono)' }}>
             <div>
               <div>ACCOUNT ID</div>
               <div style={{ color: '#FFFFFF', fontWeight: 600, marginTop: '2px' }}>{activeAccount?.account_id.slice(0, 16)}...</div>
@@ -127,26 +126,29 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div className="card" style={{ padding: '16px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#606060', marginBottom: '8px' }}>Select Account Partition</div>
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto' }}>
+        {/* Account Details & Quick Pay Contacts */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {/* Account Selector Chips */}
+          <div className="card" style={{ padding: '14px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: '#606060', marginBottom: '8px' }}>Select Account Partition</div>
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
               {accounts.map((acc, idx) => (
                 <button
                   key={acc.account_id}
                   onClick={() => setSelectedAccIndex(idx)}
                   className={`chip ${selectedAccIndex === idx ? 'active' : ''}`}
                 >
-                  <CreditCard size={14} />
-                  {acc.account_id.slice(0, 14)}... (Bal: €{acc.balance.value_str})
+                  <CreditCard size={13} />
+                  {acc.account_id.slice(0, 12)}... (€{acc.balance.value_str})
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="card" style={{ padding: '16px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '12px' }}>Quick Send to Approved Counterparties</div>
-            <div style={{ display: 'flex', gap: '12px', overflowX: 'auto' }}>
+          {/* Quick Pay Contacts */}
+          <div className="card" style={{ padding: '14px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, marginBottom: '10px' }}>Quick Send to Approved Counterparties</div>
+            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '4px' }}>
               {quickContacts.map((c) => (
                 <button
                   key={c.name}
@@ -155,18 +157,19 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '6px',
-                    padding: '10px 14px',
-                    borderRadius: '12px',
+                    gap: '4px',
+                    padding: '8px 12px',
+                    borderRadius: '10px',
                     backgroundColor: '#F9F9F9',
                     border: '1px solid #EAEAEA',
-                    minWidth: '110px',
+                    minWidth: '95px',
+                    flexShrink: 0,
                   }}
                 >
-                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#FFEBEE', color: '#FF0000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+                  <div style={{ width: '34px', height: '34px', borderRadius: '50%', backgroundColor: '#FFEBEE', color: '#FF0000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '13px' }}>
                     {c.name.charAt(0)}
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: 600, textAlign: 'center' }}>{c.name}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 600, textAlign: 'center', whiteSpace: 'nowrap' }}>{c.name}</span>
                 </button>
               ))}
             </div>
@@ -178,16 +181,16 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
         <div className="modal-overlay">
           <div className="modal-card">
             <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px' }}>Send Money via Blockchain Wire</h3>
-            <p style={{ fontSize: '13px', color: '#606060', marginBottom: '20px' }}>
+            <p style={{ fontSize: '13px', color: '#606060', marginBottom: '16px' }}>
               Instant finality atomic cash wire on the Internet Computer settlement engine.
             </p>
 
-            <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>From Account (Sender)</label>
                 <input
                   type="text"
-                  value={`${activeAccount?.account_id} (Available: €${spendingPower})`}
+                  value={`${activeAccount?.account_id} (€${spendingPower})`}
                   disabled
                   className="input-flat"
                   style={{ backgroundColor: '#EFEFEF', color: '#606060' }}
@@ -205,7 +208,7 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
                   <option value="">Select Destination Account...</option>
                   {accounts.map((a) => (
                     <option key={a.account_id} value={a.account_id}>
-                      {a.account_id} (Owner: {a.owner.slice(0, 12)}...)
+                      {a.account_id} ({a.owner.slice(0, 10)}...)
                     </option>
                   ))}
                 </select>
@@ -224,7 +227,7 @@ export const BankCardSurface: React.FC<BankCardSurfaceProps> = ({ accounts, onRe
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                 <button type="button" className="btn-secondary" onClick={() => setShowSendModal(false)}>Cancel</button>
                 <button type="submit" className="btn-accent" disabled={submitting}>
                   {submitting ? 'Sending on-chain...' : 'Send Wire Instantly'}

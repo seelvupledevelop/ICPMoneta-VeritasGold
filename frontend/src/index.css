@@ -13,6 +13,7 @@
   --warning: #FB8C00;
   --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'Roboto Mono', monospace;
+  --header-height: 64px;
 }
 
 * {
@@ -21,11 +22,13 @@
   padding: 0;
 }
 
-body {
+html, body {
   font-family: var(--font-family);
   background-color: #F9F9F9;
   color: var(--neutral-dark);
   -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 button {
@@ -33,11 +36,38 @@ button {
   cursor: pointer;
   border: none;
   outline: none;
+  touch-action: manipulation;
 }
 
 input, select, textarea {
   font-family: inherit;
   outline: none;
+}
+
+/* Responsive Table Wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive Grid Helpers */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.grid-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.grid-banking {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) 1fr;
+  gap: 24px;
 }
 
 /* Animations */
@@ -62,6 +92,7 @@ input, select, textarea {
   align-items: center;
   gap: 8px;
   transition: background 0.15s ease;
+  min-height: 38px;
 }
 
 .btn-primary:hover {
@@ -79,6 +110,7 @@ input, select, textarea {
   align-items: center;
   gap: 8px;
   transition: background 0.15s ease;
+  min-height: 38px;
 }
 
 .btn-accent:hover {
@@ -96,6 +128,7 @@ input, select, textarea {
   align-items: center;
   gap: 8px;
   transition: background 0.15s ease;
+  min-height: 38px;
 }
 
 .btn-secondary:hover {
@@ -114,6 +147,7 @@ input, select, textarea {
   align-items: center;
   gap: 6px;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .chip.active {
@@ -129,7 +163,7 @@ input, select, textarea {
   background-color: var(--surface-light);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 20px;
+  padding: clamp(14px, 3vw, 20px);
   box-shadow: 0 1px 3px rgba(0,0,0,0.03);
 }
 
@@ -141,6 +175,7 @@ input, select, textarea {
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .badge-active {
@@ -179,19 +214,85 @@ input, select, textarea {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.45);
-  backdrop-filter: blur(2px);
+  background-color: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
+  padding: 16px;
 }
 
 .modal-card {
   background-color: #FFFFFF;
-  border-radius: 14px;
+  border-radius: 16px;
   width: 100%;
   max-width: 520px;
-  padding: 24px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: clamp(16px, 4vw, 24px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+
+/* Smartphone Simulator Frame */
+.smartphone-frame {
+  max-width: 412px;
+  margin: 20px auto;
+  border: 12px solid #1A1A1A;
+  border-radius: 44px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  background: #F9F9F9;
+  position: relative;
+  overflow: hidden;
+  min-height: 840px;
+  display: flex;
+  flex-direction: column;
+}
+
+.smartphone-notch {
+  width: 130px;
+  height: 22px;
+  background-color: #1A1A1A;
+  margin: 0 auto;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 900px) {
+  .grid-banking {
+    grid-template-columns: 1fr;
+  }
+  .grid-2col {
+    grid-template-columns: 1fr;
+  }
+  .grid-4col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-sidebar {
+    display: none !important;
+  }
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+  .main-content-container {
+    padding: 16px 14px 80px 14px !important;
+  }
+  .grid-4col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
 }

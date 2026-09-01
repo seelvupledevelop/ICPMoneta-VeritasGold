@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/smart/Sidebar';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { PersonaSwitcher } from './components/PersonaSwitcher';
 import { BankCardSurface } from './components/smart/BankCardSurface';
 import { RwaMarketplace } from './components/smart/RwaMarketplace';
@@ -18,6 +19,9 @@ import { AlertCircle, CheckCircle } from 'lucide-react';
 export function App() {
   const [activeSection, setActiveSection] = useState<AppSection>('banking');
   const [perspective, setPerspective] = useState<Perspective>('trader');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [phoneMode, setPhoneMode] = useState(false);
+
   const [accounts, setAccounts] = useState<DemandDepositRecord[]>([]);
   const [holdings, setHoldings] = useState<FungibleAssetHolding[]>([]);
   const [identities, setIdentities] = useState<PrincipalProfile[]>([]);
@@ -108,6 +112,32 @@ export function App() {
     setTimeout(() => setToast(null), 4000);
   };
 
+  const renderContent = () => {
+    if (perspective === 'admin') {
+      return <AdminDashboard identities={identities} onRefresh={loadData} onNotify={showToast} />;
+    }
+    switch (activeSection) {
+      case 'banking':
+        return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+      case 'marketplace':
+        return <RwaMarketplace rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+      case 'offers':
+        return <RwaOfferDesk offers={offers} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+      case 'exchange':
+        return <GoldFxExchange rates={rates} />;
+      case 'rfq':
+        return <RfqTradeDesk rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+      case 'protocols':
+        return <OpsDashboard logs={logs} onRefresh={loadData} />;
+      case 'supervision':
+        return <SupervisoryRadar />;
+      case 'audit':
+        return <RegulatorDashboard accounts={accounts} holdings={holdings} onNotify={showToast} />;
+      default:
+        return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F9F9F9', display: 'flex', flexDirection: 'column' }}>
       <Navbar
@@ -116,6 +146,9 @@ export function App() {
         holdingCount={holdings.length}
         protocolCount={logs.length}
         identityCount={identities.length}
+        phoneMode={phoneMode}
+        setPhoneMode={setPhoneMode}
+        onToggleMobileMenu={() => setIsMobileMenuOpen((p) => !p)}
       />
 
       <PersonaSwitcher perspective={perspective} setPerspective={setPerspective} />
@@ -124,11 +157,11 @@ export function App() {
         <div
           style={{
             position: 'fixed',
-            bottom: '24px',
-            right: '24px',
+            bottom: '70px',
+            right: '20px',
             backgroundColor: toast.isError ? '#FF0000' : '#0F0F0F',
             color: '#FFFFFF',
-            padding: '12px 20px',
+            padding: '12px 18px',
             borderRadius: '9999px',
             fontSize: '13px',
             fontWeight: 500,
@@ -136,7 +169,7 @@ export function App() {
             alignItems: 'center',
             gap: '8px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-            zIndex: 2000,
+            zIndex: 3000,
           }}
         >
           {toast.isError ? <AlertCircle size={16} /> : <CheckCircle size={16} color="#2BA640" />}
@@ -144,55 +177,38 @@ export function App() {
         </div>
       )}
 
-      <div style={{ display: 'flex', flex: 1 }}>
-        <Sidebar
-          activeSection={activeSection}
-          setActiveSection={setActiveSection}
-          accountCount={accounts.length}
-          rwaCount={rates.length}
-          offerCount={offers.length}
-        />
+      {/* Main Layout Container */}
+      {phoneMode ? (
+        <div style={{ flex: 1, padding: '20px 10px', display: 'flex', justifyContent: 'center', backgroundColor: '#EAEAEA' }}>
+          <div className="smartphone-frame">
+            <div className="smartphone-notch" />
+            <div style={{ overflowY: 'auto', flex: 1, padding: '34px 16px 70px 16px', display: 'flex', flexDirection: 'column' }}>
+              {renderContent()}
+            </div>
+            <MobileBottomNav activeSection={activeSection} setActiveSection={setActiveSection} />
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
+          <Sidebar
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            accountCount={accounts.length}
+            rwaCount={rates.length}
+            offerCount={offers.length}
+            isOpenMobile={isMobileMenuOpen}
+            onCloseMobile={() => setIsMobileMenuOpen(false)}
+          />
 
-        <main style={{ flex: 1, maxWidth: '1200px', width: '100%', margin: '0 auto', padding: '28px 32px' }}>
-          {perspective === 'admin' && (
-            <AdminDashboard identities={identities} onRefresh={loadData} onNotify={showToast} />
-          )}
+          <main className="main-content-container" style={{ flex: 1, maxWidth: '1200px', width: '100%', margin: '0 auto', padding: '24px 28px' }}>
+            {renderContent()}
+          </main>
 
-          {perspective !== 'admin' && activeSection === 'banking' && (
-            <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />
-          )}
+          <MobileBottomNav activeSection={activeSection} setActiveSection={setActiveSection} />
+        </div>
+      )}
 
-          {perspective !== 'admin' && activeSection === 'marketplace' && (
-            <RwaMarketplace rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />
-          )}
-
-          {perspective !== 'admin' && activeSection === 'offers' && (
-            <RwaOfferDesk offers={offers} accounts={accounts} onRefresh={loadData} onNotify={showToast} />
-          )}
-
-          {perspective !== 'admin' && activeSection === 'exchange' && (
-            <GoldFxExchange rates={rates} />
-          )}
-
-          {perspective !== 'admin' && activeSection === 'rfq' && (
-            <RfqTradeDesk rates={rates} accounts={accounts} onRefresh={loadData} onNotify={showToast} />
-          )}
-
-          {perspective !== 'admin' && activeSection === 'protocols' && (
-            <OpsDashboard logs={logs} onRefresh={loadData} />
-          )}
-
-          {perspective !== 'admin' && activeSection === 'supervision' && (
-            <SupervisoryRadar />
-          )}
-
-          {perspective !== 'admin' && activeSection === 'audit' && (
-            <RegulatorDashboard accounts={accounts} holdings={holdings} onNotify={showToast} />
-          )}
-        </main>
-      </div>
-
-      <footer style={{ borderTop: '1px solid #E5E5E5', backgroundColor: '#FFFFFF', padding: '14px 24px', textAlign: 'center', fontSize: '12px', color: '#606060' }}>
+      <footer style={{ borderTop: '1px solid #E5E5E5', backgroundColor: '#FFFFFF', padding: '12px 20px', textAlign: 'center', fontSize: '11px', color: '#606060' }}>
         Red Broadcast Smart Financial Application • Enterprise RWA & Banking on Internet Computer • Rust + TypeScript
       </footer>
     </div>

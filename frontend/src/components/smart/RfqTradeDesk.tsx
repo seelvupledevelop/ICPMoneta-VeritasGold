@@ -81,21 +81,21 @@ export const RfqTradeDesk: React.FC<RfqTradeDeskProps> = ({ rates, accounts, onR
 
   return (
     <div className="fade-in">
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span className="badge badge-red">Institutional RFQ Desk</span>
-          <span style={{ fontSize: '12px', color: '#606060' }}>Automated Request-for-Quote & Atomic DvP Engine</span>
+          <span style={{ fontSize: '11px', color: '#606060' }}>Automated Request-for-Quote</span>
         </div>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginTop: '4px' }}>Request for Quote (RFQ) Trade Desk</h2>
+        <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 700, marginTop: '4px' }}>Request for Quote (RFQ) Trade Desk</h2>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div className="grid-2col">
         <div className="card">
-          <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Zap size={18} color="#FF0000" /> Create Instant RFQ Order
           </h3>
 
-          <form onSubmit={handleRequestQuote} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleRequestQuote} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
               <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>Target Real-World Asset</label>
               <select
@@ -140,13 +140,13 @@ export const RfqTradeDesk: React.FC<RfqTradeDeskProps> = ({ rates, accounts, onR
               >
                 {accounts.map((a) => (
                   <option key={a.account_id} value={a.account_id}>
-                    {a.account_id} (Bal: €{a.balance.value_str})
+                    {a.account_id} (€{a.balance.value_str})
                   </option>
                 ))}
               </select>
             </div>
 
-            <button type="submit" className="btn-accent" style={{ justifyContent: 'center', marginTop: '8px' }}>
+            <button type="submit" className="btn-accent" style={{ justifyContent: 'center', marginTop: '6px' }}>
               <Zap size={16} /> Request Guaranteed Quote
             </button>
           </form>
@@ -154,7 +154,7 @@ export const RfqTradeDesk: React.FC<RfqTradeDeskProps> = ({ rates, accounts, onR
 
         <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: activeQuote ? '2px solid #2BA640' : '1px solid #E5E5E5' }}>
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Executable Quote Status</h3>
               {activeQuote ? (
                 <span className="badge badge-active" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -166,38 +166,38 @@ export const RfqTradeDesk: React.FC<RfqTradeDeskProps> = ({ rates, accounts, onR
             </div>
 
             {activeQuote ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ backgroundColor: '#F9F9F9', padding: '16px', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ backgroundColor: '#F9F9F9', padding: '12px', borderRadius: '8px' }}>
                   <div style={{ fontSize: '11px', color: '#606060' }}>Quote Reference ID</div>
-                  <code style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700 }}>{activeQuote.quoteId}</code>
+                  <code style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 700 }}>{activeQuote.quoteId}</code>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '12px' }}>
                   <div>
-                    <span style={{ color: '#606060' }}>Unit Execution Rate:</span>
-                    <div style={{ fontWeight: 700, fontSize: '16px', marginTop: '2px' }}>€{activeQuote.rateEur} EUR</div>
+                    <span style={{ color: '#606060' }}>Unit Rate:</span>
+                    <div style={{ fontWeight: 700, fontSize: '15px', marginTop: '2px' }}>€{activeQuote.rateEur} EUR</div>
                   </div>
                   <div>
-                    <span style={{ color: '#606060' }}>Best Execution Spread:</span>
-                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#2BA640', marginTop: '2px' }}>{activeQuote.spread}</div>
+                    <span style={{ color: '#606060' }}>Spread:</span>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: '#2BA640', marginTop: '2px' }}>{activeQuote.spread}</div>
                   </div>
                 </div>
 
-                <div style={{ backgroundColor: '#FFEBEE', padding: '14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ backgroundColor: '#FFEBEE', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontSize: '11px', color: '#FF0000', fontWeight: 600 }}>Total Cash Debit</div>
-                    <div style={{ fontSize: '22px', fontWeight: 800, color: '#FF0000' }}>€{activeQuote.totalEur} EUR</div>
+                    <div style={{ fontSize: '20px', fontWeight: 800, color: '#FF0000' }}>€{activeQuote.totalEur} EUR</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '11px', color: '#606060' }}>You Receive</div>
-                    <div style={{ fontSize: '16px', fontWeight: 700 }}>{quantity} {targetAsset}</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700 }}>{quantity} {targetAsset}</div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#888' }}>
-                <Clock size={36} style={{ margin: '0 auto 12px', color: '#CCC' }} />
-                <p style={{ fontSize: '13px' }}>Select an asset and submit the form to receive an atomic guaranteed price quote.</p>
+              <div style={{ textAlign: 'center', padding: '30px 16px', color: '#888' }}>
+                <Clock size={32} style={{ margin: '0 auto 10px', color: '#CCC' }} />
+                <p style={{ fontSize: '12px' }}>Select an asset and submit the form to receive an atomic guaranteed price quote.</p>
               </div>
             )}
           </div>
@@ -205,11 +205,11 @@ export const RfqTradeDesk: React.FC<RfqTradeDeskProps> = ({ rates, accounts, onR
           {activeQuote && (
             <button
               className="btn-accent"
-              style={{ width: '100%', justifyContent: 'center', marginTop: '16px', backgroundColor: '#2BA640' }}
+              style={{ width: '100%', justifyContent: 'center', marginTop: '14px', backgroundColor: '#2BA640' }}
               onClick={handleExecuteQuote}
               disabled={submitting}
             >
-              {submitting ? 'Executing Atomic DvP...' : 'Accept Quote & Settle on ICP'}
+              {submitting ? 'Executing DvP...' : 'Accept Quote & Settle on ICP'}
             </button>
           )}
         </div>

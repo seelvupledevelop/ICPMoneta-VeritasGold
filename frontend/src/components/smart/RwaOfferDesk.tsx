@@ -86,79 +86,81 @@ export const RwaOfferDesk: React.FC<RwaOfferDeskProps> = ({ offers, accounts, on
 
   return (
     <div className="fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="badge badge-active">Institutional P2P Trade Desk</span>
-            <span style={{ fontSize: '12px', color: '#606060' }}>Atomic Delivery-versus-Payment (DvP) Orderbook</span>
+            <span style={{ fontSize: '11px', color: '#606060' }}>Atomic Delivery-versus-Payment (DvP)</span>
           </div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700, marginTop: '4px' }}>Peer-to-Peer RWA Trade Book</h2>
+          <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 700, marginTop: '4px' }}>Peer-to-Peer RWA Trade Book</h2>
         </div>
 
         <button className="btn-accent" onClick={() => setShowCreateModal(true)}>
-          <Plus size={16} /> Post RWA Offer (Sell/Offer)
+          <Plus size={16} /> Post RWA Offer
         </button>
       </div>
 
-      {/* Offers Table */}
+      {/* Offers Table with Horizontal Scroll Wrap */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#F9F9F9', borderBottom: '1px solid #E5E5E5', color: '#606060', fontSize: '11px', textTransform: 'uppercase' }}>
-              <th style={{ padding: '14px 20px' }}>Offer ID</th>
-              <th style={{ padding: '14px 20px' }}>Offering Entity</th>
-              <th style={{ padding: '14px 20px' }}>Asset Offering</th>
-              <th style={{ padding: '14px 20px' }}>Quantity</th>
-              <th style={{ padding: '14px 20px' }}>Unit Price (EUR)</th>
-              <th style={{ padding: '14px 20px' }}>Total Settle Value</th>
-              <th style={{ padding: '14px 20px' }}>Status</th>
-              <th style={{ padding: '14px 20px' }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {offers.map((o) => (
-              <tr key={o.offer_id} style={{ borderBottom: '1px solid #EAEAEA' }}>
-                <td style={{ padding: '14px 20px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{o.offer_id}</td>
-                <td style={{ padding: '14px 20px' }}>
-                  <div style={{ fontWeight: 600 }}>{o.seller_legal_name}</div>
-                  <code style={{ fontSize: '10px', color: '#888' }}>{o.seller_principal.slice(0, 12)}...</code>
-                </td>
-                <td style={{ padding: '14px 20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span className="badge badge-red">{o.asset_symbol}</span>
-                    <span style={{ fontWeight: 600 }}>{o.asset_name}</span>
-                  </div>
-                </td>
-                <td style={{ padding: '14px 20px', fontWeight: 600 }}>{o.asset_amount} {o.asset_symbol}</td>
-                <td style={{ padding: '14px 20px' }}>€{o.price_per_unit_eur}</td>
-                <td style={{ padding: '14px 20px', fontWeight: 700, color: '#FF0000' }}>€{o.total_price_eur} EUR</td>
-                <td style={{ padding: '14px 20px' }}>
-                  <span className={`badge ${o.status === 'Active' ? 'badge-active' : 'badge-blue'}`}>
-                    {o.status === 'Active' ? 'Open Offer' : 'Filled (Settled)'}
-                  </span>
-                </td>
-                <td style={{ padding: '14px 20px' }}>
-                  {o.status === 'Active' ? (
-                    <button
-                      className="btn-accent"
-                      style={{ padding: '6px 14px', fontSize: '12px' }}
-                      onClick={() => {
-                        setSelectedOffer(o);
-                        setBuyerAccountId(accounts[0]?.account_id || '');
-                      }}
-                    >
-                      <Tag size={13} /> Buy & Settle
-                    </button>
-                  ) : (
-                    <span style={{ color: '#2BA640', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <CheckCircle2 size={13} /> Settled DvP
-                    </span>
-                  )}
-                </td>
+        <div className="table-responsive">
+          <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#F9F9F9', borderBottom: '1px solid #E5E5E5', color: '#606060', fontSize: '11px', textTransform: 'uppercase' }}>
+                <th style={{ padding: '12px 16px' }}>Offer ID</th>
+                <th style={{ padding: '12px 16px' }}>Offering Entity</th>
+                <th style={{ padding: '12px 16px' }}>Asset Offering</th>
+                <th style={{ padding: '12px 16px' }}>Quantity</th>
+                <th style={{ padding: '12px 16px' }}>Unit Price</th>
+                <th style={{ padding: '12px 16px' }}>Total Settle</th>
+                <th style={{ padding: '12px 16px' }}>Status</th>
+                <th style={{ padding: '12px 16px' }}>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {offers.map((o) => (
+                <tr key={o.offer_id} style={{ borderBottom: '1px solid #EAEAEA' }}>
+                  <td style={{ padding: '12px 16px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{o.offer_id}</td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <div style={{ fontWeight: 600 }}>{o.seller_legal_name}</div>
+                    <code style={{ fontSize: '10px', color: '#888' }}>{o.seller_principal.slice(0, 10)}...</code>
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className="badge badge-red">{o.asset_symbol}</span>
+                      <span style={{ fontWeight: 600 }}>{o.asset_name}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>{o.asset_amount} {o.asset_symbol}</td>
+                  <td style={{ padding: '12px 16px' }}>€{o.price_per_unit_eur}</td>
+                  <td style={{ padding: '12px 16px', fontWeight: 700, color: '#FF0000' }}>€{o.total_price_eur} EUR</td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <span className={`badge ${o.status === 'Active' ? 'badge-active' : 'badge-blue'}`}>
+                      {o.status === 'Active' ? 'Open' : 'Filled'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    {o.status === 'Active' ? (
+                      <button
+                        className="btn-accent"
+                        style={{ padding: '6px 12px', fontSize: '11px' }}
+                        onClick={() => {
+                          setSelectedOffer(o);
+                          setBuyerAccountId(accounts[0]?.account_id || '');
+                        }}
+                      >
+                        <Tag size={12} /> Buy & Settle
+                      </button>
+                    ) : (
+                      <span style={{ color: '#2BA640', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <CheckCircle2 size={12} /> Settled
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Create Offer Modal */}
@@ -166,11 +168,11 @@ export const RwaOfferDesk: React.FC<RwaOfferDeskProps> = ({ offers, accounts, on
         <div className="modal-overlay">
           <div className="modal-card">
             <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px' }}>Post Real-World Asset (RWA) Offer</h3>
-            <p style={{ fontSize: '13px', color: '#606060', marginBottom: '20px' }}>
+            <p style={{ fontSize: '13px', color: '#606060', marginBottom: '16px' }}>
               Create an institutional offer to sell tokenized Government Bonds, Gold, or Real Estate.
             </p>
 
-            <form onSubmit={handleCreateOffer} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleCreateOffer} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>RWA Asset Class</label>
                 <select value={assetSymbol} onChange={(e) => handleAssetSelect(e.target.value)} className="input-flat">
@@ -209,16 +211,16 @@ export const RwaOfferDesk: React.FC<RwaOfferDeskProps> = ({ offers, accounts, on
               <div style={{ backgroundColor: '#F9F9F9', padding: '12px', borderRadius: '8px', fontSize: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Total Gross Settle Value:</span>
-                  <b style={{ color: '#FF0000', fontSize: '15px' }}>
+                  <b style={{ color: '#FF0000', fontSize: '14px' }}>
                     €{(parseFloat(assetAmount || '0') * parseFloat(pricePerUnit || '0')).toFixed(2)} EUR
                   </b>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                 <button type="button" className="btn-secondary" onClick={() => setShowCreateModal(false)}>Cancel</button>
                 <button type="submit" className="btn-accent" disabled={submitting}>
-                  {submitting ? 'Publishing...' : 'Publish Offer to Orderbook'}
+                  {submitting ? 'Publishing...' : 'Publish Offer'}
                 </button>
               </div>
             </form>
@@ -233,11 +235,11 @@ export const RwaOfferDesk: React.FC<RwaOfferDeskProps> = ({ offers, accounts, on
             <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '6px' }}>
               Accept Offer: {selectedOffer.asset_name}
             </h3>
-            <p style={{ fontSize: '13px', color: '#606060', marginBottom: '20px' }}>
-              Execute atomic Delivery-versus-Payment (DvP): Your cash account will be debited €{selectedOffer.total_price_eur} EUR, and {selectedOffer.asset_amount} {selectedOffer.asset_symbol} will be transferred to your portfolio.
+            <p style={{ fontSize: '13px', color: '#606060', marginBottom: '16px' }}>
+              Execute atomic DvP: Your account will be debited €{selectedOffer.total_price_eur} EUR, and {selectedOffer.asset_amount} {selectedOffer.asset_symbol} transferred to your portfolio.
             </p>
 
-            <form onSubmit={handleAcceptOffer} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleAcceptOffer} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>Payment Source (Debit Account)</label>
                 <select
@@ -249,16 +251,16 @@ export const RwaOfferDesk: React.FC<RwaOfferDeskProps> = ({ offers, accounts, on
                   <option value="">Select Cash Account...</option>
                   {accounts.map((a) => (
                     <option key={a.account_id} value={a.account_id}>
-                      {a.account_id} (Available: €{a.balance.value_str})
+                      {a.account_id} (€{a.balance.value_str})
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                 <button type="button" className="btn-secondary" onClick={() => setSelectedOffer(null)}>Cancel</button>
                 <button type="submit" className="btn-accent" disabled={submitting}>
-                  {submitting ? 'Settling on ICP...' : 'Confirm Atomic DvP Settlement'}
+                  {submitting ? 'Settling...' : 'Confirm Atomic DvP'}
                 </button>
               </div>
             </form>
