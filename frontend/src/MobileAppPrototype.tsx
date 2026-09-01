@@ -15,14 +15,22 @@ import type {
   BridgeRoute,
   CanisterStatusInfo,
   LiquidityPool,
+  SovereignBondContract,
 } from './types';
-import { transferCash, submitAuctionBid, executeCorporateAction, approveGovernanceItem, topUpCanister, executeBridgeTransfer } from './services/api';
+import {
+  transferCash,
+  submitAuctionBid,
+  executeCorporateAction,
+  approveGovernanceItem,
+  topUpCanister,
+  executeBridgeTransfer,
+  createBondContract,
+} from './services/api';
 import {
   ShieldCheck,
   Fingerprint,
   TrendingUp,
   Landmark,
-  MessageSquare,
   ArrowUpRight,
   FileText,
   Download,
@@ -40,8 +48,9 @@ import {
   Scale,
   Menu,
   X,
-
   BatteryCharging,
+  BarChart2,
+  FileCode2,
 } from 'lucide-react';
 
 interface MobileAppPrototypeProps {
@@ -59,6 +68,7 @@ interface MobileAppPrototypeProps {
   bridgeRoutes: BridgeRoute[];
   canisters: CanisterStatusInfo[];
   liquidityPools: LiquidityPool[];
+  bondContracts?: SovereignBondContract[];
   onNotify: (msg: string, isError?: boolean) => void;
   onRefresh: () => void;
 }
@@ -78,6 +88,7 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
   bridgeRoutes: _bridgeRoutes,
   canisters,
   liquidityPools,
+  bondContracts = [],
   onNotify,
   onRefresh,
 }) => {
@@ -99,8 +110,16 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
   // Bridge state
   const [bridgeAmt, setBridgeAmt] = useState('5,000.00');
 
+  // Mobile Bond Maker State
+  const [mIsin, setMIsin] = useState('TRT150836T12');
+  const [mVolume, setMVolume] = useState('1,000,000,000.00');
+  const [mCoupon, setMCoupon] = useState('4.25%');
+  const [deployingBond, setDeployingBond] = useState(false);
+
   const menuSections: { id: AppSection; label: string; icon: any }[] = [
     { id: 'portfolio', label: 'Global AUM', icon: Landmark },
+    { id: 'terminal', label: 'RWA Charts', icon: BarChart2 },
+    { id: 'contract_maker', label: 'Bond Factory', icon: FileCode2 },
     { id: 'vault', label: 'Markets', icon: Diamond },
     { id: 'trade', label: 'Trade & DvP', icon: TrendingUp },
     { id: 'notaries', label: 'Consensus', icon: ShieldCheck },
@@ -112,7 +131,7 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
     { id: 'bridge', label: 'Bridge', icon: ArrowLeftRight },
     { id: 'canister_mgmt', label: 'Contracts', icon: Cpu },
     { id: 'liquidity_pools', label: 'AMM Pools', icon: Droplets },
-    { id: 'interoperability', label: 'Whisper Chat', icon: MessageSquare },
+    { id: 'interoperability', label: 'Gold & FX Desk', icon: Coins },
     { id: 'compliance', label: 'Compliance', icon: Scale },
     { id: 'logs', label: 'Audit Logs', icon: FileText },
   ];
@@ -797,70 +816,236 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
           </div>
         )}
 
-        {/* 12. WHISPER SIGNAL E2EE CHAT & INSTANT SETTLEMENT */}
+        {/* RWA CHARTS TERMINAL */}
+        {activeSection === 'terminal' && (
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <BarChart2 size={16} color="var(--red-primary)" />
+                <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>RWA Market Charts</h3>
+              </div>
+              <span className="pill-valid" style={{ fontSize: '8.5px' }}>LIVE TRADINGVIEW</span>
+            </div>
+
+            <div className="card" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>Swiss Allocated Gold (1 oz)</div>
+                  <div style={{ fontSize: '10px', color: 'var(--red-primary)', fontFamily: 'var(--font-mono)' }}>XAU/EUR • DTI-9B2X-GOLD</div>
+                </div>
+                <span className="pill-valid" style={{ fontSize: '9px' }}>+1.45%</span>
+              </div>
+
+              <div style={{ fontSize: '24px', fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-mono)', margin: '4px 0' }}>
+                €2,542.10 <span style={{ fontSize: '12px', color: 'var(--red-primary)' }}>EUR</span>
+              </div>
+
+              {/* Mobile Interactive Mini-Chart Visualization */}
+              <div style={{ height: '70px', display: 'flex', alignItems: 'flex-end', gap: '4px', padding: '6px 0', borderBottom: '1px solid var(--border-subtle)' }}>
+                {[35, 45, 40, 60, 55, 75, 88, 70, 95, 100].map((h, i) => (
+                  <div
+                    key={i}
+                    onClick={() => onNotify(`Candle #${i + 1}: €${(2480 + h * 0.62).toFixed(2)} EUR`)}
+                    style={{
+                      flex: 1,
+                      height: `${h}%`,
+                      backgroundColor: i === 9 ? 'var(--red-primary)' : 'rgba(239, 68, 68, 0.45)',
+                      borderRadius: '2px',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={() => onNotify('Instant Mobile DvP Trade Initiated on ICP Canister!')}
+                className="btn-red"
+                style={{ marginTop: '6px', justifyContent: 'center', padding: '8px', fontSize: '11.5px' }}
+              >
+                <Zap size={13} /> Buy 1 oz Gold on ICP DvP
+              </button>
+            </div>
+
+            <div className="card" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF' }}>US Treasury 10Y Benchmark</div>
+                  <div style={{ fontSize: '10px', color: 'var(--red-primary)', fontFamily: 'var(--font-mono)' }}>USTB-10Y • US91282CDJ71</div>
+                </div>
+                <span className="pill-valid" style={{ fontSize: '9px' }}>3.85% APY</span>
+              </div>
+
+              <div style={{ fontSize: '22px', fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-mono)', margin: '4px 0' }}>
+                €98.42 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>EUR</span>
+              </div>
+
+              <button
+                onClick={() => onNotify('Placed Instant Primary Bid for US Treasury Note!')}
+                className="btn-outline"
+                style={{ justifyContent: 'center', padding: '7px', fontSize: '11px' }}
+              >
+                Place Sovereign Bid
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* SOVEREIGN BOND MAKER FACTORY */}
+        {activeSection === 'contract_maker' && (
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <FileCode2 size={16} color="var(--red-primary)" />
+                <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>Sovereign Bond Maker</h3>
+              </div>
+              <span className="pill-valid" style={{ fontSize: '8.5px' }}>ACTUS PAM</span>
+            </div>
+
+            <div className="card" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div>
+                <label style={{ fontSize: '9.5px', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                  ISIN Code
+                </label>
+                <input
+                  type="text"
+                  value={mIsin}
+                  onChange={(e) => setMIsin(e.target.value)}
+                  className="input-dark"
+                  style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                <div>
+                  <label style={{ fontSize: '9.5px', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                    Notional Volume
+                  </label>
+                  <input
+                    type="text"
+                    value={mVolume}
+                    onChange={(e) => setMVolume(e.target.value)}
+                    className="input-dark"
+                    style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '9.5px', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                    Coupon %
+                  </label>
+                  <input
+                    type="text"
+                    value={mCoupon}
+                    onChange={(e) => setMCoupon(e.target.value)}
+                    className="input-dark"
+                    style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px' }}
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={async () => {
+                  setDeployingBond(true);
+                  try {
+                    await createBondContract({
+                      issuer_name: 'Central Bank of the Republic of Turkey (CBRT)',
+                      issuer_principal: 'cbrt1-gibai-aaaaa-aaaaa-cai',
+                      isin_code: mIsin,
+                      dti_code: 'DTI-TRY-BOND-10Y',
+                      currency: 'EURD',
+                      notional_volume_eur: mVolume,
+                      coupon_rate_pct: mCoupon,
+                      coupon_frequency: 'Semi-Annual',
+                      actus_contract_type: 'Principal At Maturity (PAM)',
+                      maturity_date: '2036-08-15',
+                      auction_mechanism: 'Uniform-Price Dutch Auction',
+                      collateral_backing: 'Dual Sovereign Guarantee + LBMA Gold',
+                    });
+                    onNotify(`Mobile Bond Canister Deployed! ISIN: ${mIsin}`);
+                    onRefresh();
+                  } catch (err: any) {
+                    onNotify(err.message, true);
+                  } finally {
+                    setDeployingBond(false);
+                  }
+                }}
+                className="btn-red"
+                style={{ marginTop: '4px', justifyContent: 'center', padding: '8px', fontSize: '11.5px' }}
+                disabled={deployingBond}
+              >
+                <Zap size={13} /> {deployingBond ? 'Deploying...' : 'Deploy Bond Canister'}
+              </button>
+            </div>
+
+            {/* Existing Bond Contracts on Mobile */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase' }}>
+                Active Bond Canisters ({bondContracts.length})
+              </div>
+              {bondContracts.map((b) => (
+                <div key={b.contract_id} className="card" style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#FFFFFF' }}>{b.contract_id}</div>
+                    <div style={{ fontSize: '9.5px', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+                      ISIN: {b.isin_code} • {b.coupon_rate_pct}
+                    </div>
+                  </div>
+                  <span className="pill-valid" style={{ fontSize: '8.5px' }}>{b.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 12. GOLD & FX CORRIDOR RATES DESK */}
         {activeSection === 'interoperability' && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <MessageSquare size={16} color="var(--red-primary)" />
-                <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>Signal E2EE Whisper Pay</h3>
+                <Coins size={16} color="var(--red-primary)" />
+                <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>Gold & FX Corridor Desk</h3>
               </div>
-              <span className="pill-valid" style={{ fontSize: '8.5px' }}>VETKEYS E2EE</span>
+              <span className="pill-valid" style={{ fontSize: '8.5px' }}>ECB / LBMA FEED</span>
             </div>
 
-            {/* Central Bank Contacts */}
+            {/* Central Bank Corridor Switchers */}
             <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
               {[
-                { name: 'Turkey (CBRT)', flag: '🇹🇷' },
-                { name: 'Swiss (SNB)', flag: '🇨🇭' },
-                { name: 'Hong Kong (HKMA)', flag: '🇭🇰' },
-                { name: 'Ukraine (NBU)', flag: '🇺🇦' },
+                { name: 'Turkey (CBRT)', flag: '🇹🇷', rate: '€2,542.10 / oz' },
+                { name: 'Swiss (SNB)', flag: '🇨🇭', rate: '0.9620 CHF/EUR' },
+                { name: 'Hong Kong (HKMA)', flag: '🇭🇰', rate: '8.45 HKD/EUR' },
+                { name: 'Federal Reserve', flag: '🇺🇸', rate: '1.0955 USD/EUR' },
               ].map((cb, idx) => (
-                <button
+                <div
                   key={idx}
-                  onClick={() => onNotify(`Connected to ${cb.name} Sovereign Encrypted Channel`)}
+                  onClick={() => onNotify(`Active Sovereign Corridor: ${cb.name} (${cb.rate})`)}
+                  className="card"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '5px 10px',
-                    borderRadius: '9999px',
-                    backgroundColor: idx === 0 ? 'rgba(239, 68, 68, 0.25)' : '#16121a',
-                    border: `1px solid ${idx === 0 ? 'var(--border-red)' : '#271f28'}`,
-                    color: '#FFFFFF',
-                    fontSize: '11px',
-                    whiteSpace: 'nowrap',
+                    padding: '8px 12px',
+                    minWidth: '130px',
                     cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
                   }}
                 >
-                  <span>{cb.flag}</span>
-                  <span>{cb.name}</span>
-                </button>
+                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#FFFFFF' }}>{cb.flag} {cb.name}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--red-primary)', fontFamily: 'var(--font-mono)' }}>{cb.rate}</div>
+                </div>
               ))}
             </div>
 
-            {/* In-Chat Payment Simulation Card */}
-            <div className="card card-red-accent" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--red-primary)' }}>
-                  INCOMING SOVEREIGN PROPOSAL
-                </div>
-                <span className="pill-gold" style={{ fontSize: '8.5px' }}>PENDING DVP</span>
+            <div className="card" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF' }}>Instant FX Settlement Request</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)' }}>
+                <span>Pair: <b>EURD / USDD</b></span>
+                <span>Rate: <b style={{ color: 'var(--green-valid)' }}>1.0955</b></span>
               </div>
-
-              <div style={{ fontSize: '18px', fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-mono)' }}>
-                500.00 oz Gold (€1,271,050.00)
-              </div>
-              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>
-                From: 🇹🇷 Central Bank of Turkey ➔ 🇨🇭 Swiss Vault ZRH-01
-              </div>
-
               <button
-                onClick={() => onNotify('Atomic DvP Executed! 500 oz Swiss Gold swapped for €1,271,050.00 in 380ms!')}
+                onClick={() => onNotify('Instant FX Corridor DvP Transfer executed on ICP!')}
                 className="btn-red"
                 style={{ marginTop: '4px', justifyContent: 'center', padding: '8px', fontSize: '11.5px' }}
               >
-                <Zap size={13} /> Accept & Settle in Chat (&lt; 400ms)
+                <Zap size={13} /> Settle Corridor Swap
               </button>
             </div>
           </div>
@@ -946,20 +1131,37 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
         </button>
 
         <button
-          onClick={() => setActiveSection('vault')}
+          onClick={() => setActiveSection('terminal')}
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             background: 'none',
             border: 'none',
-            color: activeSection === 'vault' ? 'var(--red-primary)' : 'var(--text-dim)',
+            color: activeSection === 'terminal' ? 'var(--red-primary)' : 'var(--text-dim)',
             cursor: 'pointer',
             gap: '2px',
           }}
         >
-          <Diamond size={15} color={activeSection === 'vault' ? 'var(--red-primary)' : 'var(--text-dim)'} />
-          <span style={{ fontSize: '8.5px', fontWeight: activeSection === 'vault' ? 800 : 500 }}>Markets</span>
+          <BarChart2 size={15} color={activeSection === 'terminal' ? 'var(--red-primary)' : 'var(--text-dim)'} />
+          <span style={{ fontSize: '8.5px', fontWeight: activeSection === 'terminal' ? 800 : 500 }}>Charts</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSection('contract_maker')}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            background: 'none',
+            border: 'none',
+            color: activeSection === 'contract_maker' ? 'var(--red-primary)' : 'var(--text-dim)',
+            cursor: 'pointer',
+            gap: '2px',
+          }}
+        >
+          <FileCode2 size={15} color={activeSection === 'contract_maker' ? 'var(--red-primary)' : 'var(--text-dim)'} />
+          <span style={{ fontSize: '8.5px', fontWeight: activeSection === 'contract_maker' ? 800 : 500 }}>Factory</span>
         </button>
 
         <button
@@ -976,7 +1178,7 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
           }}
         >
           <ArrowUpRight size={15} color={activeSection === 'trade' ? 'var(--red-primary)' : 'var(--text-dim)'} />
-          <span style={{ fontSize: '8.5px', fontWeight: activeSection === 'trade' ? 800 : 500 }}>Settlement</span>
+          <span style={{ fontSize: '8.5px', fontWeight: activeSection === 'trade' ? 800 : 500 }}>DvP Trade</span>
         </button>
 
         <button
@@ -994,23 +1196,6 @@ export const MobileAppPrototype: React.FC<MobileAppPrototypeProps> = ({
         >
           <Gavel size={15} color={activeSection === 'auctions' ? 'var(--red-primary)' : 'var(--text-dim)'} />
           <span style={{ fontSize: '8.5px', fontWeight: activeSection === 'auctions' ? 800 : 500 }}>Auctions</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSection('logs')}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            background: 'none',
-            border: 'none',
-            color: activeSection === 'logs' ? 'var(--red-primary)' : 'var(--text-dim)',
-            cursor: 'pointer',
-            gap: '2px',
-          }}
-        >
-          <FileText size={15} color={activeSection === 'logs' ? 'var(--red-primary)' : 'var(--text-dim)'} />
-          <span style={{ fontSize: '8.5px', fontWeight: activeSection === 'logs' ? 800 : 500 }}>Audit</span>
         </button>
       </nav>
     </div>

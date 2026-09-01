@@ -4,8 +4,11 @@ import { executeRfqTrade } from '../../services/api';
 import {
   createChart,
   ColorType,
+  CrosshairMode,
   CandlestickSeries,
   AreaSeries,
+  BarSeries,
+  BaselineSeries,
   HistogramSeries,
   type IChartApi,
   type Time,
@@ -17,6 +20,8 @@ import {
   Activity,
   TrendingUp,
   BarChart3,
+  LineChart,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 export interface TerminalAsset {
@@ -168,8 +173,9 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<'All' | 'Gold' | 'FX' | 'Bonds' | 'RWA'>('All');
   const [selectedAsset, setSelectedAsset] = useState<TerminalAsset>(TERMINAL_ASSETS[0]);
-  const [chartType, setChartType] = useState<'candlestick' | 'area'>('candlestick');
+  const [chartType, setChartType] = useState<'candlestick' | 'area' | 'bar' | 'baseline'>('candlestick');
   const [timeframe, setTimeframe] = useState<'1H' | '24H' | '7D' | '1M' | '1Y'>('24H');
+  const [hoveredData, setHoveredData] = useState<{ price: string; date: string } | null>(null);
   const [tradeAmount, setTradeAmount] = useState('10.00');
   const [buyerAccountId, setBuyerAccountId] = useState(accounts[0]?.account_id || '');
   const [submittingTrade, setSubmittingTrade] = useState(false);
@@ -186,7 +192,6 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    // Clean previous chart instance
     if (chartInstanceRef.current) {
       chartInstanceRef.current.remove();
       chartInstanceRef.current = null;
@@ -198,12 +203,13 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
         textColor: '#94a3b8',
       },
       grid: {
-        vertLines: { color: 'rgba(239, 68, 68, 0.07)' },
-        horzLines: { color: 'rgba(239, 68, 68, 0.07)' },
+        vertLines: { color: 'rgba(239, 68, 68, 0.08)' },
+        horzLines: { color: 'rgba(239, 68, 68, 0.08)' },
       },
       crosshair: {
-        vertLine: { color: '#ef4444', width: 1, style: 2 },
-        horzLine: { color: '#ef4444', width: 1, style: 2 },
+        mode: CrosshairMode.Normal,
+        vertLine: { color: '#ef4444', width: 1, style: 2, labelBackgroundColor: '#ef4444' },
+        horzLine: { color: '#ef4444', width: 1, style: 2, labelBackgroundColor: '#ef4444' },
       },
       timeScale: {
         borderColor: '#271f28',
@@ -212,8 +218,19 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
       rightPriceScale: {
         borderColor: '#271f28',
       },
+      handleScroll: {
+        mouseWheel: true,
+        pressedMouseMove: true,
+        horzTouchDrag: true,
+        vertTouchDrag: true,
+      },
+      handleScale: {
+        axisPressedMouseMove: true,
+        mouseWheel: true,
+        pinch: true,
+      },
       width: chartContainerRef.current.clientWidth,
-      height: 320,
+      height: 340,
     });
 
     chartInstanceRef.current = chart;
@@ -236,15 +253,48 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
           close: d.close,
         }))
       );
-    } else {
+    } else if (chartType === 'area') {
       const areaSeries = chart.addSeries(AreaSeries, {
         topColor: 'rgba(239, 68, 68, 0.45)',
-        bottomColor: 'rgba(239, 68, 68, 0.02)',
+        bottomColor: 'rgba(239, 68, 68, 0.01)',
         lineColor: '#ef4444',
         lineWidth: 2,
       });
 
       areaSeries.setData(
+        selectedAsset.ohlcvData.map((d) => ({
+          time: d.time as Time,
+          value: d.close,
+        }))
+      );
+    } else if (chartType === 'bar') {
+      const barSeries = chart.addSeries(BarSeries, {
+        upColor: '#10b981',
+        downColor: '#ef4444',
+      });
+
+      barSeries.setData(
+        selectedAsset.ohlcvData.map((d) => ({
+          time: d.time as Time,
+          open: d.open,
+          high: d.high,
+          low: d.low,
+          close: d.close,
+        }))
+      );
+    } else {
+      const baselineSeries = chart.addSeries(BaselineSeries, {
+        baseValue: { type: 'price', price: selectedAsset.ohlcvData[0]?.open || selectedAsset.priceEur },
+        topLineColor: '#10b981',
+        bottomLineColor: '#ef4444',
+        topFillColor1: 'rgba(16, 185, 129, 0.3)',
+        topFillColor2: 'rgba(16, 185, 129, 0.01)',
+        bottomFillColor1: 'rgba(239, 68, 68, 0.01)',
+        bottomFillColor2: 'rgba(239, 68, 68, 0.3)',
+        lineWidth: 2,
+      });
+
+      baselineSeries.setData(
         selectedAsset.ohlcvData.map((d) => ({
           time: d.time as Time,
           value: d.close,
@@ -263,7 +313,7 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
 
     volumeSeries.priceScale().applyOptions({
       scaleMargins: {
-        top: 0.8,
+        top: 0.82,
         bottom: 0,
       },
     });
@@ -272,9 +322,25 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
       selectedAsset.ohlcvData.map((d) => ({
         time: d.time as Time,
         value: d.volume,
-        color: d.close >= d.open ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)',
+        color: d.close >= d.open ? 'rgba(16, 185, 129, 0.45)' : 'rgba(239, 68, 68, 0.45)',
       }))
     );
+
+    // Crosshair move subscription for live price readout
+    chart.subscribeCrosshairMove((param) => {
+      if (param.time) {
+        const dateStr = String(param.time);
+        const point = selectedAsset.ohlcvData.find((p) => p.time === dateStr);
+        if (point) {
+          setHoveredData({
+            price: `€${point.close.toLocaleString()} EUR (O:${point.open} H:${point.high} L:${point.low})`,
+            date: dateStr,
+          });
+        }
+      } else {
+        setHoveredData(null);
+      }
+    });
 
     chart.timeScale().fitContent();
 
@@ -328,7 +394,7 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
             <span className="pill-red">● TradingView Core Engine</span>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Institutional Multi-Asset Candlesticks & Depth</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Interactive Multi-Chart & Touch Gestures</span>
           </div>
           <h1 style={{ fontSize: '30px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
             RWA Capital Markets & Trading Terminal
@@ -341,7 +407,7 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
         </div>
       </div>
 
-      {/* TOP VERTICAL/HORIZONTAL SUB-CATEGORY MENU (FX, Gold, Bonds, RWA) */}
+      {/* TOP SUB-CATEGORY MENU (FX, Gold, Bonds, RWA) */}
       <div
         style={{
           display: 'flex',
@@ -410,15 +476,15 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
             </div>
           </div>
 
-          {/* Controls: Candlestick / Area & Timeframes */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {/* Chart Type Toggle */}
+          {/* Controls: 4 Chart Types & Timeframes */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            {/* 4 Chart Types */}
             <div style={{ display: 'flex', backgroundColor: '#0c0a10', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-subtle)' }}>
               <button
                 onClick={() => setChartType('candlestick')}
                 style={{
-                  padding: '5px 12px',
-                  fontSize: '11.5px',
+                  padding: '5px 10px',
+                  fontSize: '11px',
                   fontWeight: 800,
                   backgroundColor: chartType === 'candlestick' ? 'var(--red-primary)' : 'transparent',
                   color: '#FFFFFF',
@@ -430,13 +496,13 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
                   gap: '4px',
                 }}
               >
-                <BarChart3 size={13} /> Candlesticks
+                <BarChart3 size={13} /> Candles
               </button>
               <button
                 onClick={() => setChartType('area')}
                 style={{
-                  padding: '5px 12px',
-                  fontSize: '11.5px',
+                  padding: '5px 10px',
+                  fontSize: '11px',
                   fontWeight: 800,
                   backgroundColor: chartType === 'area' ? 'var(--red-primary)' : 'transparent',
                   color: '#FFFFFF',
@@ -448,7 +514,43 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
                   gap: '4px',
                 }}
               >
-                <TrendingUp size={13} /> Line Area
+                <TrendingUp size={13} /> Area
+              </button>
+              <button
+                onClick={() => setChartType('bar')}
+                style={{
+                  padding: '5px 10px',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  backgroundColor: chartType === 'bar' ? 'var(--red-primary)' : 'transparent',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <SlidersHorizontal size={13} /> Bars
+              </button>
+              <button
+                onClick={() => setChartType('baseline')}
+                style={{
+                  padding: '5px 10px',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  backgroundColor: chartType === 'baseline' ? 'var(--red-primary)' : 'transparent',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <LineChart size={13} /> Baseline
               </button>
             </div>
 
@@ -457,7 +559,10 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
               {(['1H', '24H', '7D', '1M', '1Y'] as const).map((tf) => (
                 <button
                   key={tf}
-                  onClick={() => setTimeframe(tf)}
+                  onClick={() => {
+                    setTimeframe(tf);
+                    onNotify(`Loaded ${tf} Timeseries Resolution for ${selectedAsset.ticker}`);
+                  }}
                   style={{
                     padding: '5px 10px',
                     fontSize: '11.5px',
@@ -476,8 +581,8 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
           </div>
         </div>
 
-        {/* Real-Time Price Statistics Strip */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '20px', padding: '14px 18px', backgroundColor: '#0a080e', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+        {/* Real-Time Price Statistics & Crosshair Tooltip Strip */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '20px', padding: '14px 18px', backgroundColor: '#0a080e', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap' }}>
           <div>
             <div style={{ fontSize: '10.5px', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Spot Price (EUR)</div>
             <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFFFFF', fontFamily: 'var(--font-mono)' }}>
@@ -499,12 +604,10 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
             </div>
           </div>
 
-          {selectedAsset.yieldApy && (
-            <div>
-              <div style={{ fontSize: '10.5px', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Yield APY</div>
-              <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--green-valid)', fontFamily: 'var(--font-mono)' }}>
-                {selectedAsset.yieldApy}
-              </div>
+          {hoveredData && (
+            <div style={{ padding: '4px 10px', backgroundColor: 'rgba(239, 68, 68, 0.12)', borderRadius: '6px', border: '1px solid var(--border-red)' }}>
+              <div style={{ fontSize: '9.5px', color: 'var(--red-primary)', fontWeight: 800 }}>CURSOR INSPECT ({hoveredData.date})</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#FFFFFF', fontFamily: 'var(--font-mono)' }}>{hoveredData.price}</div>
             </div>
           )}
 
@@ -521,7 +624,7 @@ export const RwaTerminalView: React.FC<RwaTerminalViewProps> = ({
           ref={chartContainerRef}
           style={{
             width: '100%',
-            height: '320px',
+            height: '340px',
             borderRadius: '8px',
             overflow: 'hidden',
             border: '1px solid var(--border-subtle)',

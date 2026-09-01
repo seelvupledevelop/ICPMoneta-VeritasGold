@@ -8,7 +8,6 @@ import { BankCardSurface } from './components/smart/BankCardSurface';
 import { RwaMarketplace } from './components/smart/RwaMarketplace';
 import { RwaOfferDesk } from './components/smart/RwaOfferDesk';
 import { GoldFxExchange } from './components/smart/GoldFxExchange';
-import { SignalEncryptedChatView } from './components/views/SignalEncryptedChatView';
 import { RwaTerminalView } from './components/views/RwaTerminalView';
 import { SmartContractMakerView } from './components/views/SmartContractMakerView';
 import { RfqTradeDesk } from './components/smart/RfqTradeDesk';
@@ -238,7 +237,6 @@ export function App() {
       case 'interoperability':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <SignalEncryptedChatView onNotify={showToast} onRefresh={loadData} />
             <GoldFxExchange rates={rates} />
             <OpsDashboard logs={logs} onRefresh={loadData} />
           </div>
@@ -311,6 +309,7 @@ export function App() {
               rates={rates}
               transactions={transactions}
               offers={offers} collateral={collateral} auctions={auctions} corporateActions={corporateActions} approvals={approvals} sweepingRules={sweepingRules} bridgeRoutes={bridgeRoutes} canisters={canisters} liquidityPools={liquidityPools} identities={identities}
+              bondContracts={bondContracts}
               onNotify={showToast}
               onRefresh={loadData}
             />
