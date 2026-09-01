@@ -34,43 +34,67 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Amount::from_str_strict("5000.00")?,
         1000,
     )?;
-    alice_acc_init(&env, &alice_acc.account_id, Amount::from_str_strict("2500.00")?);
+    alice_acc_init(&env, &alice_acc.account_id, Amount::from_str_strict("3500.00")?);
 
     let bob_acc = env.position_ledger.create_demand_deposit_account(
         central_bank,
         bob,
         eur.clone(),
-        Amount::from_str_strict("500.00")?,
+        Amount::from_str_strict("1000.00")?,
         Amount::from_str_strict("5000.00")?,
         1000,
     )?;
-    alice_acc_init(&env, &bob_acc.account_id, Amount::from_str_strict("1200.00")?);
+    alice_acc_init(&env, &bob_acc.account_id, Amount::from_str_strict("2500.00")?);
 
     env.asset_ledger.issue_fungible_asset(central_bank, alice, usd.clone(), Amount::from_str_strict("10000.00")?, 1000)?;
     env.asset_ledger.issue_fungible_asset(central_bank, bob, usd.clone(), Amount::from_str_strict("3500.00")?, 1000)?;
 
     let initial_offers = vec![
         RwaOffer {
-            offer_id: "OFFER-USTB-901".to_string(),
+            offer_id: "OFFER-USTB-101".to_string(),
             seller_principal: bob.to_string(),
             seller_legal_name: "Bob Commodities LLC".to_string(),
             asset_symbol: "USTB".to_string(),
             asset_name: "US Treasury 3M Bill (AA+)".to_string(),
-            asset_amount: "50.00".to_string(),
+            asset_amount: "2.00".to_string(),
             price_per_unit_eur: "914.10".to_string(),
-            total_price_eur: "45705.00".to_string(),
+            total_price_eur: "1828.20".to_string(),
             status: "Active".to_string(),
             created_at: chrono::Utc::now().timestamp_millis() as u64,
         },
         RwaOffer {
-            offer_id: "OFFER-GOLD-442".to_string(),
-            seller_principal: alice.to_string(),
-            seller_legal_name: "Alice Trading Corp".to_string(),
+            offer_id: "OFFER-GOLD-202".to_string(),
+            seller_principal: bob.to_string(),
+            seller_legal_name: "Bob Commodities LLC".to_string(),
             asset_symbol: "GOLD".to_string(),
             asset_name: "LBMA Physical Gold (1 oz Bar)".to_string(),
-            asset_amount: "2.00".to_string(),
+            asset_amount: "1.00".to_string(),
             price_per_unit_eur: "2540.00".to_string(),
-            total_price_eur: "5080.00".to_string(),
+            total_price_eur: "2540.00".to_string(),
+            status: "Active".to_string(),
+            created_at: chrono::Utc::now().timestamp_millis() as u64,
+        },
+        RwaOffer {
+            offer_id: "OFFER-PROP-303".to_string(),
+            seller_principal: bob.to_string(),
+            seller_legal_name: "Bob Commodities LLC".to_string(),
+            asset_symbol: "PROP_ZH".to_string(),
+            asset_name: "Prime Zurich Commercial Real Estate".to_string(),
+            asset_amount: "10.00".to_string(),
+            price_per_unit_eur: "46.30".to_string(),
+            total_price_eur: "463.00".to_string(),
+            status: "Active".to_string(),
+            created_at: chrono::Utc::now().timestamp_millis() as u64,
+        },
+        RwaOffer {
+            offer_id: "OFFER-USTB-901".to_string(),
+            seller_principal: bob.to_string(),
+            seller_legal_name: "Bob Commodities LLC".to_string(),
+            asset_symbol: "USTB".to_string(),
+            asset_name: "US Treasury 3M Bill (Institutional Block)".to_string(),
+            asset_amount: "50.00".to_string(),
+            price_per_unit_eur: "914.10".to_string(),
+            total_price_eur: "45705.00".to_string(),
             status: "Active".to_string(),
             created_at: chrono::Utc::now().timestamp_millis() as u64,
         },
