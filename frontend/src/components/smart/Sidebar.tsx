@@ -7,6 +7,7 @@ import {
   ArrowLeftRight,
   Scale,
   TrendingUp,
+  BarChart2,
   Layers,
   HelpCircle,
   FileText,
@@ -53,6 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const primaryItems: { id: AppSection; label: string; icon: any; badge?: string }[] = [
     { id: 'notaries', label: 'Notaries', icon: ShieldCheck, badge: 'BFT Quorum' },
     { id: 'portfolio', label: 'Portfolio', icon: Landmark, badge: `${accountCount}` },
+    { id: 'terminal', label: 'RWA Terminal', icon: BarChart2, badge: 'Live Chart' },
     { id: 'vault', label: 'Vault Custody', icon: Key, badge: `${holdingCount} Assets` },
     { id: 'trade', label: 'Trade & DvP', icon: TrendingUp, badge: `${offerCount} Offers` },
     { id: 'collateral', label: 'Collateral Desk', icon: Layers, badge: `${collateralCount}` },

@@ -9,6 +9,7 @@ import { RwaMarketplace } from './components/smart/RwaMarketplace';
 import { RwaOfferDesk } from './components/smart/RwaOfferDesk';
 import { GoldFxExchange } from './components/smart/GoldFxExchange';
 import { SignalEncryptedChatView } from './components/views/SignalEncryptedChatView';
+import { RwaTerminalView } from './components/views/RwaTerminalView';
 import { RfqTradeDesk } from './components/smart/RfqTradeDesk';
 import { TreasuryAccountingView } from './components/institutional/TreasuryAccountingView';
 import { CollateralManagementView } from './components/institutional/CollateralManagementView';
@@ -192,6 +193,8 @@ export function App() {
         );
       case 'portfolio':
         return <BankCardSurface accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
+      case 'terminal':
+        return <RwaTerminalView accounts={accounts} rates={rates} onRefresh={loadData} onNotify={showToast} />;
       case 'vault':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

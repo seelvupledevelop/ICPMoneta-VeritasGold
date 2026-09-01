@@ -6,6 +6,7 @@ export type CurrencyCode = string;
 export type Perspective = 'trader' | 'issuer' | 'ops' | 'regulator' | 'admin';
 export type AppSection =
   | 'portfolio'
+  | 'terminal'
   | 'vault'
   | 'notaries'
   | 'trade'
