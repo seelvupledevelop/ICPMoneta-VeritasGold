@@ -12,6 +12,11 @@ import {
   FileText,
   X,
   Radio,
+  Gavel,
+  Coins,
+  UserCheck,
+  Bot,
+  Activity,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,6 +28,8 @@ interface SidebarProps {
   holdingCount?: number;
   offerCount?: number;
   collateralCount?: number;
+  auctionCount?: number;
+  approvalCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -34,13 +41,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   holdingCount = 3,
   offerCount = 4,
   collateralCount = 2,
+  auctionCount = 2,
+  approvalCount = 2,
 }) => {
   const primaryItems: { id: AppSection; label: string; icon: any; badge?: string }[] = [
     { id: 'portfolio', label: 'Portfolio', icon: Landmark, badge: `${accountCount}` },
-    { id: 'vault', label: 'Vault', icon: Key, badge: `${holdingCount} Assets` },
-    { id: 'notaries', label: 'Notaries', icon: ShieldCheck, badge: 'BFT' },
+    { id: 'vault', label: 'Vault Custody', icon: Key, badge: `${holdingCount} Assets` },
+    { id: 'notaries', label: 'Notaries', icon: ShieldCheck, badge: 'BFT Quorum' },
     { id: 'trade', label: 'Trade & DvP', icon: TrendingUp, badge: `${offerCount} Offers` },
     { id: 'collateral', label: 'Collateral Desk', icon: Layers, badge: `${collateralCount}` },
+    { id: 'auctions', label: 'Bond Auctions', icon: Gavel, badge: `${auctionCount} Live` },
+    { id: 'corporate_actions', label: 'Coupon Engine', icon: Coins, badge: 'ACTUS' },
+    { id: 'governance', label: 'Maker-Checker', icon: UserCheck, badge: `${approvalCount} Pending` },
+    { id: 'vault_telemetry', label: 'PoR Telemetry', icon: Activity, badge: 'IoT Live' },
+    { id: 'sweeper', label: 'Liquidity Sweeper', icon: Bot, badge: 'Active' },
     { id: 'interoperability', label: 'Interoperability', icon: ArrowLeftRight, badge: 'SWIFT' },
     { id: 'compliance', label: 'Compliance', icon: Scale, badge: 'Radar' },
   ];
@@ -100,12 +114,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Primary Navigation Items */}
-        <div style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
-          <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 10px', marginBottom: '8px' }}>
-            CENTRAL LEDGER
+        <div style={{ padding: '14px 10px', flex: 1, overflowY: 'auto' }}>
+          <div style={{ fontSize: '9.5px', fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 8px', marginBottom: '6px' }}>
+            CENTRAL LEDGER & WORKSTATION
           </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             {primaryItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
@@ -117,28 +131,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '9px 12px',
-                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    borderRadius: '7px',
                     backgroundColor: isActive ? '#1c2d52' : 'transparent',
                     color: isActive ? 'var(--cyan-primary)' : 'var(--text-muted)',
                     fontWeight: isActive ? 700 : 500,
-                    fontSize: '13px',
+                    fontSize: '12.5px',
                     textAlign: 'left',
                     transition: 'all 0.15s ease',
                     border: isActive ? '1px solid rgba(0, 210, 238, 0.3)' : '1px solid transparent',
                     cursor: 'pointer',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Icon size={16} color={isActive ? 'var(--cyan-primary)' : 'var(--text-dim)'} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Icon size={15} color={isActive ? 'var(--cyan-primary)' : 'var(--text-dim)'} />
                     {item.label}
                   </div>
                   {item.badge && (
                     <span
                       style={{
-                        fontSize: '9.5px',
+                        fontSize: '9px',
                         fontWeight: 700,
-                        padding: '2px 6px',
+                        padding: '2px 5px',
                         borderRadius: '9999px',
                         backgroundColor: isActive ? 'rgba(0, 210, 238, 0.2)' : '#121b2d',
                         color: isActive ? 'var(--cyan-primary)' : 'var(--text-dim)',
@@ -155,7 +169,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Bottom Support & Logs Items */}
-        <div style={{ marginTop: 'auto', padding: '12px', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+        <div style={{ marginTop: 'auto', padding: '10px', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
           {bottomItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
@@ -166,31 +180,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 12px',
-                  borderRadius: '8px',
+                  gap: '8px',
+                  padding: '7px 10px',
+                  borderRadius: '7px',
                   backgroundColor: isActive ? '#1c2d52' : 'transparent',
                   color: isActive ? 'var(--cyan-primary)' : 'var(--text-muted)',
                   fontWeight: isActive ? 700 : 500,
-                  fontSize: '12.5px',
+                  fontSize: '12px',
                   textAlign: 'left',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                 }}
               >
-                <Icon size={15} color={isActive ? 'var(--cyan-primary)' : 'var(--text-dim)'} />
+                <Icon size={14} color={isActive ? 'var(--cyan-primary)' : 'var(--text-dim)'} />
                 {item.label}
               </button>
             );
           })}
 
           {/* Notary Consensus Live Status Badge */}
-          <div style={{ marginTop: '8px', backgroundColor: '#0b1324', border: '1px solid var(--border-subtle)', padding: '8px 10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Radio size={14} color="var(--green-valid)" className="pulse-glow" />
+          <div style={{ marginTop: '6px', backgroundColor: '#0b1324', border: '1px solid var(--border-subtle)', padding: '6px 8px', borderRadius: '7px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Radio size={13} color="var(--green-valid)" className="pulse-glow" />
             <div>
-              <div style={{ fontSize: '10.5px', fontWeight: 800, color: 'var(--text-main)' }}>Raft Consensus 4/5</div>
-              <div style={{ fontSize: '9px', color: 'var(--green-valid)' }}>● Zero Double-Spend Active</div>
+              <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-main)' }}>Raft Quorum 4/5</div>
+              <div style={{ fontSize: '8.5px', color: 'var(--green-valid)' }}>● Zero Double-Spend Active</div>
             </div>
           </div>
         </div>

@@ -10,6 +10,11 @@ export type AppSection =
   | 'notaries'
   | 'trade'
   | 'collateral'
+  | 'auctions'
+  | 'corporate_actions'
+  | 'governance'
+  | 'vault_telemetry'
+  | 'sweeper'
   | 'interoperability'
   | 'compliance'
   | 'logs'
@@ -166,4 +171,76 @@ export interface ProtocolLog {
   status: 'Finalized' | 'InputsLocked' | 'Validating' | 'Failed';
   step: string;
   timestamp: string;
+}
+
+export interface BondAuction {
+  auction_id: string;
+  bond_symbol: string;
+  bond_name: string;
+  issuer_legal: string;
+  total_issuance_eur: string;
+  min_bid_eur: string;
+  target_yield_pct: string;
+  cutoff_yield_pct: string;
+  bids_count: number;
+  status: string;
+  maturity_date: string;
+}
+
+export interface AuctionBid {
+  bid_id: string;
+  auction_id: string;
+  bidder_legal: string;
+  amount_eur: string;
+  bid_yield_pct: string;
+  status: string;
+}
+
+export interface CorporateAction {
+  action_id: string;
+  asset_symbol: string;
+  asset_name: string;
+  action_type: string;
+  actus_contract: string;
+  rate_or_amount_per_unit: string;
+  record_date: string;
+  payment_date: string;
+  total_distributed_eur: string;
+  status: string;
+}
+
+export interface PendingApproval {
+  approval_id: string;
+  maker_principal: string;
+  maker_legal: string;
+  action_type: string;
+  amount_eur: string;
+  details: string;
+  required_signatures: number;
+  current_signatures: number;
+  signers: string[];
+  status: string;
+  created_at: string;
+}
+
+export interface VaultSensorTelemetry {
+  vault_location: string;
+  total_bars_verified: number;
+  total_weight_kg: string;
+  ultrasonic_density_pct: string;
+  vault_temperature_c: string;
+  humidity_pct: string;
+  purity_grade: string;
+  merkle_root_hash: string;
+  oracle_attestation_status: string;
+}
+
+export interface SweepingRule {
+  rule_id: string;
+  source_account: string;
+  target_asset: string;
+  threshold_eur: string;
+  frequency: string;
+  is_active: boolean;
+  total_swept_eur: string;
 }

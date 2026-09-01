@@ -67,12 +67,95 @@ pub struct CollateralPosition {
     pub status: String,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct BondAuction {
+    pub auction_id: String,
+    pub bond_symbol: String,
+    pub bond_name: String,
+    pub issuer_legal: String,
+    pub total_issuance_eur: String,
+    pub min_bid_eur: String,
+    pub target_yield_pct: String,
+    pub cutoff_yield_pct: String,
+    pub bids_count: u32,
+    pub status: String,
+    pub maturity_date: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct AuctionBid {
+    pub bid_id: String,
+    pub auction_id: String,
+    pub bidder_legal: String,
+    pub amount_eur: String,
+    pub bid_yield_pct: String,
+    pub status: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct CorporateAction {
+    pub action_id: String,
+    pub asset_symbol: String,
+    pub asset_name: String,
+    pub action_type: String,
+    pub actus_contract: String,
+    pub rate_or_amount_per_unit: String,
+    pub record_date: String,
+    pub payment_date: String,
+    pub total_distributed_eur: String,
+    pub status: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct PendingApproval {
+    pub approval_id: String,
+    pub maker_principal: String,
+    pub maker_legal: String,
+    pub action_type: String,
+    pub amount_eur: String,
+    pub details: String,
+    pub required_signatures: u32,
+    pub current_signatures: u32,
+    pub signers: Vec<String>,
+    pub status: String,
+    pub created_at: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct VaultSensorTelemetry {
+    pub vault_location: String,
+    pub total_bars_verified: u32,
+    pub total_weight_kg: String,
+    pub ultrasonic_density_pct: String,
+    pub vault_temperature_c: String,
+    pub humidity_pct: String,
+    pub purity_grade: String,
+    pub merkle_root_hash: String,
+    pub oracle_attestation_status: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct SweepingRule {
+    pub rule_id: String,
+    pub source_account: String,
+    pub target_asset: String,
+    pub threshold_eur: String,
+    pub frequency: String,
+    pub is_active: bool,
+    pub total_swept_eur: String,
+}
+
 #[derive(Clone)]
 pub struct ServerState {
     pub env: Arc<CanisterEnvironment>,
     pub offers: Arc<RwLock<Vec<RwaOffer>>>,
     pub transactions: Arc<RwLock<Vec<InstitutionalTxn>>>,
     pub collateral: Arc<RwLock<Vec<CollateralPosition>>>,
+    pub auctions: Arc<RwLock<Vec<BondAuction>>>,
+    pub bids: Arc<RwLock<Vec<AuctionBid>>>,
+    pub corporate_actions: Arc<RwLock<Vec<CorporateAction>>>,
+    pub approvals: Arc<RwLock<Vec<PendingApproval>>>,
+    pub sweeping_rules: Arc<RwLock<Vec<SweepingRule>>>,
 }
 
 #[derive(Deserialize)]
@@ -158,6 +241,33 @@ pub struct PostCollateralRequest {
     pub pledgee: String,
 }
 
+#[derive(Deserialize)]
+pub struct SubmitBidRequest {
+    pub auction_id: String,
+    pub bidder_legal: String,
+    pub amount_eur: String,
+    pub bid_yield_pct: String,
+}
+
+#[derive(Deserialize)]
+pub struct ExecuteActionRequest {
+    pub action_id: String,
+}
+
+#[derive(Deserialize)]
+pub struct ApproveRequest {
+    pub approval_id: String,
+    pub checker_signer: String,
+}
+
+#[derive(Deserialize)]
+pub struct CreateSweepingRuleRequest {
+    pub source_account: String,
+    pub target_asset: String,
+    pub threshold_eur: String,
+    pub frequency: String,
+}
+
 pub fn create_app(state: ServerState) -> Router {
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -183,6 +293,15 @@ pub fn create_app(state: ServerState) -> Router {
         .route("/api/v1/reporting/export/json", get(export_transactions_json))
         .route("/api/v1/standards/mapping", get(get_standards_mapping))
         .route("/api/v1/collateral/positions", get(list_collateral).post(post_collateral))
+        // 5 Advanced Extensions Endpoints
+        .route("/api/v1/auctions", get(list_auctions))
+        .route("/api/v1/auctions/bid", post(submit_auction_bid))
+        .route("/api/v1/corporate-actions", get(list_corporate_actions))
+        .route("/api/v1/corporate-actions/distribute", post(execute_corporate_action))
+        .route("/api/v1/governance/approvals", get(list_approvals))
+        .route("/api/v1/governance/approve", post(approve_governance_item))
+        .route("/api/v1/vault/telemetry", get(get_vault_telemetry))
+        .route("/api/v1/treasury/sweeper", get(list_sweeping_rules).post(create_sweeping_rule))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)
@@ -723,4 +842,136 @@ async fn post_collateral(
     lock.insert(0, pos.clone());
 
     Ok((StatusCode::CREATED, Json(pos)))
+}
+
+// ----------------------------------------------------
+// 5 Advanced Extensions Handlers
+// ----------------------------------------------------
+
+async fn list_auctions(State(state): State<ServerState>) -> impl IntoResponse {
+    let auctions = state.auctions.read().unwrap().clone();
+    (StatusCode::OK, Json(auctions))
+}
+
+async fn submit_auction_bid(
+    State(state): State<ServerState>,
+    Json(payload): Json<SubmitBidRequest>,
+) -> Result<(StatusCode, Json<AuctionBid>), (StatusCode, Json<serde_json::Value>)> {
+    let mut a_lock = state.auctions.write().unwrap();
+    let auction = a_lock
+        .iter_mut()
+        .find(|a| a.auction_id == payload.auction_id)
+        .ok_or_else(|| (StatusCode::NOT_FOUND, Json(json!({ "error": "Auction not found" }))))?;
+
+    auction.bids_count += 1;
+
+    let bid = AuctionBid {
+        bid_id: format!("BID-{}", &uuid::Uuid::new_v4().to_string()[..8].to_uppercase()),
+        auction_id: payload.auction_id,
+        bidder_legal: payload.bidder_legal,
+        amount_eur: payload.amount_eur,
+        bid_yield_pct: payload.bid_yield_pct,
+        status: "Allocated".to_string(),
+    };
+
+    let mut b_lock = state.bids.write().unwrap();
+    b_lock.insert(0, bid.clone());
+
+    Ok((StatusCode::CREATED, Json(bid)))
+}
+
+async fn list_corporate_actions(State(state): State<ServerState>) -> impl IntoResponse {
+    let actions = state.corporate_actions.read().unwrap().clone();
+    (StatusCode::OK, Json(actions))
+}
+
+async fn execute_corporate_action(
+    State(state): State<ServerState>,
+    Json(payload): Json<ExecuteActionRequest>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    let mut lock = state.corporate_actions.write().unwrap();
+    let action = lock
+        .iter_mut()
+        .find(|a| a.action_id == payload.action_id)
+        .ok_or_else(|| (StatusCode::NOT_FOUND, Json(json!({ "error": "Corporate action not found" }))))?;
+
+    action.status = "Settled".to_string();
+
+    Ok(Json(json!({
+        "status": "Settled",
+        "action_id": action.action_id,
+        "distributed_eur": action.total_distributed_eur,
+        "attestation": format!("0x{:x}", md5::compute(format!("{}-SETTLED", action.action_id)))
+    })))
+}
+
+async fn list_approvals(State(state): State<ServerState>) -> impl IntoResponse {
+    let approvals = state.approvals.read().unwrap().clone();
+    (StatusCode::OK, Json(approvals))
+}
+
+async fn approve_governance_item(
+    State(state): State<ServerState>,
+    Json(payload): Json<ApproveRequest>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    let mut lock = state.approvals.write().unwrap();
+    let item = lock
+        .iter_mut()
+        .find(|a| a.approval_id == payload.approval_id)
+        .ok_or_else(|| (StatusCode::NOT_FOUND, Json(json!({ "error": "Approval item not found" }))))?;
+
+    if !item.signers.contains(&payload.checker_signer) {
+        item.signers.push(payload.checker_signer);
+        item.current_signatures += 1;
+    }
+
+    if item.current_signatures >= item.required_signatures {
+        item.status = "Approved".to_string();
+    }
+
+    Ok(Json(json!({
+        "approval_id": item.approval_id,
+        "status": item.status,
+        "current_signatures": item.current_signatures,
+        "required_signatures": item.required_signatures
+    })))
+}
+
+async fn get_vault_telemetry() -> impl IntoResponse {
+    (StatusCode::OK, Json(VaultSensorTelemetry {
+        vault_location: "Zurich Freezone High-Security Vault #4".to_string(),
+        total_bars_verified: 1250,
+        total_weight_kg: "15,551.75 kg".to_string(),
+        ultrasonic_density_pct: "99.992%".to_string(),
+        vault_temperature_c: "18.4 °C".to_string(),
+        humidity_pct: "42.1%".to_string(),
+        purity_grade: "LBMA 999.9 Fine Gold".to_string(),
+        merkle_root_hash: "0x98f4e21a8b417c8d9e2231ff01c78491ae6b490f".to_string(),
+        oracle_attestation_status: "Verified_Nominal".to_string(),
+    }))
+}
+
+async fn list_sweeping_rules(State(state): State<ServerState>) -> impl IntoResponse {
+    let rules = state.sweeping_rules.read().unwrap().clone();
+    (StatusCode::OK, Json(rules))
+}
+
+async fn create_sweeping_rule(
+    State(state): State<ServerState>,
+    Json(payload): Json<CreateSweepingRuleRequest>,
+) -> Result<(StatusCode, Json<SweepingRule>), (StatusCode, Json<serde_json::Value>)> {
+    let rule = SweepingRule {
+        rule_id: format!("SWEEP-{}", &uuid::Uuid::new_v4().to_string()[..8].to_uppercase()),
+        source_account: payload.source_account,
+        target_asset: payload.target_asset,
+        threshold_eur: payload.threshold_eur,
+        frequency: payload.frequency,
+        is_active: true,
+        total_swept_eur: "0.00".to_string(),
+    };
+
+    let mut lock = state.sweeping_rules.write().unwrap();
+    lock.insert(0, rule.clone());
+
+    Ok((StatusCode::CREATED, Json(rule)))
 }

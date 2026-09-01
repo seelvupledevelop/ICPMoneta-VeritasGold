@@ -1,4 +1,4 @@
-import type { DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, BlindedIdentity, MarketRate, RwaOffer, SupervisionData, InstitutionalTxn, CollateralPosition } from '../types';
+import type { DemandDepositRecord, FungibleAssetHolding, PrincipalProfile, BlindedIdentity, MarketRate, RwaOffer, SupervisionData, InstitutionalTxn, CollateralPosition, BondAuction, AuctionBid, CorporateAction, PendingApproval, VaultSensorTelemetry, SweepingRule } from '../types';
 
 const API_BASE = 'http://localhost:8080/api/v1';
 
@@ -245,5 +245,97 @@ export function getJsonExportUrl(): string {
 export async function fetchStandardsMapping() {
   const res = await fetch(`${API_BASE}/standards/mapping`);
   if (!res.ok) throw new Error('Failed to fetch standards mapping');
+  return res.json();
+}
+
+export async function fetchAuctions(): Promise<BondAuction[]> {
+  const res = await fetch(`${API_BASE}/api/v1/auctions`);
+  if (!res.ok) throw new Error('Failed to fetch auctions');
+  return res.json();
+}
+
+export async function submitAuctionBid(payload: {
+  auction_id: string;
+  bidder_legal: string;
+  amount_eur: string;
+  bid_yield_pct: string;
+}): Promise<AuctionBid> {
+  const res = await fetch(`${API_BASE}/api/v1/auctions/bid`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to submit auction bid');
+  }
+  return res.json();
+}
+
+export async function fetchCorporateActions(): Promise<CorporateAction[]> {
+  const res = await fetch(`${API_BASE}/api/v1/corporate-actions`);
+  if (!res.ok) throw new Error('Failed to fetch corporate actions');
+  return res.json();
+}
+
+export async function executeCorporateAction(action_id: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/v1/corporate-actions/distribute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action_id }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to execute corporate action');
+  }
+  return res.json();
+}
+
+export async function fetchApprovals(): Promise<PendingApproval[]> {
+  const res = await fetch(`${API_BASE}/api/v1/governance/approvals`);
+  if (!res.ok) throw new Error('Failed to fetch approvals');
+  return res.json();
+}
+
+export async function approveGovernanceItem(approval_id: string, checker_signer: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/v1/governance/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ approval_id, checker_signer }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to approve item');
+  }
+  return res.json();
+}
+
+export async function fetchVaultTelemetry(): Promise<VaultSensorTelemetry> {
+  const res = await fetch(`${API_BASE}/api/v1/vault/telemetry`);
+  if (!res.ok) throw new Error('Failed to fetch vault telemetry');
+  return res.json();
+}
+
+export async function fetchSweepingRules(): Promise<SweepingRule[]> {
+  const res = await fetch(`${API_BASE}/api/v1/treasury/sweeper`);
+  if (!res.ok) throw new Error('Failed to fetch sweeping rules');
+  return res.json();
+}
+
+export async function createSweepingRule(payload: {
+  source_account: string;
+  target_asset: string;
+  threshold_eur: string;
+  frequency: string;
+}): Promise<SweepingRule> {
+  const res = await fetch(`${API_BASE}/api/v1/treasury/sweeper`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to create sweeping rule');
+  }
   return res.json();
 }

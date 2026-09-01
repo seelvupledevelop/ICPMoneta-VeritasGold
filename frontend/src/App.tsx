@@ -15,6 +15,11 @@ import { OpsDashboard } from './components/views/OpsDashboard';
 import { RegulatorDashboard } from './components/views/RegulatorDashboard';
 import { AdminDashboard } from './components/views/AdminDashboard';
 import { IssuerDashboard } from './components/views/IssuerDashboard';
+import { BondAuctionDesk } from './components/views/BondAuctionDesk';
+import { CorporateActionsView } from './components/views/CorporateActionsView';
+import { MakerCheckerWorkflow } from './components/views/MakerCheckerWorkflow';
+import { ProofOfReserveTelemetry } from './components/views/ProofOfReserveTelemetry';
+import { LiquiditySweeperView } from './components/views/LiquiditySweeperView';
 import {
   fetchAccounts,
   fetchHoldings,
@@ -23,6 +28,10 @@ import {
   fetchOffers,
   fetchTransactions,
   fetchCollateralPositions,
+  fetchAuctions,
+  fetchCorporateActions,
+  fetchApprovals,
+  fetchSweepingRules,
 } from './services/api';
 import type {
   AppSection,
@@ -34,6 +43,10 @@ import type {
   RwaOffer,
   InstitutionalTxn,
   CollateralPosition,
+  BondAuction,
+  CorporateAction,
+  PendingApproval,
+  SweepingRule,
 } from './types';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -49,6 +62,11 @@ export function App() {
   const [offers, setOffers] = useState<RwaOffer[]>([]);
   const [transactions, setTransactions] = useState<InstitutionalTxn[]>([]);
   const [collateral, setCollateral] = useState<CollateralPosition[]>([]);
+  const [auctions, setAuctions] = useState<BondAuction[]>([]);
+  const [corporateActions, setCorporateActions] = useState<CorporateAction[]>([]);
+  const [approvals, setApprovals] = useState<PendingApproval[]>([]);
+  const [sweepingRules, setSweepingRules] = useState<SweepingRule[]>([]);
+
   const [logs] = useState<ProtocolLog[]>([
     {
       id: 'STATEREF-E8F1A2...C9:0',
@@ -90,7 +108,7 @@ export function App() {
 
   const loadData = async () => {
     try {
-      const [accs, holds, ids, rts, ofrs, txns, cols] = await Promise.all([
+      const [accs, holds, ids, rts, ofrs, txns, cols, aucs, acts, apprs, sweeps] = await Promise.all([
         fetchAccounts(),
         fetchHoldings(),
         fetchIdentities(),
@@ -98,6 +116,10 @@ export function App() {
         fetchOffers(),
         fetchTransactions(),
         fetchCollateralPositions(),
+        fetchAuctions(),
+        fetchCorporateActions(),
+        fetchApprovals(),
+        fetchSweepingRules(),
       ]);
       setAccounts(accs);
       setHoldings(holds);
@@ -106,6 +128,10 @@ export function App() {
       setOffers(ofrs);
       setTransactions(txns);
       setCollateral(cols);
+      setAuctions(aucs);
+      setCorporateActions(acts);
+      setApprovals(apprs);
+      setSweepingRules(sweeps);
       setNetworkStatus('healthy');
     } catch {
       setNetworkStatus('offline');
@@ -148,6 +174,16 @@ export function App() {
         );
       case 'collateral':
         return <CollateralManagementView positions={collateral} onRefresh={loadData} onNotify={showToast} />;
+      case 'auctions':
+        return <BondAuctionDesk auctions={auctions} onRefresh={loadData} onNotify={showToast} />;
+      case 'corporate_actions':
+        return <CorporateActionsView actions={corporateActions} onRefresh={loadData} onNotify={showToast} />;
+      case 'governance':
+        return <MakerCheckerWorkflow approvals={approvals} onRefresh={loadData} onNotify={showToast} />;
+      case 'vault_telemetry':
+        return <ProofOfReserveTelemetry onNotify={showToast} />;
+      case 'sweeper':
+        return <LiquiditySweeperView rules={sweepingRules} accounts={accounts} onRefresh={loadData} onNotify={showToast} />;
       case 'interoperability':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -182,6 +218,8 @@ export function App() {
         phoneMode={phoneMode}
         setPhoneMode={setPhoneMode}
         onToggleMobileMenu={() => setIsMobileMenuOpen((p) => !p)}
+        accounts={accounts}
+        onNotify={showToast}
       />
 
       {toast && (
@@ -230,6 +268,8 @@ export function App() {
             holdingCount={holdings.length}
             offerCount={offers.length}
             collateralCount={collateral.length}
+            auctionCount={auctions.length}
+            approvalCount={approvals.length}
           />
 
           <main style={{ flex: 1, maxWidth: '1440px', width: '100%', margin: '0 auto', padding: '28px 32px' }}>
